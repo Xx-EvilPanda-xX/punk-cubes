@@ -67,12 +67,6 @@ public class StaticQuadRenderer {
     }
 
     public void create(boolean indexed){
-        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        STBImage.stbi_set_flip_vertically_on_load(true);
-
         this.indexed = indexed;
         if (indexed) {
             vao = GL30.glGenVertexArrays();
@@ -204,6 +198,8 @@ public class StaticQuadRenderer {
     }
 
     private int storeJarTexture(String path){
+        STBImage.stbi_set_flip_vertically_on_load(true);
+
         try {
             int width, height;
             IntBuffer x = MemoryUtil.memAllocInt(8);
@@ -227,6 +223,10 @@ public class StaticQuadRenderer {
             height = y.get();
             GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, GL20.GL_RGB, width, height, 0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, finalData);
             GL30.glGenerateMipmap(GL20.GL_TEXTURE_2D);
+            GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+            GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+            GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+            GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
             GL20.glBindTexture(GL20.GL_TEXTURE_2D, 0);
             //STBImage.stbi_image_free(finalData);
             System.out.println("Texture loaded!");

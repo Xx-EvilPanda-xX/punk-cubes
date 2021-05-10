@@ -294,7 +294,7 @@ public class Window implements Runnable{
                         0.0f, 1.0f, 0.0f
 
 
-                }, cubePositions, cubeRots, "textures/oak.png");
+                }, cubePositions, cubeRots, "textures/oak_planks.png");
 
         skyBox.create(false);
 
@@ -430,7 +430,7 @@ public class Window implements Runnable{
                         0.0f, 1.0f, 0.0f
 
 
-                }, cubePositions, cubeRots, "textures/diamond.png");
+                }, cubePositions, cubeRots, "textures/diamond_block.png");
 
         cube.create(false);
 
