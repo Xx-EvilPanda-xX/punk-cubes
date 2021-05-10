@@ -217,7 +217,6 @@ public class StaticQuadRenderer {
             ByteBuffer finalData = STBImage.stbi_load_from_memory(imgData, x, y, nrChannels, 0);
             if (finalData == null){
                 System.out.println("FAILED TO LOAD TEXTURE FROM JAR RESOURCES WHILE LOADING. PROGRAM WILL EXIT");
-                //System.exit(-1);
             }
             width = x.get();
             height = y.get();
@@ -228,7 +227,7 @@ public class StaticQuadRenderer {
             GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
             GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
             GL20.glBindTexture(GL20.GL_TEXTURE_2D, 0);
-            //STBImage.stbi_image_free(finalData);
+            STBImage.stbi_image_free(finalData);
             System.out.println("Texture loaded!");
             return texture;
         }
