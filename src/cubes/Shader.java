@@ -160,24 +160,12 @@ public class Shader{
 		return vertShaderID;
 	}
 
-	public void setVertShaderID(int vertShaderID) {
-		this.vertShaderID = vertShaderID;
-	}
-
 	public int getFragShaderID() {
 		return fragShaderID;
 	}
 
-	public void setFragShaderID(int fragShaderID) {
-		this.fragShaderID = fragShaderID;
-	}
-
 	public int getProgramID() {
 		return programID;
-	}
-
-	public void setProgramID(int programID) {
-		this.programID = programID;
 	}
 }
 		

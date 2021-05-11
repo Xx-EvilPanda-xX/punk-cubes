@@ -1,5 +1,6 @@
 #version 330 core
 in vec2 passTextureCoords;
+in vec3 passColor;
 in vec3 passNormal;
 in vec3 fragPos;
 
@@ -9,10 +10,17 @@ uniform sampler2D tex;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform bool hasColors;
 
 void main(){
-    //find the initial fragment color in the texture
-    vec4 texColor = texture(tex, passTextureCoords);
+    //find the initial fragment color in the texture or color buffer
+    vec4 color;
+    if (!hasColors){
+        color = texture(tex, passTextureCoords);
+    }
+    else{
+        color = vec4(passColor, 1.0);
+    }
 
     //calculate ambient lighting
     float ambientStrength = 0.5;
@@ -32,6 +40,6 @@ void main(){
     vec3 specular = specularStrength * spec * lightColor;
 
     //final result
-    vec4 result = (vec4(ambient, 1.0) + vec4(diffuse, 1.0) + vec4(specular, 1.0)) * texColor;
+    vec4 result = (vec4(ambient, 1.0) + vec4(diffuse, 1.0) + vec4(specular, 1.0)) * color;
     FragColor = result;
 }

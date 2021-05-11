@@ -21,13 +21,14 @@ public class Window implements Runnable{
     private final String title = "Cubes!!!";
     public Camera camera;
     public Input input;
-    private int frames;
+    private int frames, viewModeCooldown;
     private static long time;
-    public Thread pog;
+    private Thread pog;
     private long window;
     private Renderer quads[];
     private StaticQuadRenderer cube;
     private StaticQuadRenderer skyBox;
+    private StaticQuadRenderer player;
     private Shader bouncyShader;
     private Shader staticQuadShader;
 
@@ -161,282 +162,132 @@ public class Window implements Runnable{
             bouncyShader.create();
         }
 
+        staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
+        staticQuadShader.create();
+
 
         skyBox = new StaticQuadRenderer(new float[]{
-                -0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                0.5f,  0.5f, -0.5f,
-                0.5f,  0.5f, -0.5f,
-                -0.5f,  0.5f, -0.5f,
-                -0.5f, -0.5f, -0.5f,
+                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
 
-                -0.5f, -0.5f,  0.5f,
-                0.5f, -0.5f,  0.5f,
-                0.5f,  0.5f,  0.5f,
-                0.5f,  0.5f,  0.5f,
-                -0.5f,  0.5f,  0.5f,
-                -0.5f, -0.5f,  0.5f,
+                -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
 
-                -0.5f,  0.5f,  0.5f,
-                -0.5f,  0.5f, -0.5f,
-                -0.5f, -0.5f, -0.5f,
-                -0.5f, -0.5f, -0.5f,
-                -0.5f, -0.5f,  0.5f,
-                -0.5f,  0.5f,  0.5f,
+                -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
 
-                0.5f,  0.5f,  0.5f,
-                0.5f,  0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f,  0.5f,
-                0.5f,  0.5f,  0.5f,
+                0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f,
 
-                -0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f,  0.5f,
-                0.5f, -0.5f,  0.5f,
-                -0.5f, -0.5f,  0.5f,
-                -0.5f, -0.5f, -0.5f,
+                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,
 
-                -0.5f,  0.5f, -0.5f,
-                0.5f,  0.5f, -0.5f,
-                0.5f,  0.5f,  0.5f,
-                0.5f,  0.5f,  0.5f,
-                -0.5f,  0.5f,  0.5f,
-                -0.5f,  0.5f, -0.5f
+                -0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
 
         },
                 new float[]{
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-                        0.0f, 1.0f,
-                        1.0f, 1.0f,
-                        1.0f, 0.0f,
-                        1.0f, 0.0f,
-                        0.0f, 0.0f,
-                        0.0f, 1.0f,
+                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 
-                        0.0f, 1.0f,
-                        1.0f, 1.0f,
-                        1.0f, 0.0f,
-                        1.0f, 0.0f,
-                        0.0f, 0.0f,
-                        0.0f, 1.0f
+                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
 
-                },
+                }, null,
                 new float[]{
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
 
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
 
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f
-
+                        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
 
                 }, cubePositions, cubeRots, "textures/oak_planks.png");
 
-        skyBox.create(false);
-
         cube = new StaticQuadRenderer(new float[]{
-                        -0.5f, -0.5f, -0.5f,
-                         0.5f, -0.5f, -0.5f,
-                         0.5f,  0.5f, -0.5f,
-                         0.5f,  0.5f, -0.5f,
-                        -0.5f,  0.5f, -0.5f,
-                        -0.5f, -0.5f, -0.5f,
+                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
 
-                        -0.5f, -0.5f,  0.5f,
-                         0.5f, -0.5f,  0.5f,
-                         0.5f,  0.5f,  0.5f,
-                         0.5f,  0.5f,  0.5f,
-                        -0.5f,  0.5f,  0.5f,
-                        -0.5f, -0.5f,  0.5f,
+                -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
 
-                        -0.5f,  0.5f,  0.5f,
-                        -0.5f,  0.5f, -0.5f,
-                        -0.5f, -0.5f, -0.5f,
-                        -0.5f, -0.5f, -0.5f,
-                        -0.5f, -0.5f,  0.5f,
-                        -0.5f,  0.5f,  0.5f,
+                -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
 
-                         0.5f,  0.5f,  0.5f,
-                         0.5f,  0.5f, -0.5f,
-                         0.5f, -0.5f, -0.5f,
-                         0.5f, -0.5f, -0.5f,
-                         0.5f, -0.5f,  0.5f,
-                         0.5f,  0.5f,  0.5f,
+                0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f,
 
-                        -0.5f, -0.5f, -0.5f,
-                         0.5f, -0.5f, -0.5f,
-                         0.5f, -0.5f,  0.5f,
-                         0.5f, -0.5f,  0.5f,
-                        -0.5f, -0.5f,  0.5f,
-                        -0.5f, -0.5f, -0.5f,
+                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,
 
-                        -0.5f,  0.5f, -0.5f,
-                         0.5f,  0.5f, -0.5f,
-                         0.5f,  0.5f,  0.5f,
-                         0.5f,  0.5f,  0.5f,
-                        -0.5f,  0.5f,  0.5f,
-                        -0.5f,  0.5f, -0.5f
-                
-                },
+                -0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
+
+        },
                 new float[]{
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
-                        
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-                        1.0f, 0.0f,
-                        1.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 1.0f,
-                        0.0f, 0.0f,
-                        1.0f, 0.0f,
-                        
-                        0.0f, 1.0f,
-                        1.0f, 1.0f,
-                        1.0f, 0.0f,
-                        1.0f, 0.0f,
-                        0.0f, 0.0f,
-                        0.0f, 1.0f,
+                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-                        0.0f, 1.0f,
-                        1.0f, 1.0f,
-                        1.0f, 0.0f,
-                        1.0f, 0.0f,
-                        0.0f, 0.0f,
-                        0.0f, 1.0f
-                        
-                },
+                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+
+                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+
+                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
+
+                }, null,
                 new float[]{
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, -1.0f,
+                        0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
 
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
-                        0.0f, 0.0f, 1.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
-                        -1.0f, 0.0f, 0.0f,
+                        -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f,
+                        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f,
+                        0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
 
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f
-
+                        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
 
                 }, cubePositions, cubeRots, "textures/diamond_block.png");
 
-        cube.create(false);
+        player = new StaticQuadRenderer(new float[]{
+                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, -0.5f, 0.75f, 0.0f, 0.0f,
+                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, -0.5f, -0.75f, 0.0f, 0.0f,
+                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.75f, 0.0f, 0.0f,
+                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f,
+                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, 0.75f, 0.0f, 0.0f,
+                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, -0.75f, 0.0f, 0.0f,
+                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.75f, 0.0f, 0.0f,
+                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f,
+        }, null, new float[]{
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+
+        }, new float[]{
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+        }, cubePositions, cubeRots, null);
+
+        cube.create(staticQuadShader, false, false);
+        skyBox.create(staticQuadShader, false, false);
+        player.create(staticQuadShader, false, true);
 
         GL11.glEnable(GL11.GL_DEPTH_TEST);
-        staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
-        staticQuadShader.create();
+        camera.setThirdPerson(false);
 
         System.out.println(GL11.glGetString(GL11.GL_VERSION));
         GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
@@ -468,8 +319,11 @@ public class Window implements Runnable{
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 if (renderCubes){
                     staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, debug);
-                    skyBox.render(staticQuadShader,camera, new Vector3f(0.0f, 0.0f, 0.0f), debug);
+                    cube.render(staticQuadShader, camera, null, 0.0f, debug, false);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, debug, false);
+                    if (camera.getThirdPerson()) {
+                        player.render(staticQuadShader, camera, camera.pos, 1.0f, debug, true);
+                    }
                     staticQuadShader.unbind();
                 }
                 if (renderQuads){
@@ -487,8 +341,11 @@ public class Window implements Runnable{
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 if (renderCubes){
                     staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, debug);
-                    skyBox.render(staticQuadShader,camera, new Vector3f(0.0f, 0.0f, 0.0f), debug);
+                    cube.render(staticQuadShader, camera, null, 0.0f, debug, false);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, debug, false);
+                    if (camera.getThirdPerson()) {
+                        player.render(staticQuadShader, camera, camera.pos, 1.0f, debug, true);
+                    }
                     staticQuadShader.unbind();
                 }
                 if (renderQuads){
@@ -506,8 +363,11 @@ public class Window implements Runnable{
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 if (renderCubes){
                     staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, debug);
-                    skyBox.render(staticQuadShader,camera, new Vector3f(0.0f, 0.0f, 0.0f), debug);
+                    cube.render(staticQuadShader, camera, null, 0.0f, debug, false);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, debug, false);
+                    if (camera.getThirdPerson()) {
+                        player.render(staticQuadShader, camera, camera.pos, 1.0f, debug, true);
+                    }
                     staticQuadShader.unbind();
                 }
                 if (renderQuads){
@@ -556,6 +416,13 @@ public class Window implements Runnable{
             camera.processKeyboard(6, deltaTime);
             staticQuadShader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
         }
+        if (Input.isKeyDown(GLFW.GLFW_KEY_V)){
+            if (viewModeCooldown == 0) {
+                camera.setThirdPerson(!camera.getThirdPerson());
+                viewModeCooldown = 1000;
+            }
+        }
+        viewModeCooldown -= deltaTime;
     }
 
     public static void main(String[] args) {

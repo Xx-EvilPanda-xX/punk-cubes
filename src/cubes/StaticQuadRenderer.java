@@ -7,8 +7,6 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -18,24 +16,39 @@ import org.joml.Vector3f;
 
 public class StaticQuadRenderer {
     private static final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-    private FloatBuffer vertices, textureCoords, normals;
+    private FloatBuffer vertices, textureCoords, colors, normals;
     private IntBuffer indices;
     private String texturePath;
     private boolean indexed;
+    private boolean hasColors;
     private float rotation;
-    private int vao, vbo, ebo, tbo, nbo, texture;
-    public int indexCount, vertexCount, texCoordCount, normalCount, attribCount, numCubes;
+    private int vao, vbo, ebo, tbo, cbo, nbo, texture;
+    public int indexCount, vertexCount, texCoordCount, colorCount, normalCount, attribCount, numCubes;
     private float[] rotSpeeds;
     private Vector3f[] cubePositions;
 
-    public StaticQuadRenderer (float[] vertexData, float[] texCoords, float[] normals, int[] indexData, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath){
+    public StaticQuadRenderer (float[] vertexData, float[] texCoords, float[] colorData, float[] normals, int[] indexData, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath){
         this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-        this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-        this.normals = (FloatBuffer) MemoryUtil.memAllocFloat((normals.length)).put(normals).flip();
+        if (texCoords == null){
+            this.textureCoords = null;
+            texCoordCount = 0;
+        }
+        else {
+            this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
+            texCoordCount = texCoords.length / 2;
+        }
+        if (colorData == null){
+            this.colors = null;
+            colorCount = 0;
+        }
+        else{
+            this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
+            colorCount = colorData.length/ 3;
+        }
+        this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
         this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
         indexCount = indexData.length;
         vertexCount = vertexData.length / 3;
-        texCoordCount = texCoords.length / 3;
         normalCount = normals.length / 3;
         attribCount = 0;
         this.cubePositions = cubePositions;
@@ -47,13 +60,27 @@ public class StaticQuadRenderer {
         }
     }
 
-    public StaticQuadRenderer (float[] vertexData, float[] texCoords, float[] normals, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath){
+    public StaticQuadRenderer (float[] vertexData, float[] texCoords, float[] colorData, float[] normals, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath){
         this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-        this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
+        if (texCoords == null){
+            this.textureCoords = null;
+            texCoordCount = 0;
+        }
+        else {
+            this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
+            texCoordCount = texCoords.length / 2;
+        }
+        if (colorData == null){
+            this.colors = null;
+            colorCount = 0;
+        }
+        else{
+            this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
+            colorCount = colorData.length/ 3;
+        }
         this.normals = (FloatBuffer) MemoryUtil.memAllocFloat((normals.length)).put(normals).flip();
         this.indices = null;
         vertexCount = vertexData.length / 3;
-        texCoordCount = texCoords.length / 3;
         normalCount = normals.length / 3;
         indexCount = 0;
         attribCount = 0;
@@ -66,14 +93,29 @@ public class StaticQuadRenderer {
         }
     }
 
-    public void create(boolean indexed){
+    public void create(Shader shader, boolean indexed, boolean hasColors){
         this.indexed = indexed;
+        this.hasColors = hasColors;
         if (indexed) {
             vao = GL30.glGenVertexArrays();
             vbo = storeBuffer(vao, 0, 3, vertices);
-            tbo = storeBuffer(vao, 1, 2, textureCoords);
-            nbo = storeBuffer(vao, 2, 3, normals);
-            texture = storeJarTexture(texturePath);
+            if (!hasColors) {
+                tbo = storeBuffer(vao, 1, 2, textureCoords);
+                texture = storeJarTexture(texturePath);
+                shader.setUniform("hasColor", false);
+
+                //init color buffer as a default value to avoid opengl shader errors even though its not being used
+                cbo = storeBuffer(vao, 2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[] {0.0f, 0.0f, 0.0f}).flip());
+            }
+            if (hasColors){
+                cbo = storeBuffer(vao, 2, 3, colors);
+                shader.setUniform("hasColor", true);
+
+                //init texture coordinate buffer as a default value to avoid opengl shader errors even though its not being used
+                tbo = storeBuffer(vao, 1, 2, (FloatBuffer) MemoryUtil.memAllocFloat(2).put(new float[] {0.0f, 0.0f}).flip());
+            }
+            nbo = storeBuffer(vao, 3, 3, normals);
+
 
             ebo = GL15.glGenBuffers();
 
@@ -85,14 +127,28 @@ public class StaticQuadRenderer {
         else{
             vao = GL30.glGenVertexArrays();
             vbo = storeBuffer(vao, 0, 3, vertices);
-            tbo = storeBuffer(vao, 1, 2, textureCoords);
-            nbo = storeBuffer(vao, 2, 3, normals);
-            texture = storeJarTexture(texturePath);
+            if (!hasColors) {
+                tbo = storeBuffer(vao, 1, 2, textureCoords);
+                texture = storeJarTexture(texturePath);
+                shader.setUniform("hasColor", false);
+
+                //init color buffer as a default value to avoid opengl shader errors even though its not being used
+                cbo = storeBuffer(vao, 2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[] {0.0f, 0.0f, 0.0f}).flip());
+            }
+            if (hasColors){
+                cbo = storeBuffer(vao, 2, 3, colors);
+                shader.setUniform("hasColor", true);
+
+                //init texture coordinate buffer as a default value to avoid opengl shader errors even though its not being used
+                tbo = storeBuffer(vao, 1, 2, (FloatBuffer) MemoryUtil.memAllocFloat(2).put(new float[] {0.0f, 0.0f}).flip());
+            }
+            nbo = storeBuffer(vao, 3, 3, normals);
+
             ebo = 0;
         }
     }
 
-    public void render(Shader shader, Camera camera, Vector3f trans, boolean debug){
+    public void render(Shader shader, Camera camera, Vector3f trans, float scale, boolean debug, boolean rotate){
         if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
         if (trans == null) {
@@ -104,8 +160,10 @@ public class StaticQuadRenderer {
 
                 Matrix4f view = camera.getViewMatrix();
 
-                GL20.glActiveTexture(GL20.GL_TEXTURE0);
-                GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
+                if (!hasColors) {
+                    GL20.glActiveTexture(GL20.GL_TEXTURE0);
+                    GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
+                }
                 if (debug) {
                     System.out.println(model.toString());
                     shader.setUniform("model", model, true);
@@ -141,15 +199,22 @@ public class StaticQuadRenderer {
             }
         }
         else {
-            Matrix4f model = new Matrix4f().translate(trans).scale(10.0f, 10.0f, 10.0f);
+            Matrix4f model;
+            if (rotate) {
+                model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(camera.rotation, 0.0f, 1.0f, 0.0f);
+            }
+            else{
+                model = new Matrix4f().translate(trans).scale(scale, scale, scale);
+            }
 
             Matrix4f proj = camera.getProjectionMatrix();
 
             Matrix4f view = camera.getViewMatrix();
 
-
-            GL20.glActiveTexture(GL20.GL_TEXTURE0);
-            GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
+            if (!hasColors) {
+                GL20.glActiveTexture(GL20.GL_TEXTURE0);
+                GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
+            }
             if (debug) {
                 System.out.println(model.toString());
                 shader.setUniform("model", model, true);
@@ -186,7 +251,7 @@ public class StaticQuadRenderer {
         rotation += (1.0f * Window.deltaTime);
     }
 
-    public int storeBuffer(int vao, int index, int size, FloatBuffer data){
+    private int storeBuffer(int vao, int index, int size, FloatBuffer data){
         GL30.glBindVertexArray(vao);
         int buf = GL15.glGenBuffers();
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, buf);
@@ -217,6 +282,7 @@ public class StaticQuadRenderer {
             ByteBuffer finalData = STBImage.stbi_load_from_memory(imgData, x, y, nrChannels, 0);
             if (finalData == null){
                 System.out.println("FAILED TO LOAD TEXTURE FROM JAR RESOURCES WHILE LOADING. PROGRAM WILL EXIT");
+                System.out.println(STBImage.stbi_failure_reason());
             }
             width = x.get();
             height = y.get();
@@ -234,6 +300,7 @@ public class StaticQuadRenderer {
         catch (Exception e){
             e.printStackTrace();
             System.out.println("FAILED TO LOAD TEXTURE FROM JAR RESOURCES WHEN ACCESSING FILE. PROGRAM WILL EXIT");
+            System.out.println(STBImage.stbi_failure_reason());
             System.exit(-1);
             return 0;
         }
@@ -266,6 +333,11 @@ public class StaticQuadRenderer {
         texCoordCount = textureCoords.length / 3;
     }
 
+    public void setNormals(float[] normals){
+        this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+        normalCount = normals.length / 3;
+    }
+
     public IntBuffer getIndices(){
         return indices;
     }
@@ -274,7 +346,11 @@ public class StaticQuadRenderer {
         return vertices;
     }
 
-    public FloatBuffer getColors(){
+    public FloatBuffer getTextureCoords(){
         return textureCoords;
+    }
+
+    public FloatBuffer getNormals(){
+        return normals;
     }
 }

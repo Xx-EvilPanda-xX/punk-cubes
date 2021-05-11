@@ -21,7 +21,8 @@ public class Renderer {
     private IntBuffer indices;
     private boolean indexed;
     private float uniformRed, colorOffset, trans, transOffset, rotation;
-    public int vao, vbo, ebo, cbo, vertexCount, indexCount, colorCount;
+    private int vao, vbo, ebo, cbo;
+    public int vertexCount, indexCount, colorCount;
 
     public Renderer (float[] vertexData, float[] colorData, int[] indexData, float scale, float speed, float ypos, float rotation){
         SCALE = scale;
