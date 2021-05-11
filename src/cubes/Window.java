@@ -319,10 +319,10 @@ public class Window implements Runnable{
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 if (renderCubes){
                     staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, 0.0f, debug, false);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, debug, false);
+                    cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, 0.0f, debug);
                     if (camera.getThirdPerson()) {
-                        player.render(staticQuadShader, camera, camera.pos, 1.0f, debug, true);
+                        player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
                     }
                     staticQuadShader.unbind();
                 }
@@ -341,10 +341,10 @@ public class Window implements Runnable{
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 if (renderCubes){
                     staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, 0.0f, debug, false);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, debug, false);
+                    cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, 0.0f, debug);
                     if (camera.getThirdPerson()) {
-                        player.render(staticQuadShader, camera, camera.pos, 1.0f, debug, true);
+                        player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
                     }
                     staticQuadShader.unbind();
                 }
@@ -363,10 +363,10 @@ public class Window implements Runnable{
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
                 if (renderCubes){
                     staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, 0.0f, debug, false);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, debug, false);
+                    cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, 0.0f, debug);
                     if (camera.getThirdPerson()) {
-                        player.render(staticQuadShader, camera, camera.pos, 1.0f, debug, true);
+                        player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
                     }
                     staticQuadShader.unbind();
                 }

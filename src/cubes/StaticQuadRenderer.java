@@ -148,7 +148,7 @@ public class StaticQuadRenderer {
         }
     }
 
-    public void render(Shader shader, Camera camera, Vector3f trans, float scale, boolean debug, boolean rotate){
+    public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug){
         if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
         if (trans == null) {
@@ -199,13 +199,8 @@ public class StaticQuadRenderer {
             }
         }
         else {
-            Matrix4f model;
-            if (rotate) {
-                model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(camera.rotation, 0.0f, 1.0f, 0.0f);
-            }
-            else{
-                model = new Matrix4f().translate(trans).scale(scale, scale, scale);
-            }
+
+            Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotate, 0.0f, 1.0f, 0.0f);
 
             Matrix4f proj = camera.getProjectionMatrix();
 
