@@ -17,11 +17,11 @@ public class Window implements Runnable{
     public static int HEIGHT = 720;
 
     public static float deltaTime = 0.0f;
-    private float lastFrame = 0.0f;
+    private float viewModeCooldown = 0.0f, lastFrame = 0.0f;
     private final String title = "Cubes!!!";
     public Camera camera;
     public Input input;
-    private int frames, viewModeCooldown;
+    private int frames;
     private static long time;
     private Thread pog;
     private long window;
@@ -33,15 +33,26 @@ public class Window implements Runnable{
     private Shader staticQuadShader;
 
     public final Vector3f[] cubePositions = {
-                                            new Vector3f(2.1f, 0.9f, 3.0f),
-                                            new Vector3f(3.6f, 2.7f, 0.1f),
-                                            new Vector3f(0.6f, 2.2f, -2.0f),
-                                            new Vector3f(1.0f, 1.0f, -1.0f),
-                                            new Vector3f(-1.5f, 2.0f, -0.1f),
-                                            new Vector3f(0.0f, 2.0f, 0.0f),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
+                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
                                             };
 
-    public final float[] cubeRots = {-0.4f, 1.0f, 1.3f, -1.2f, -0.1f, 0.0f};
+    public final float[] cubeRots = {
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
+                                    };
 
     public void start(){
         pog = new Thread(this, "fortnite;");
@@ -168,88 +179,52 @@ public class Window implements Runnable{
 
         skyBox = new StaticQuadRenderer(new float[]{
                 -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
-
                 -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
-
                 -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
-
                 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f,
-
                 -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,
-
                 -0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
-
         },
                 new float[]{
                         0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
                         0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
                         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
                         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-
                 }, null,
                 new float[]{
                         0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
-
                         0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-
                         -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-
                         1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
                         0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-
                         0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-
                 }, cubePositions, cubeRots, "textures/oak_planks.png");
 
         cube = new StaticQuadRenderer(new float[]{
                 -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
-
                 -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
-
                 -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
-
                 0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f,
-
                 -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,
-
                 -0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
-
         },
                 new float[]{
                         0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
                         0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
                         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
                         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-
                 }, null,
                 new float[]{
                         0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
-
                         0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-
                         -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-
                         1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
                         0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-
                         0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-
                 }, cubePositions, cubeRots, "textures/diamond_block.png");
 
         player = new StaticQuadRenderer(new float[]{
@@ -260,26 +235,25 @@ public class Window implements Runnable{
                 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, 0.75f, 0.0f, 0.0f,
                 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, -0.75f, 0.0f, 0.0f,
                 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.75f, 0.0f, 0.0f,
-                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f,
+                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f
         }, null, new float[]{
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
+                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f
         }, new float[]{
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
-                0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f, 0.741f, 0.454f, 0.219f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
         }, cubePositions, cubeRots, null);
 
         cube.create(staticQuadShader, false, false);
@@ -301,6 +275,42 @@ public class Window implements Runnable{
             frames = 0;
         }
     }
+
+    private Vector3f genRandVec(){
+        //idk what im doing, this is a really odd way to generate random nums
+        float randX;
+        float randY;
+        float randZ;
+
+        randX = ((float) Math.random() * 100.0f) - 50.0f;
+        while (randX > 12.0f || randX < -12.0f){
+            randX = (float) ((float) Math.random() * 100.0f) - 50.0f;
+        }
+
+        randY = ((float) Math.random() * 100.0f) - 50.0f;
+        while (randY > 12.0f || randY < -12.0f){
+            randY = (float) ((float) Math.random() * 100.0f) - 50.0f;
+        }
+
+        randZ = ((float) Math.random() * 100.0f) - 50.0f;
+        while (randZ > 12.0f || randZ < -12.0f){
+            randZ = ((float) Math.random() * 100.0f) - 50.0f;
+        }
+
+        System.out.println(randX + ", " + randY + ", " + randZ);
+        return new Vector3f(randX, randY, randZ);
+    }
+
+    private float genRandFloat(){
+        float rand = ((float) Math.random() * 10.0f) - 5.0f;
+
+        while (rand > 1.0f || rand < -1.0f){
+            rand = ((float) Math.random() * 10.0f) - 5.0f;
+        }
+
+        System.out.println(rand);
+        return rand;
+    }
         
 
     private void loop(boolean renderCubes, boolean renderQuads, boolean debug) {
@@ -320,7 +330,7 @@ public class Window implements Runnable{
                 if (renderCubes){
                     staticQuadShader.bind();
                     cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, 0.0f, debug);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
                     if (camera.getThirdPerson()) {
                         player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
                     }
@@ -342,7 +352,7 @@ public class Window implements Runnable{
                 if (renderCubes){
                     staticQuadShader.bind();
                     cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, 0.0f, debug);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
                     if (camera.getThirdPerson()) {
                         player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
                     }
@@ -364,7 +374,7 @@ public class Window implements Runnable{
                 if (renderCubes){
                     staticQuadShader.bind();
                     cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 10.0f, 0.0f, debug);
+                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
                     if (camera.getThirdPerson()) {
                         player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
                     }
@@ -417,9 +427,9 @@ public class Window implements Runnable{
             staticQuadShader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
         }
         if (Input.isKeyDown(GLFW.GLFW_KEY_V)){
-            if (viewModeCooldown == 0) {
+            if (viewModeCooldown <= 0.0f) {
                 camera.setThirdPerson(!camera.getThirdPerson());
-                viewModeCooldown = 1000;
+                viewModeCooldown = 0.25f;
             }
         }
         viewModeCooldown -= deltaTime;

@@ -102,14 +102,14 @@ public class StaticQuadRenderer {
             if (!hasColors) {
                 tbo = storeBuffer(vao, 1, 2, textureCoords);
                 texture = storeJarTexture(texturePath);
-                shader.setUniform("hasColor", false);
+                shader.setUniform("hasColors", false);
 
                 //init color buffer as a default value to avoid opengl shader errors even though its not being used
                 cbo = storeBuffer(vao, 2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[] {0.0f, 0.0f, 0.0f}).flip());
             }
             if (hasColors){
                 cbo = storeBuffer(vao, 2, 3, colors);
-                shader.setUniform("hasColor", true);
+                shader.setUniform("hasColors", true);
 
                 //init texture coordinate buffer as a default value to avoid opengl shader errors even though its not being used
                 tbo = storeBuffer(vao, 1, 2, (FloatBuffer) MemoryUtil.memAllocFloat(2).put(new float[] {0.0f, 0.0f}).flip());
@@ -130,14 +130,14 @@ public class StaticQuadRenderer {
             if (!hasColors) {
                 tbo = storeBuffer(vao, 1, 2, textureCoords);
                 texture = storeJarTexture(texturePath);
-                shader.setUniform("hasColor", false);
+                shader.setUniform("hasColors", false);
 
                 //init color buffer as a default value to avoid opengl shader errors even though its not being used
                 cbo = storeBuffer(vao, 2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[] {0.0f, 0.0f, 0.0f}).flip());
             }
             if (hasColors){
                 cbo = storeBuffer(vao, 2, 3, colors);
-                shader.setUniform("hasColor", true);
+                shader.setUniform("hasColors", true);
 
                 //init texture coordinate buffer as a default value to avoid opengl shader errors even though its not being used
                 tbo = storeBuffer(vao, 1, 2, (FloatBuffer) MemoryUtil.memAllocFloat(2).put(new float[] {0.0f, 0.0f}).flip());
@@ -179,7 +179,13 @@ public class StaticQuadRenderer {
 
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                 shader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
-                shader.setUniform("viewPos", camera.pos);
+                if (!camera.getThirdPerson()) {
+                    shader.setUniform("viewPos", camera.pos);
+                }
+                else{
+                    shader.setUniform("viewPos", camera.pos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                }
+                shader.setUniform("hasColors", hasColors);
 
                 if (indexed) {
                     GL30.glBindVertexArray(this.vao);
@@ -225,7 +231,13 @@ public class StaticQuadRenderer {
 
             shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
             shader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
-            shader.setUniform("viewPos", camera.pos);
+            if (!camera.getThirdPerson()) {
+                shader.setUniform("viewPos", camera.pos);
+            }
+            else{
+                shader.setUniform("viewPos", camera.pos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+            }
+            shader.setUniform("hasColors", hasColors);
 
             if (indexed) {
                 GL30.glBindVertexArray(this.vao);

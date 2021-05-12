@@ -31,22 +31,22 @@ public class Camera{
     private final float MOUSE_SENSITIVITY = 0.075f;
 	
     public Camera(Vector3f pos, float yaw, float pitch){
-	this.front = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
-	this.pos = pos;
-	this.worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
-	this.yaw = yaw;
-	this.keyBoardYaw = yaw;
-	this.pitch = pitch;
-	this.right = front.cross(this.worldUp, new Vector3f()).normalize();
-	this.up = right.cross(this.front, new Vector3f()).normalize();
+	    this.front = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
+	    this.pos = pos;
+	    this.worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
+	    this.yaw = yaw;
+	    this.keyBoardYaw = yaw;
+	    this.pitch = pitch;
+	    this.right = front.cross(this.worldUp, new Vector3f()).normalize();
+	    this.up = right.cross(this.front, new Vector3f()).normalize();
 
-	this.keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);
-	this.keyboardFront = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
-	this.keyboardRight = keyboardFront.cross(this.worldUp, new Vector3f()).normalize();
+	    this.keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);
+	    this.keyboardFront = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
+	    this.keyboardRight = keyboardFront.cross(this.worldUp, new Vector3f()).normalize();
 
-	updateAllVectors();
+	    updateAllVectors();
     }
-	
+
     public Matrix4f getViewMatrix(){
         if (!thirdPerson) {
             return new Matrix4f().lookAt(pos, pos.add(front, new Vector3f()), up);
@@ -59,31 +59,31 @@ public class Camera{
     public Matrix4f getProjectionMatrix(){
         return new Matrix4f().perspective(zoom, WIDTH/HIEGHT, 0.1f, 100.0f);
     }
-	
+
     public void processMouseMovement(float xoffset, float yoffset, boolean constrainPitch){
         xoffset *= MOUSE_SENSITIVITY;
-	yoffset *= MOUSE_SENSITIVITY;
+	    yoffset *= MOUSE_SENSITIVITY;
 
-	yaw += xoffset;
-	pitch += yoffset;
+	    yaw += xoffset;
+	    pitch += yoffset;
 
-	if (constrainPitch){
-	    if (pitch > 89.0f){
-	        pitch = 89.0f;
+	    if (constrainPitch){
+	        if (pitch > 89.0f){
+	            pitch = 89.0f;
+	        }
+	        if (pitch < -89.0f){
+		        pitch = -89.0f;
+	        }
 	    }
-	    if (pitch < -89.0f){
-		pitch = -89.0f;
-	    }
-	}
-	if (yaw > 360.0f){
-	    yaw = 0.0f;
+	    if (yaw > 360.0f){
+	        yaw = 0.0f;
         }
-	if (yaw < 0.0f){
-	    yaw = 360.0f;
+	    if (yaw < 0.0f){
+	        yaw = 360.0f;
         }
-	updateAllVectors();
+	    updateAllVectors();
     }
-    
+
     public void processKeyboard(int direction, float deltaTime) {
         float velocity = MOVEMENT_SPEED * deltaTime;
 
@@ -108,7 +108,7 @@ public class Camera{
             }
             else{
                 keyBoardYaw -= velocity * 50.0f;
-                rotation += velocity * 0.8f;
+                rotation = (float) Math.atan(keyboardFront.x / keyboardFront.z);
             }
         }
         if (direction == 3){
@@ -120,7 +120,7 @@ public class Camera{
             }
             else{
                 keyBoardYaw += velocity * 50.0f;
-                rotation -= velocity * 0.8f;
+                rotation = (float) Math.atan(keyboardFront.x / keyboardFront.z);
             }
         }
         if (direction == 4){
@@ -142,10 +142,10 @@ public class Camera{
     }
 
     public void processMouseScroll(float yoffset){
-	zoom -= yoffset / 100;
-		
-	if (zoom < 44.8f){
-	    zoom = 44.8f;
+	    zoom -= yoffset / 100;
+
+	    if (zoom < 44.8f){
+	        zoom = 44.8f;
         }
         if (zoom > 45.2f){
             zoom = 45.2f;
@@ -188,6 +188,16 @@ public class Camera{
 
     public void setThirdPerson(boolean thirdPerson){
         this.thirdPerson = thirdPerson;
+        if (!thirdPerson){
+            yaw = keyBoardYaw;
+            pitch = 0.0f;
+            updateCameraVectors();
+        }
+        else{
+            keyBoardYaw = yaw;
+            rotation = (float) Math.atan(keyboardFront.x / keyboardFront.z);
+            updateKeyboardVectors();
+        }
     }
 
     public boolean getThirdPerson(){
