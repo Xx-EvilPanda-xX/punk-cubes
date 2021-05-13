@@ -10,7 +10,7 @@ import java.nio.IntBuffer;
 import org.joml.Matrix4f;
 
 public class Renderer {
-    public static final boolean USE_PROJ_VIEW_MAT = true;
+    public static boolean USE_PROJ_VIEW_MAT = true;
     
     public final float SCALE;
     public final float LIMIT;

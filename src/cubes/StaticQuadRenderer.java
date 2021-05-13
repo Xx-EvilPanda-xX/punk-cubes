@@ -23,79 +23,71 @@ public class StaticQuadRenderer {
     private boolean hasColors;
     private float rotation;
     private int vao, vbo, ebo, tbo, cbo, nbo, texture;
-    public int indexCount, vertexCount, texCoordCount, colorCount, normalCount, attribCount, numCubes;
+    public int indexCount, vertexCount, texCoordCount, colorCount, normalCount, attribCount = 0, numCubes;
     private float[] rotSpeeds;
     private Vector3f[] cubePositions;
 
-    public StaticQuadRenderer (float[] vertexData, float[] texCoords, float[] colorData, float[] normals, int[] indexData, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath){
+    public StaticQuadRenderer (float[] vertexData, float[] texCoordsOrColors, float[] normals, int[] indexData, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath, boolean hasColors){
         this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-        if (texCoords == null){
-            this.textureCoords = null;
-            texCoordCount = 0;
-        }
-        else {
-            this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-            texCoordCount = texCoords.length / 2;
-        }
-        if (colorData == null){
-            this.colors = null;
-            colorCount = 0;
+        if (hasColors) {
+            this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+            colorCount = texCoordsOrColors.length/ 3;
         }
         else{
-            this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-            colorCount = colorData.length/ 3;
+            this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+            texCoordCount = texCoordsOrColors.length / 2;
         }
         this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
         this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
         indexCount = indexData.length;
         vertexCount = vertexData.length / 3;
         normalCount = normals.length / 3;
-        attribCount = 0;
         this.cubePositions = cubePositions;
         this.rotSpeeds = rotSpeeds;
-        numCubes = cubePositions.length;
-        this.texturePath = texturePath;
-        if (cubePositions.length != rotSpeeds.length){
-            throw new IllegalStateException();
-        }
-    }
-
-    public StaticQuadRenderer (float[] vertexData, float[] texCoords, float[] colorData, float[] normals, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath){
-        this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-        if (texCoords == null){
-            this.textureCoords = null;
-            texCoordCount = 0;
-        }
-        else {
-            this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-            texCoordCount = texCoords.length / 2;
-        }
-        if (colorData == null){
-            this.colors = null;
-            colorCount = 0;
+        if (cubePositions == null || rotSpeeds == null){
+            numCubes = 0;
         }
         else{
-            this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-            colorCount = colorData.length/ 3;
+            numCubes = cubePositions.length;
+            if (cubePositions.length != rotSpeeds.length){
+                throw new IllegalStateException();
+            }
         }
-        this.normals = (FloatBuffer) MemoryUtil.memAllocFloat((normals.length)).put(normals).flip();
-        this.indices = null;
-        vertexCount = vertexData.length / 3;
-        normalCount = normals.length / 3;
-        indexCount = 0;
-        attribCount = 0;
-        this.cubePositions = cubePositions;
-        this.rotSpeeds = rotSpeeds;
-        numCubes = cubePositions.length;
         this.texturePath = texturePath;
-        if (cubePositions.length != rotSpeeds.length){
-            throw new IllegalStateException();
-        }
+        this.hasColors = hasColors;
+        indexed = true;
     }
 
-    public void create(Shader shader, boolean indexed, boolean hasColors){
-        this.indexed = indexed;
+    public StaticQuadRenderer (float[] vertexData, float[] texCoordsOrColors, float[] normals, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath, boolean hasColors){
+        this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
+        if (hasColors) {
+            this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+            colorCount = texCoordsOrColors.length/ 3;
+        }
+        else{
+            this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+            texCoordCount = texCoordsOrColors.length / 2;
+        }
+        this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+        vertexCount = vertexData.length / 3;
+        normalCount = normals.length / 3;
+        this.cubePositions = cubePositions;
+        this.rotSpeeds = rotSpeeds;
+        if (cubePositions == null || rotSpeeds == null){
+            numCubes = 0;
+        }
+        else{
+            numCubes = cubePositions.length;
+            if (cubePositions.length != rotSpeeds.length){
+                throw new IllegalStateException();
+            }
+        }
+        this.texturePath = texturePath;
         this.hasColors = hasColors;
+        indexed = false;
+    }
+
+    public void create(Shader shader){
         if (indexed) {
             vao = GL30.glGenVertexArrays();
             vbo = storeBuffer(vao, 0, 3, vertices);

@@ -150,6 +150,12 @@
       <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl/lwjgl-rpmalloc-natives-windows.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl/lwjgl-libdivide-natives-windows.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../../../../USB backup/IdeaProjects/opengltest/src/joml-1.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl-linux/lwjgl-opengl-natives-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl-linux/lwjgl-stb-natives-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl-linux/lwjgl-openal-natives-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl-linux/lwjgl-natives-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl-linux/lwjgl-glfw-natives-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/OneDrive/Desktop/lwjgl-linux/lwjgl-assimp-natives-linux.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

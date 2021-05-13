@@ -15,13 +15,13 @@ public class Input {
 			mouseX = xpos;
 			mouseY = ypos;
 
-			float xoffset = (float) xpos - (float) lastX;
+			float xoffset = (float) xpos;
 			float yoffset;
 			if (!camera.getThirdPerson()) {
-				yoffset = (float) lastY - (float) ypos;
+				yoffset = (float) -ypos;
 			}
 			else{
-				yoffset = (float) ypos - (float) lastY;
+				yoffset = (float) ypos;
 			}
 
 			lastX = xpos;

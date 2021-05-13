@@ -17,7 +17,7 @@ public class Window implements Runnable{
     public static int HEIGHT = 720;
 
     public static float deltaTime = 0.0f;
-    private float viewModeCooldown = 0.0f, lastFrame = 0.0f;
+    private float viewModeCooldown = 0.0f, renderQuadsCooldown, useProjMatCooldown, lastFrame = 0.0f;
     private final String title = "Cubes!!!";
     public Camera camera;
     public Input input;
@@ -29,8 +29,9 @@ public class Window implements Runnable{
     private StaticQuadRenderer cube;
     private StaticQuadRenderer skyBox;
     private StaticQuadRenderer player;
-    private Shader bouncyShader;
+    private Shader bouncyShader, bouncyShaderProj;
     private Shader staticQuadShader;
+    private boolean renderCubes = true, renderQuads = false;
 
     public final Vector3f[] cubePositions = {
                                             genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
@@ -67,8 +68,9 @@ public class Window implements Runnable{
 
         init();
         create();
-        loop(true, false, false);
-
+        while (!GLFW.glfwWindowShouldClose(window)) {
+            loop(renderCubes, renderQuads, false);
+        }
         Callbacks.glfwFreeCallbacks(window);
         GLFW.glfwDestroyWindow(window);
         GLFW.glfwTerminate();
@@ -109,6 +111,16 @@ public class Window implements Runnable{
         input = new Input(camera, window);
 
         time = System.currentTimeMillis();
+
+
+        bouncyShaderProj = new Shader("shaders/es-shaders/BouncyQuadVert.glsl", "shaders/es-shaders/BouncyQuadFrag.glsl");
+        bouncyShaderProj.create();
+
+        bouncyShader = new Shader("shaders/es-shaders/BouncyQuadVertNOPROJ.glsl", "shaders/es-shaders/BouncyQuadFragNOPROJ.glsl");
+        bouncyShader.create();
+
+        staticQuadShader = new Shader("shaders/es-shaders/basicVert.glsl", "shaders/es-shaders/basicFrag.glsl");
+        staticQuadShader.create();
         
         quads = new Renderer[]{new Renderer(new float[]{
                 -0.5f, 0.5f, 0.0f,
@@ -160,23 +172,6 @@ public class Window implements Runnable{
                         }, 0.05f, 1.0f, 0.0f, 0),
         };
 
-        for (Renderer r : quads) {
-            r.create(true);
-        }
-
-        if (Renderer.USE_PROJ_VIEW_MAT){
-            bouncyShader = new Shader("shaders/BouncyQuadVert.glsl", "shaders/BouncyQuadFrag.glsl");
-            bouncyShader.create();
-        }
-        else{
-            bouncyShader = new Shader("shaders/BouncyQuadVertNOPROJ.glsl", "shaders/BouncyQuadFragNOPROJ.glsl");
-            bouncyShader.create();
-        }
-
-        staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
-        staticQuadShader.create();
-
-
         skyBox = new StaticQuadRenderer(new float[]{
                 -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
                 -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
@@ -192,7 +187,7 @@ public class Window implements Runnable{
                         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-                }, null,
+                },
                 new float[]{
                         0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
                         0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
@@ -200,7 +195,7 @@ public class Window implements Runnable{
                         1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
                         0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
                         0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-                }, cubePositions, cubeRots, "textures/oak_planks.png");
+                }, null, null, "textures/oak_planks.png", false);
 
         cube = new StaticQuadRenderer(new float[]{
                 -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
@@ -217,7 +212,7 @@ public class Window implements Runnable{
                         1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
                         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-                }, null,
+                },
                 new float[]{
                         0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
                         0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
@@ -225,7 +220,7 @@ public class Window implements Runnable{
                         1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
                         0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
                         0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-                }, cubePositions, cubeRots, "textures/diamond_block.png");
+                }, cubePositions, cubeRots, "textures/diamond_block.png", false);
 
         player = new StaticQuadRenderer(new float[]{
                 0.0f, -0.25f, 0.0f, 0.0f, 0.0f, -0.5f, 0.75f, 0.0f, 0.0f,
@@ -236,7 +231,7 @@ public class Window implements Runnable{
                 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, -0.75f, 0.0f, 0.0f,
                 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.75f, 0.0f, 0.0f,
                 0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f
-        }, null, new float[]{
+        }, new float[]{
                 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
                 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
                 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
@@ -254,11 +249,14 @@ public class Window implements Runnable{
                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-        }, cubePositions, cubeRots, null);
+        }, null, null, null, true);
 
-        cube.create(staticQuadShader, false, false);
-        skyBox.create(staticQuadShader, false, false);
-        player.create(staticQuadShader, false, true);
+        for (Renderer r : quads) {
+            r.create(true);
+        }
+        cube.create(staticQuadShader);
+        skyBox.create(staticQuadShader);
+        player.create(staticQuadShader);
 
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         camera.setThirdPerson(false);
@@ -314,90 +312,51 @@ public class Window implements Runnable{
         
 
     private void loop(boolean renderCubes, boolean renderQuads, boolean debug) {
-        int frames = 0;
-        while ( !GLFW.glfwWindowShouldClose(window) ) {
+        GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
 
-            float currentFrame = (float) GLFW.glfwGetTime();
-            deltaTime = currentFrame - lastFrame;
-            lastFrame = currentFrame;
+        float currentFrame = (float) GLFW.glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
-            processInput(this.window);
-            GL11.glViewport(0, 0, WIDTH, HEIGHT);
-            //GL11.glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
-            if (frames < 50){
-                GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                if (renderCubes){
-                    staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
-                    if (camera.getThirdPerson()) {
-                        player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
-                    }
-                    staticQuadShader.unbind();
-                }
-                if (renderQuads){
-                    bouncyShader.bind();
-                    for (Renderer r : quads){
-                        r.render(bouncyShader, camera, debug);
-                    }
-                    bouncyShader.unbind();
-                }
-                GLFW.glfwSwapBuffers(window);
-                GLFW.glfwPollEvents();
+        processInput(this.window);
+        GL11.glViewport(0, 0, WIDTH, HEIGHT);
+
+        GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        if (renderCubes){
+            staticQuadShader.bind();
+            cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
+            skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
+            if (camera.getThirdPerson()) {
+                player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
             }
-            else if (frames < 100){
-                GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                if (renderCubes){
-                    staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
-                    if (camera.getThirdPerson()) {
-                        player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
-                    }
-                    staticQuadShader.unbind();
-                }
-                if (renderQuads){
-                    bouncyShader.bind();
-                    for (Renderer r : quads){
-                        r.render(bouncyShader, camera, debug);
-                    }
-                    bouncyShader.unbind();
-                }
-                GLFW.glfwSwapBuffers(window);
-                GLFW.glfwPollEvents();
-            }
-            else if (frames < 150) {
-                GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-                if (renderCubes){
-                    staticQuadShader.bind();
-                    cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                    skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
-                    if (camera.getThirdPerson()) {
-                        player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
-                    }
-                    staticQuadShader.unbind();
-                }
-                if (renderQuads){
-                    bouncyShader.bind();
-                    for (Renderer r : quads){
-                        r.render(bouncyShader, camera, debug);
-                    }
-                    bouncyShader.unbind();
-                }
-                GLFW.glfwSwapBuffers(window);
-                GLFW.glfwPollEvents();
-            }
-            else{
-                frames = 0;
-            }
-            frames++;
-            updateFPS();
+            staticQuadShader.unbind();
         }
-        staticQuadShader.unbind();
-        bouncyShader.unbind();
+        if (renderQuads){
+            if (Renderer.USE_PROJ_VIEW_MAT) {
+                bouncyShaderProj.bind();
+            }
+            else {
+                bouncyShader.bind();
+            }
+            for (Renderer r : quads){
+                if (Renderer.USE_PROJ_VIEW_MAT) {
+                    r.render(bouncyShaderProj, camera, debug);
+                }
+                else {
+                    r.render(bouncyShader, camera, debug);
+                }
+            }
+            if (Renderer.USE_PROJ_VIEW_MAT) {
+                bouncyShaderProj.unbind();
+            }
+            else {
+                bouncyShader.unbind();
+            }
+        }
+        GLFW.glfwSwapBuffers(window);
+        GLFW.glfwPollEvents();
+        updateFPS();
     }
     
     private void processInput(long window){
@@ -422,6 +381,18 @@ public class Window implements Runnable{
         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)){
             camera.processKeyboard(5, deltaTime);
         }
+        if (Input.isKeyDown(GLFW.GLFW_KEY_C)){
+            if (renderQuadsCooldown <= 0.0f) {
+                renderQuads = !renderQuads;
+                renderQuadsCooldown = 0.25f;
+            }
+        }
+        if (Input.isKeyDown(GLFW.GLFW_KEY_M)){
+            if (useProjMatCooldown <= 0.0f) {
+                Renderer.USE_PROJ_VIEW_MAT = !Renderer.USE_PROJ_VIEW_MAT;
+                useProjMatCooldown = 0.25f;
+            }
+        }
         if (Input.isKeyDown(GLFW.GLFW_KEY_F)){
             camera.processKeyboard(6, deltaTime);
             staticQuadShader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
@@ -433,6 +404,8 @@ public class Window implements Runnable{
             }
         }
         viewModeCooldown -= deltaTime;
+        renderQuadsCooldown -= deltaTime;
+        useProjMatCooldown -= deltaTime;
     }
 
     public static void main(String[] args) {
