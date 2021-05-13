@@ -27,7 +27,7 @@ public class Camera{
     public float pitch;
     public float zoom = 45;
 	
-    private final float MOVEMENT_SPEED = 1.0f;
+    private final float MOVEMENT_SPEED = 3.0f;
     private final float MOUSE_SENSITIVITY = 0.075f;
 	
     public Camera(Vector3f pos, float yaw, float pitch){
@@ -57,7 +57,7 @@ public class Camera{
     }
 
     public Matrix4f getProjectionMatrix(){
-        return new Matrix4f().perspective(zoom, WIDTH/HIEGHT, 0.1f, 100.0f);
+        return new Matrix4f().perspective(zoom, WIDTH/HIEGHT, 0.1f, 1000.0f);
     }
 
     public void processMouseMovement(float xoffset, float yoffset, boolean constrainPitch){
@@ -107,7 +107,7 @@ public class Camera{
                 }
             }
             else{
-                keyBoardYaw -= velocity * 50.0f;
+                keyBoardYaw -= velocity * 25.0f;
                 rotation = (float) Math.atan(keyboardFront.x / keyboardFront.z);
             }
         }
@@ -119,7 +119,7 @@ public class Camera{
                 }
             }
             else{
-                keyBoardYaw += velocity * 50.0f;
+                keyBoardYaw += velocity * 25.0f;
                 rotation = (float) Math.atan(keyboardFront.x / keyboardFront.z);
             }
         }

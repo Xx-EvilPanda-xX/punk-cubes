@@ -13,6 +13,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Window implements Runnable{
+    public static final int CUBE_COUNT = 4096;
+
     public static int WIDTH = 1080;
     public static int HEIGHT = 720;
 
@@ -32,28 +34,8 @@ public class Window implements Runnable{
     private Shader bouncyShader, bouncyShaderProj;
     private Shader staticQuadShader;
     private boolean renderCubes = true, renderQuads = false;
-
-    public final Vector3f[] cubePositions = {
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(), genRandVec(),
-                                            };
-
-    public final float[] cubeRots = {
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(), genRandFloat(),
-                                    };
+    public final Vector3f[] cubePositions = new Vector3f[CUBE_COUNT];
+    public final float[] cubeRots = new float[CUBE_COUNT];
 
     public void start(){
         pog = new Thread(this, "fortnite;");
@@ -106,6 +88,11 @@ public class Window implements Runnable{
     }
 
     private void create() {
+        for (int ptr = 0; ptr < CUBE_COUNT; ptr++){
+            cubePositions[ptr] = genRandVec();
+            cubeRots[ptr] = genRandFloat();
+        }
+
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
         camera = new Camera(new Vector3f(0.0f, 0.0f, -5.0f), 81.7f, 7.3f);
         input = new Input(camera, window);
@@ -113,13 +100,13 @@ public class Window implements Runnable{
         time = System.currentTimeMillis();
 
 
-        bouncyShaderProj = new Shader("shaders/es-shaders/BouncyQuadVert.glsl", "shaders/es-shaders/BouncyQuadFrag.glsl");
+        bouncyShaderProj = new Shader("shaders/BouncyQuadVert.glsl", "shaders/BouncyQuadFrag.glsl");
         bouncyShaderProj.create();
 
-        bouncyShader = new Shader("shaders/es-shaders/BouncyQuadVertNOPROJ.glsl", "shaders/es-shaders/BouncyQuadFragNOPROJ.glsl");
+        bouncyShader = new Shader("shaders/BouncyQuadVertNOPROJ.glsl", "shaders/BouncyQuadFragNOPROJ.glsl");
         bouncyShader.create();
 
-        staticQuadShader = new Shader("shaders/es-shaders/basicVert.glsl", "shaders/es-shaders/basicFrag.glsl");
+        staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
         staticQuadShader.create();
         
         quads = new Renderer[]{new Renderer(new float[]{
@@ -281,17 +268,17 @@ public class Window implements Runnable{
         float randZ;
 
         randX = ((float) Math.random() * 100.0f) - 50.0f;
-        while (randX > 12.0f || randX < -12.0f){
+        while (randX > 40.0f || randX < -40.0f){
             randX = (float) ((float) Math.random() * 100.0f) - 50.0f;
         }
 
         randY = ((float) Math.random() * 100.0f) - 50.0f;
-        while (randY > 12.0f || randY < -12.0f){
+        while (randY > 40.0f || randY < -40.0f){
             randY = (float) ((float) Math.random() * 100.0f) - 50.0f;
         }
 
         randZ = ((float) Math.random() * 100.0f) - 50.0f;
-        while (randZ > 12.0f || randZ < -12.0f){
+        while (randZ > 40.0f || randZ < -40.0f){
             randZ = ((float) Math.random() * 100.0f) - 50.0f;
         }
 
@@ -326,7 +313,7 @@ public class Window implements Runnable{
         if (renderCubes){
             staticQuadShader.bind();
             cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-            skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 30.0f, 0.0f, debug);
+            skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 100.0f, 0.0f, debug);
             if (camera.getThirdPerson()) {
                 player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
             }
