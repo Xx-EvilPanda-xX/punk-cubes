@@ -1,12 +1,13 @@
 package cubes;
 
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import java.nio.*;
-import org.lwjgl.glfw.Callbacks;
+import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import java.nio.IntBuffer;
+import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
@@ -14,6 +15,7 @@ import org.joml.Vector3f;
 
 public class Window implements Runnable{
     public static final int CUBE_COUNT = 4096;
+    public static final float SKYBOX_SCALE = 100.0f;
 
     public static int WIDTH = 1080;
     public static int HEIGHT = 720;
@@ -267,22 +269,21 @@ public class Window implements Runnable{
         float randY;
         float randZ;
 
-        randX = ((float) Math.random() * 100.0f) - 50.0f;
-        while (randX > 40.0f || randX < -40.0f){
-            randX = (float) ((float) Math.random() * 100.0f) - 50.0f;
+        randX = ((float) Math.random() * 1000.0f) - 500.0f;
+        while (randX > ((SKYBOX_SCALE - 2.5f) / 2.0f) || randX < -((SKYBOX_SCALE - 2.5f) / 2.0f)){
+            randX = ((float) Math.random() * 1000.0f) - 500.0f;
         }
 
-        randY = ((float) Math.random() * 100.0f) - 50.0f;
-        while (randY > 40.0f || randY < -40.0f){
-            randY = (float) ((float) Math.random() * 100.0f) - 50.0f;
+        randY = ((float) Math.random() * 1000.0f) - 500.0f;
+        while (randY > ((SKYBOX_SCALE - 2.5f) / 2.0f) || randY < -((SKYBOX_SCALE - 2.5f) / 2.0f)){
+            randY = ((float) Math.random() * 1000.0f) - 500.0f;
         }
 
-        randZ = ((float) Math.random() * 100.0f) - 50.0f;
-        while (randZ > 40.0f || randZ < -40.0f){
-            randZ = ((float) Math.random() * 100.0f) - 50.0f;
+        randZ = ((float) Math.random() * 1000.0f) - 500.0f;
+        while (randZ > ((SKYBOX_SCALE - 2.5f) / 2.0f) || randZ < -((SKYBOX_SCALE - 2.5f) / 2.0f)){
+            randZ = ((float) Math.random() * 1000.0f) - 500.0f;
         }
 
-        System.out.println(randX + ", " + randY + ", " + randZ);
         return new Vector3f(randX, randY, randZ);
     }
 
@@ -293,7 +294,6 @@ public class Window implements Runnable{
             rand = ((float) Math.random() * 10.0f) - 5.0f;
         }
 
-        System.out.println(rand);
         return rand;
     }
         
@@ -313,7 +313,7 @@ public class Window implements Runnable{
         if (renderCubes){
             staticQuadShader.bind();
             cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-            skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), 100.0f, 0.0f, debug);
+            skyBox.render(staticQuadShader ,camera, new Vector3f(0.0f, 0.0f, 0.0f), SKYBOX_SCALE, 0.0f, debug);
             if (camera.getThirdPerson()) {
                 player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
             }
