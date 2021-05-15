@@ -247,6 +247,12 @@ public class Window implements Runnable {
                 if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
                         camera.processKeyboard(5, deltaTime);
                 }
+                if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
+                        camera.setOptifineZoom(true);
+                }
+                else{
+                        camera.setOptifineZoom(false);
+                }
                 if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
                         if (renderQuadsCooldown <= 0.0f) {
                                 renderQuads = !renderQuads;

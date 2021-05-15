@@ -12,12 +12,14 @@ public class Camera {
         public Vector3f worldUp;
 
         private boolean thirdPerson;
+        private boolean optifineZoom;
 
         private Vector3f keyboardRight;
         private Vector3f keyboardFront;
         private Vector3f keyboardWorldUp;
 
         public float rotation = 0.0f;
+        public static final float optifineZoomFactor = 44.25f;
 
         private final float WIDTH = (float) Window.WIDTH;
         private final float HIEGHT = (float) Window.HEIGHT;
@@ -56,16 +58,26 @@ public class Camera {
         }
 
         public Matrix4f getProjectionMatrix() {
-                return new Matrix4f().perspective(zoom, WIDTH / HIEGHT, 0.1f, 1000.0f);
+                if (!optifineZoom) {
+                        return new Matrix4f().perspective(zoom, WIDTH / HIEGHT, 0.1f, 1000.0f);
+                }
+                else{
+                        return new Matrix4f().perspective(optifineZoomFactor, WIDTH / HIEGHT, 0.1f, 1000.0f);
+                }
         }
 
         public void processMouseMovement(float xoffset, float yoffset, boolean constrainPitch) {
                 xoffset *= MOUSE_SENSITIVITY;
                 yoffset *= MOUSE_SENSITIVITY;
 
-                yaw += xoffset;
-                pitch += yoffset;
-
+                if (!optifineZoom) {
+                        yaw += xoffset;
+                        pitch += yoffset;
+                }
+                else{
+                        yaw += xoffset / 5;
+                        pitch += yoffset / 5;
+                }
                 if (constrainPitch) {
                         if (pitch > 89.0f) {
                                 pitch = 89.0f;
@@ -180,6 +192,14 @@ public class Camera {
         public void updateAllVectors() {
                 updateCameraVectors();
                 updateKeyboardVectors();
+        }
+
+        public void setOptifineZoom(boolean optifineZoom){
+                this.optifineZoom = optifineZoom;
+        }
+
+        public boolean getOpifineZoom(){
+                return optifineZoom;
         }
 
         public void setThirdPerson(boolean thirdPerson) {
