@@ -14,7 +14,6 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Shader {
-        private static final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         private final String VERT_PATH;
         private final String FRAG_PATH;
         private final String VERTEX;
@@ -33,16 +32,19 @@ public class Shader {
         private static String loadShaderFile(String path) {
                 try {
                         System.out.println("Attempting to load shader from jar resources at: " + path);
-                        InputStream is = classloader.getResourceAsStream(path);
+                        InputStream is = Class.class.getResourceAsStream("resources/" + path);
+                        if (is == null){
+                                System.out.println("input stream is null, could not find resource");
+                        }
                         String shader = (new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))).lines().collect(Collectors.joining("\n"));
                         System.out.println("Shader loaded from jar resources!");
                         return shader;
                 } catch (NullPointerException e) {
-                        System.out.println("File not being run from executable jar. Attempting to load shader from direct path: " + path);
+                        System.out.println("File not being run from executable jar. Attempting to load shader from direct path: resources/" + path);
 
                         try {
                                 StringBuilder builder = new StringBuilder();
-                                BufferedReader reader = new BufferedReader(new FileReader(path));
+                                BufferedReader reader = new BufferedReader(new FileReader("resources/" + path));
                                 String read = "";
 
                                 while ((read = reader.readLine()) != null) {
