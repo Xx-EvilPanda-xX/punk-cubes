@@ -14,25 +14,32 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Shader {
-        private final String VERT_PATH;
-        private final String FRAG_PATH;
-        private final String VERTEX;
-        private final String FRAGMENT;
+        private String VERT_PATH;
+        private String FRAG_PATH;
+        private String VERTEX;
+        private String FRAGMENT;
         private int vertShaderID;
         private int fragShaderID;
         private int programID;
 
         public Shader(String vertPath, String fragPath) {
-                this.VERTEX = loadShaderFile(vertPath);
-                this.FRAGMENT = loadShaderFile(fragPath);
-                this.VERT_PATH = vertPath;
-                this.FRAG_PATH = fragPath;
+                try {
+                        this.VERTEX = loadShaderFile(vertPath);
+                        this.FRAGMENT = loadShaderFile(fragPath);
+                        this.VERT_PATH = vertPath;
+                        this.FRAG_PATH = fragPath;
+                }
+                catch (ClassNotFoundException e){
+                        System.out.println("Incorrect class name literal");
+                }
         }
 
-        private static String loadShaderFile(String path) {
+        private static String loadShaderFile(String path) throws ClassNotFoundException{
                 try {
                         System.out.println("Attempting to load shader from jar resources at: " + path);
-                        InputStream is = Class.class.getResourceAsStream("resources/" + path);
+                        Class cl = Class.forName("cubes.Shader");
+                        ClassLoader loader = cl.getClassLoader();
+                        InputStream is = loader.getResourceAsStream(path);
                         if (is == null){
                                 System.out.println("input stream is null, could not find resource");
                         }

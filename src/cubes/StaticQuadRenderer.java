@@ -268,7 +268,9 @@ public class StaticQuadRenderer {
                         IntBuffer x = MemoryUtil.memAllocInt(8);
                         IntBuffer y = MemoryUtil.memAllocInt(8);
                         IntBuffer nrChannels = MemoryUtil.memAllocInt(256);
-                        InputStream in = Class.class.getResourceAsStream(path);
+                        Class cl = Class.forName("cubes.StaticQuadRenderer");
+                        ClassLoader loader = cl.getClassLoader();
+                        InputStream in = loader.getResourceAsStream(path);
                         int bytes = in.available();
                         System.out.println(bytes);
                         byte[] data = new byte[bytes];
@@ -336,7 +338,6 @@ public class StaticQuadRenderer {
                         System.out.println("Texture loaded!");
                         return texture;
                 } catch (Exception e) {
-                        e.printStackTrace();
                         System.out.println("FAILED TO LOAD TEXTURE FROM DIRECT RESOURCES WHEN ACCESSING FILE. PROGRAM WILL EXIT");
                         System.out.println(STBImage.stbi_failure_reason());
                         return 0;
