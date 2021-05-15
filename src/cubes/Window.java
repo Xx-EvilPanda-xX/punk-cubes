@@ -111,134 +111,14 @@ public class Window implements Runnable{
         staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
         staticQuadShader.create();
         
-        quads = new Renderer[]{new Renderer(new float[]{
-                -0.5f, 0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                0.5f, -0.5f, 0.0f,
-                0.5f, 0.5f, 0.5f
-        },
-                new float[]{
-                        1.0f, 1.0f, 0.0f,
-                        1.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f,
-                        1.0f, 0.0f, 0.0f,
-                },
-                new int[]{
-                        0, 1, 2, 0, 2, 3
-                }, 0.5f, 0.7f, 0.5f, 0),
-
-
-                new Renderer(new float[]{
-                        -0.5f, 0.5f, 0.0f,
-                        -0.5f, -0.5f, 0.0f,
-                        0.5f, -0.5f, 0.0f,
-                        0.5f, 0.5f, 0.5f
-                },
-                        new float[]{
-                                1.0f, 1.0f, 0.0f,
-                                1.0f, 0.0f, 1.0f,
-                                0.0f, 1.0f, 1.0f,
-                                1.0f, 0.0f, 0.0f,
-                        },
-                        new int[]{
-                                0, 1, 2, 0, 2, 3
-                        }, 0.7f, 0.5f, -0.5f, 0),
-
-                new Renderer(new float[]{
-                        -0.5f, 0.5f, 0.0f,
-                        -0.5f, -0.5f, 0.0f,
-                        0.5f, -0.5f, 0.0f,
-                        0.5f, 0.5f, 0.5f
-                },
-                        new float[]{
-                                1.0f, 1.0f, 0.0f,
-                                1.0f, 0.0f, 1.0f,
-                                0.0f, 1.0f, 1.0f,
-                                1.0f, 0.0f, 0.0f,
-                        },
-                        new int[]{
-                                0, 1, 2, 0, 2, 3
-                        }, 0.05f, 1.0f, 0.0f, 0),
+        quads = new Renderer[]{new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
+                new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.7f, 0.5f, -0.5f, 0),
+                new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.05f, 1.0f, 0.0f, 0),
         };
 
-        skyBox = new StaticQuadRenderer(new float[]{
-                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
-                -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
-                -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
-                0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f,
-                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,
-                -0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
-        },
-                new float[]{
-                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-                },
-                new float[]{
-                        0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-                        -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-                }, null, null, "textures/oak_planks.png", false);
-
-        cube = new StaticQuadRenderer(new float[]{
-                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f,
-                -0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f, -0.5f,  0.5f,
-                -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,  0.5f, -0.5f,  0.5f,  0.5f,
-                0.5f,  0.5f,  0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.5f,
-                -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.5f, -0.5f, -0.5f,  0.5f, -0.5f, -0.5f, -0.5f,
-                -0.5f,  0.5f, -0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.5f, 0.5f,  0.5f,  0.5f, -0.5f,  0.5f,  0.5f, -0.5f,  0.5f, -0.5f
-        },
-                new float[]{
-                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                        0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                        1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-                        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
-                },
-                new float[]{
-                        0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f,
-                        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-                        -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-                        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                        0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
-                        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
-                }, cubePositions, cubeRots, "textures/diamond_block.png", false);
-
-        player = new StaticQuadRenderer(new float[]{
-                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, -0.5f, 0.75f, 0.0f, 0.0f,
-                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, -0.5f, -0.75f, 0.0f, 0.0f,
-                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.75f, 0.0f, 0.0f,
-                0.0f, -0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f,
-                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, 0.75f, 0.0f, 0.0f,
-                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, -0.5f, -0.75f, 0.0f, 0.0f,
-                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, 0.75f, 0.0f, 0.0f,
-                0.0f, 0.25f, 0.0f, 0.0f, 0.0f, 0.5f, -0.75f, 0.0f, 0.0f
-        }, new float[]{
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f,
-                0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f
-        }, new float[]{
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
-        }, null, null, null, true);
+        skyBox = new StaticQuadRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, null, null, "textures/pumserver.png", false);
+        cube = new StaticQuadRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, cubePositions, cubeRots, "textures/wood.png", false);
+        player = new StaticQuadRenderer(Geometry.OCTAHEDRON_VERTICES, Geometry.OCTAHEDRON_COLORS, Geometry.OCTAHEDRON_NORMALS, null, null, null, true);
 
         for (Renderer r : quads) {
             r.create(true);
