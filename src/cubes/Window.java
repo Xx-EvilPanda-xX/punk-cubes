@@ -23,7 +23,7 @@ public class Window implements Runnable {
         public static int HEIGHT = 720;
 
         public static float deltaTime = 0.0f;
-        private float viewModeCooldown = 0.0f, renderQuadsCooldown, useProjMatCooldown, lastFrame = 0.0f;
+        private float viewModeCooldown = 0.0f, renderQuadsCooldown = 0.0f, useProjMatCooldown = 0.0f, focusedCooldown = 0.0f, lastFrame = 0.0f;
         private final String title = "Cubes!!!";
         public Camera camera;
         public Input input;
@@ -37,7 +37,7 @@ public class Window implements Runnable {
         private StaticQuadRenderer player;
         private Shader bouncyShader, bouncyShaderProj;
         private Shader staticQuadShader;
-        private boolean renderCubes = true, renderQuads = false;
+        private boolean renderCubes = true, renderQuads = false, focused = true;
         public final Vector3f[] cubePositions = new Vector3f[CUBE_COUNT];
         public final float[] cubeRots = new float[CUBE_COUNT];
 
@@ -70,7 +70,7 @@ public class Window implements Runnable {
                         throw new IllegalStateException("Unable to initialize GLFW");
                 }
                 GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
-                GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
+                GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
 
                 window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, title, MemoryUtil.NULL, MemoryUtil.NULL);
 
@@ -103,6 +103,10 @@ public class Window implements Runnable {
 
                 time = System.currentTimeMillis();
 
+                GLFW.glfwSetWindowSizeCallback(window, (windowPog, width, height) -> {
+                        WIDTH = width;
+                        HEIGHT = height;
+                });
 
                 bouncyShaderProj = new Shader("shaders/BouncyQuadVert.glsl", "shaders/BouncyQuadFrag.glsl");
                 bouncyShaderProj.create();
@@ -181,8 +185,9 @@ public class Window implements Runnable {
 
 
         private void loop(boolean renderCubes, boolean renderQuads, boolean debug) {
-                GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
-
+                if (focused) {
+                        GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
+                }
                 float currentFrame = (float) GLFW.glfwGetTime();
                 deltaTime = currentFrame - lastFrame;
                 lastFrame = currentFrame;
@@ -226,58 +231,94 @@ public class Window implements Runnable {
         }
 
         private void processInput(long window) {
-                if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) {
+                if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)){
                         GLFW.glfwSetWindowShouldClose(window, true);
                 }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_W)) {
-                        camera.processKeyboard(0, deltaTime);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_S)) {
-                        camera.processKeyboard(1, deltaTime);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_A)) {
-                        camera.processKeyboard(2, deltaTime);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_D)) {
-                        camera.processKeyboard(3, deltaTime);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
-                        camera.processKeyboard(4, deltaTime);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
-                        camera.processKeyboard(5, deltaTime);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
-                        camera.setOptifineZoom(true);
-                }
-                else{
-                        camera.setOptifineZoom(false);
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
-                        if (renderQuadsCooldown <= 0.0f) {
-                                renderQuads = !renderQuads;
-                                renderQuadsCooldown = 0.25f;
+
+                if (focused) {
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_P)){
+                                if (focusedCooldown <= 0.0f){
+                                        GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {});
+                                        GLFW.glfwSetScrollCallback(window, (windowPog, offsetx, offsety) -> {});
+                                        focused = !focused;
+                                        GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+                                        focusedCooldown = 0.25f;
+                                        return;
+                                }
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_W)) {
+                                camera.processKeyboard(0, deltaTime);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_S)) {
+                                camera.processKeyboard(1, deltaTime);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_A)) {
+                                camera.processKeyboard(2, deltaTime);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_D)) {
+                                camera.processKeyboard(3, deltaTime);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
+                                camera.processKeyboard(4, deltaTime);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                                camera.processKeyboard(5, deltaTime);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
+                                camera.setOptifineZoom(true);
+                        } else {
+                                camera.setOptifineZoom(false);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
+                                if (renderQuadsCooldown <= 0.0f) {
+                                        renderQuads = !renderQuads;
+                                        renderQuadsCooldown = 0.25f;
+                                }
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
+                                if (useProjMatCooldown <= 0.0f) {
+                                        Renderer.USE_PROJ_VIEW_MAT = !Renderer.USE_PROJ_VIEW_MAT;
+                                        useProjMatCooldown = 0.25f;
+                                }
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
+                                camera.processKeyboard(6, deltaTime);
+                                staticQuadShader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
+                                if (viewModeCooldown <= 0.0f) {
+                                        camera.setThirdPerson(!camera.getThirdPerson());
+                                        viewModeCooldown = 0.25f;
+                                }
                         }
                 }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
-                        if (useProjMatCooldown <= 0.0f) {
-                                Renderer.USE_PROJ_VIEW_MAT = !Renderer.USE_PROJ_VIEW_MAT;
-                                useProjMatCooldown = 0.25f;
-                        }
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
-                        camera.processKeyboard(6, deltaTime);
-                        staticQuadShader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
-                }
-                if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
-                        if (viewModeCooldown <= 0.0f) {
-                                camera.setThirdPerson(!camera.getThirdPerson());
-                                viewModeCooldown = 0.25f;
+                else {
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_P)){
+                                if (focusedCooldown <= 0.0f){
+                                        GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
+                                                float xoffset = (float) xpos;
+                                                float yoffset;
+                                                if (!camera.getThirdPerson()) {
+                                                        yoffset = (float) -ypos;
+                                                } else {
+                                                        yoffset = (float) ypos;
+                                                }
+
+                                                camera.processMouseMovement(xoffset, yoffset, true);
+                                        });
+                                        GLFW.glfwSetScrollCallback(window, (windowPog, offsetx, offsety) -> {
+                                                camera.processMouseScroll((float) offsety);
+                                        });
+                                        focused = !focused;
+                                        GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+                                        focusedCooldown = 0.25f;
+                                }
                         }
                 }
                 viewModeCooldown -= deltaTime;
                 renderQuadsCooldown -= deltaTime;
                 useProjMatCooldown -= deltaTime;
+                focusedCooldown -= deltaTime;
         }
 
         public static void main(String[] args) {

@@ -21,8 +21,8 @@ public class Camera {
         public float rotation = 0.0f;
         public static final float optifineZoomFactor = 44.25f;
 
-        private final float WIDTH = (float) Window.WIDTH;
-        private final float HIEGHT = (float) Window.HEIGHT;
+        private float width = (float) Window.WIDTH;
+        private float height = (float) Window.HEIGHT;
 
         public float yaw;
         public float keyBoardYaw;
@@ -58,11 +58,13 @@ public class Camera {
         }
 
         public Matrix4f getProjectionMatrix() {
+                width = (float) Window.WIDTH;
+                height = (float) Window.HEIGHT;
                 if (!optifineZoom) {
-                        return new Matrix4f().perspective(zoom, WIDTH / HIEGHT, 0.1f, 1000.0f);
+                        return new Matrix4f().perspective(zoom, width / height, 0.1f, 1000.0f);
                 }
                 else{
-                        return new Matrix4f().perspective(optifineZoomFactor, WIDTH / HIEGHT, 0.1f, 1000.0f);
+                        return new Matrix4f().perspective(optifineZoomFactor, width / height, 0.1f, 1000.0f);
                 }
         }
 
