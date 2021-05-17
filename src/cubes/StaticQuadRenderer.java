@@ -7,9 +7,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -92,9 +90,7 @@ public class StaticQuadRenderer {
                         vbo = storeBuffer(vao, 0, 3, vertices);
                         if (!hasColors) {
                                 tbo = storeBuffer(vao, 1, 2, textureCoords);
-                                if ((texture = storeJarTexture(texturePath)) == 0){
-                                        texture = storeDirectTexture(texturePath);
-                                }
+                                texture = storeDirectTexture(texturePath);
                                 shader.setUniform("hasColors", false);
 
                                 //init color buffer as a default value to avoid opengl shader errors even though its not being used
@@ -121,9 +117,7 @@ public class StaticQuadRenderer {
                         vbo = storeBuffer(vao, 0, 3, vertices);
                         if (!hasColors) {
                                 tbo = storeBuffer(vao, 1, 2, textureCoords);
-                                if ((texture = storeJarTexture(texturePath)) == 0){
-                                        texture = storeDirectTexture(texturePath);
-                                }
+                                texture = storeDirectTexture(texturePath);
                                 shader.setUniform("hasColors", false);
 
                                 //init color buffer as a default value to avoid opengl shader errors even though its not being used
@@ -260,49 +254,6 @@ public class StaticQuadRenderer {
                 return buf;
         }
 
-        private int storeJarTexture(String path) {
-                STBImage.stbi_set_flip_vertically_on_load(true);
-
-                try {
-                        int width, height;
-                        IntBuffer x = MemoryUtil.memAllocInt(8);
-                        IntBuffer y = MemoryUtil.memAllocInt(8);
-                        IntBuffer nrChannels = MemoryUtil.memAllocInt(256);
-                        Class cl = Class.forName("cubes.StaticQuadRenderer");
-                        ClassLoader loader = cl.getClassLoader();
-                        InputStream in = loader.getResourceAsStream(path);
-                        int bytes = in.available();
-                        System.out.println(bytes);
-                        byte[] data = new byte[bytes];
-                        in.read(data);
-                        System.out.println("Texture located!");
-                        ByteBuffer imgData = (ByteBuffer) MemoryUtil.memAlloc(bytes).put(data).flip();
-                        int texture = GL20.glGenTextures();
-                        GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
-                        ByteBuffer finalData = STBImage.stbi_load_from_memory(imgData, x, y, nrChannels, 0);
-                        if (finalData == null) {
-                                System.out.println("FAILED TO LOAD TEXTURE FROM JAR RESOURCES WHILE LOADING. PROGRAM WILL EXIT");
-                                System.out.println(STBImage.stbi_failure_reason());
-                        }
-                        width = x.get();
-                        height = y.get();
-                        GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, GL20.GL_RGB, width, height, 0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, finalData);
-                        GL30.glGenerateMipmap(GL20.GL_TEXTURE_2D);
-                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-                        GL20.glBindTexture(GL20.GL_TEXTURE_2D, 0);
-                        STBImage.stbi_image_free(finalData);
-                        System.out.println("Texture loaded!");
-                        return texture;
-                } catch (Exception e) {
-                        System.out.println("FAILED TO LOAD TEXTURE FROM JAR RESOURCES WHEN ACCESSING FILE. PROGRAM WILL EXIT");
-                        System.out.println(STBImage.stbi_failure_reason());
-                        return 0;
-                }
-        }
-
         private int storeDirectTexture(String path) {
                 STBImage.stbi_set_flip_vertically_on_load(true);
 
@@ -322,7 +273,7 @@ public class StaticQuadRenderer {
                         GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
                         ByteBuffer finalData = STBImage.stbi_load_from_memory(imgData, x, y, nrChannels, 0);
                         if (finalData == null) {
-                                System.out.println("FAILED TO LOAD TEXTURE FROM DIRECT RESOURCES WHILE LOADING. PROGRAM WILL EXIT");
+                                System.out.println("FAILED TO LOAD TEXTURE FROM DIRECT RESOURCES WHILE LOADING");
                                 System.out.println(STBImage.stbi_failure_reason());
                         }
                         width = x.get();
@@ -338,7 +289,7 @@ public class StaticQuadRenderer {
                         System.out.println("Texture loaded!");
                         return texture;
                 } catch (Exception e) {
-                        System.out.println("FAILED TO LOAD TEXTURE FROM DIRECT RESOURCES WHEN ACCESSING FILE. PROGRAM WILL EXIT");
+                        System.out.println("FAILED TO LOAD TEXTURE FROM DIRECT RESOURCES WHEN ACCESSING FILE");
                         System.out.println(STBImage.stbi_failure_reason());
                         return 0;
                 }

@@ -108,13 +108,13 @@ public class Window implements Runnable {
                         HEIGHT = height;
                 });
 
-                bouncyShaderProj = new Shader("shaders/BouncyQuadVert.glsl", "shaders/BouncyQuadFrag.glsl");
+                bouncyShaderProj = new Shader("shaders/es-shaders/BouncyQuadVert.glsl", "shaders/es-shaders/BouncyQuadFrag.glsl");
                 bouncyShaderProj.create();
 
-                bouncyShader = new Shader("shaders/BouncyQuadVertNOPROJ.glsl", "shaders/BouncyQuadFragNOPROJ.glsl");
+                bouncyShader = new Shader("shaders/es-shaders/BouncyQuadVertNOPROJ.glsl", "shaders/es-shaders/BouncyQuadFragNOPROJ.glsl");
                 bouncyShader.create();
 
-                staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
+                staticQuadShader = new Shader("shaders/es-shaders/basicVert.glsl", "shaders/es-shaders/basicFrag.glsl");
                 staticQuadShader.create();
 
                 quads = new Renderer[]{new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
