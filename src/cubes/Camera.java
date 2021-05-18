@@ -61,7 +61,12 @@ public class Camera {
                 width = (float) Window.WIDTH;
                 height = (float) Window.HEIGHT;
                 if (!optifineZoom) {
-                        return new Matrix4f().perspective(zoom, width / height, 0.1f, 1000.0f);
+                        if (Window.running) {
+                                return new Matrix4f().perspective(zoom + 0.1f, width / height, 0.1f, 1000.0f);
+                        }
+                        else{
+                                return new Matrix4f().perspective(zoom, width / height, 0.1f, 1000.0f);
+                        }
                 }
                 else{
                         return new Matrix4f().perspective(optifineZoomFactor, width / height, 0.1f, 1000.0f);
@@ -102,20 +107,20 @@ public class Camera {
 
                 if (direction == 0) {
                         playerPos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+                        if (Window.running) {
                                 playerPos.add(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
                 if (direction == 1) {
                         playerPos.sub(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+                        if (Window.running) {
                                 playerPos.sub(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
                 if (direction == 2) {
                         if (!thirdPerson) {
                                 playerPos.sub(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
-                                if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+                                if (Window.running) {
                                         playerPos.sub(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
                                 }
                         } else {
@@ -126,7 +131,7 @@ public class Camera {
                 if (direction == 3) {
                         if (!thirdPerson) {
                                 playerPos.add(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
-                                if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+                                if (Window.running) {
                                         playerPos.add(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
                                 }
                         } else {
