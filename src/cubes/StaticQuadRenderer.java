@@ -168,9 +168,9 @@ public class StaticQuadRenderer {
                                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                                 shader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
                                 if (!camera.getThirdPerson()) {
-                                        shader.setUniform("viewPos", camera.pos);
+                                        shader.setUniform("viewPos", camera.playerPos);
                                 } else {
-                                        shader.setUniform("viewPos", camera.pos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                                        shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
                                 }
                                 shader.setUniform("hasColors", hasColors);
 
@@ -218,9 +218,9 @@ public class StaticQuadRenderer {
                         shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                         shader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
                         if (!camera.getThirdPerson()) {
-                                shader.setUniform("viewPos", camera.pos);
+                                shader.setUniform("viewPos", camera.playerPos);
                         } else {
-                                shader.setUniform("viewPos", camera.pos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                                shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
                         }
                         shader.setUniform("hasColors", hasColors);
 

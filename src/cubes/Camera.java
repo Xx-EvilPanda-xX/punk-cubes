@@ -5,7 +5,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 public class Camera {
-        public Vector3f pos;
+        public Vector3f playerPos;
         public Vector3f front;
         public Vector3f up;
         public Vector3f right;
@@ -34,7 +34,7 @@ public class Camera {
 
         public Camera(Vector3f pos, float yaw, float pitch) {
                 this.front = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
-                this.pos = pos;
+                this.playerPos = pos;
                 this.worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
                 this.yaw = yaw;
                 this.keyBoardYaw = yaw;
@@ -51,9 +51,9 @@ public class Camera {
 
         public Matrix4f getViewMatrix() {
                 if (!thirdPerson) {
-                        return new Matrix4f().lookAt(pos, pos.add(front, new Vector3f()), up);
+                        return new Matrix4f().lookAt(playerPos, playerPos.add(front, new Vector3f()), up);
                 } else {
-                        return new Matrix4f().lookAt(pos.sub(front.mul(zoom / 10, new Vector3f()), new Vector3f()), pos, up);
+                        return new Matrix4f().lookAt(playerPos.sub(front.mul(zoom / 10, new Vector3f()), new Vector3f()), playerPos, up);
                 }
         }
 
@@ -101,22 +101,22 @@ public class Camera {
                 float velocity = MOVEMENT_SPEED * deltaTime;
 
                 if (direction == 0) {
-                        pos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
+                        playerPos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
-                                pos.add(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
+                                playerPos.add(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
                 if (direction == 1) {
-                        pos.sub(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
+                        playerPos.sub(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
-                                pos.sub(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
+                                playerPos.sub(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
                 if (direction == 2) {
                         if (!thirdPerson) {
-                                pos.sub(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
+                                playerPos.sub(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
                                 if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
-                                        pos.sub(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
+                                        playerPos.sub(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
                                 }
                         } else {
                                 keyBoardYaw -= velocity * 25.0f;
@@ -125,9 +125,9 @@ public class Camera {
                 }
                 if (direction == 3) {
                         if (!thirdPerson) {
-                                pos.add(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
+                                playerPos.add(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
                                 if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
-                                        pos.add(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
+                                        playerPos.add(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
                                 }
                         } else {
                                 keyBoardYaw += velocity * 25.0f;
@@ -135,13 +135,13 @@ public class Camera {
                         }
                 }
                 if (direction == 4) {
-                        pos.add(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
+                        playerPos.add(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
                 }
                 if (direction == 5) {
-                        pos.sub(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
+                        playerPos.sub(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
                 }
                 if (direction == 6) {
-                        pos.set(new Vector3f(0.0f, 0.0f, 0.0f));
+                        playerPos.set(new Vector3f(0.0f, 0.0f, 0.0f));
                 }
                 if (keyBoardYaw > 360.0f) {
                         keyBoardYaw = 0.0f;

@@ -202,7 +202,7 @@ public class Window implements Runnable {
                         cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
                         skyBox.render(staticQuadShader, camera, new Vector3f(0.0f, 0.0f, 0.0f), SKYBOX_SCALE, 0.0f, debug);
                         if (camera.getThirdPerson()) {
-                                player.render(staticQuadShader, camera, camera.pos, 1.0f, camera.rotation, debug);
+                                player.render(staticQuadShader, camera, camera.playerPos, 1.0f, camera.rotation, debug);
                         }
                         staticQuadShader.unbind();
                 }
