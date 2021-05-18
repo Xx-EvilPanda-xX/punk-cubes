@@ -139,7 +139,7 @@ public class StaticQuadRenderer {
         public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
-                if (trans == null || scale == 0.0f || rotate == 0.0f) {
+                if (trans == null || scale < 0.0f || rotate < 0.0f) {
                         for (int i = 0; i < numCubes; i++) {
 
                                 Matrix4f model = new Matrix4f().translate(cubePositions[i]).scale(0.5f, 0.5f, 0.5f).rotate(rotation * rotSpeeds[i], 0.0f, 1.0f, 0.0f).rotate(rotation * rotSpeeds[i], 1.0f, 0.0f, 0.0f);
