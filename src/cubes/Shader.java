@@ -14,20 +14,20 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class Shader {
-        private String VERT_PATH;
-        private String FRAG_PATH;
-        private String VERTEX;
-        private String FRAGMENT;
+        private String vertPath;
+        private String fragPath;
+        private String vertex;
+        private String fragment;
         private int vertShaderID;
         private int fragShaderID;
         private int programID;
 
         public Shader(String vertPath, String fragPath) {
                 try {
-                        this.VERTEX = loadShaderFile(vertPath);
-                        this.FRAGMENT = loadShaderFile(fragPath);
-                        this.VERT_PATH = vertPath;
-                        this.FRAG_PATH = fragPath;
+                        this.vertex = loadShaderFile(vertPath);
+                        this.fragment = loadShaderFile(fragPath);
+                        this.vertPath = vertPath;
+                        this.fragPath = fragPath;
                 }
                 catch (ClassNotFoundException e){
                         System.out.println("Incorrect class name literal");
@@ -72,7 +72,7 @@ public class Shader {
                 programID = GL20.glCreateProgram();
                 vertShaderID = GL20.glCreateShader(GL20.GL_VERTEX_SHADER);
 
-                GL20.glShaderSource(vertShaderID, VERTEX);
+                GL20.glShaderSource(vertShaderID, vertex);
                 GL20.glCompileShader(vertShaderID);
 
                 if (GL20.glGetShaderi(vertShaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
@@ -82,7 +82,7 @@ public class Shader {
 
                 fragShaderID = GL20.glCreateShader(GL20.GL_FRAGMENT_SHADER);
 
-                GL20.glShaderSource(fragShaderID, FRAGMENT);
+                GL20.glShaderSource(fragShaderID, fragment);
                 GL20.glCompileShader(fragShaderID);
 
                 if (GL20.glGetShaderi(fragShaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
