@@ -28,19 +28,18 @@ public class Shader {
                         this.fragment = loadShaderFile(fragPath);
                         this.vertPath = vertPath;
                         this.fragPath = fragPath;
-                }
-                catch (ClassNotFoundException e){
+                } catch (ClassNotFoundException e) {
                         System.out.println("Incorrect class name literal");
                 }
         }
 
-        private static String loadShaderFile(String path) throws ClassNotFoundException{
+        private static String loadShaderFile(String path) throws ClassNotFoundException {
                 try {
                         System.out.println("Attempting to load shader from jar resources at: " + path);
                         Class cl = Class.forName("cubes.Shader");
                         ClassLoader loader = cl.getClassLoader();
                         InputStream is = loader.getResourceAsStream(path);
-                        if (is == null){
+                        if (is == null) {
                                 System.out.println("input stream is null, could not find resource");
                         }
                         String shader = (new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))).lines().collect(Collectors.joining("\n"));

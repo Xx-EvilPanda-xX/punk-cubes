@@ -16,8 +16,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Window implements Runnable {
-        public static boolean running = false;
-
         public static final int CUBE_COUNT = 4096;
         public static final float SKYBOX_SCALE = 100.0f;
 
@@ -233,22 +231,31 @@ public class Window implements Runnable {
         }
 
         private void processInput(long window) {
-                if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)){
+                if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) {
                         GLFW.glfwSetWindowShouldClose(window, true);
                 }
 
                 if (focused) {
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) && Input.isKeyDown(GLFW.GLFW_KEY_W)){
-                                running = true;
-                        }
-                        else{
-                                running = false;
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) && Input.isKeyDown(GLFW.GLFW_KEY_W)) {
+                                camera.setSprinting(true);
+                                camera.setSprintFov(camera.getSprintFov() + deltaTime);
+                                if (camera.getSprintFov() > 0.125f) {
+                                        camera.setSprintFov(0.125f);
+                                }
+                        } else {
+                                camera.setSprintFov(camera.getSprintFov() - deltaTime);
+                                if (camera.getSprintFov() < 0.0f) {
+                                        camera.setSprintFov(0.0f);
+                                        camera.setSprinting(false);
+                                }
                         }
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_P)){
-                                if (focusedCooldown <= 0.0f){
-                                        GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {});
-                                        GLFW.glfwSetScrollCallback(window, (windowPog, offsetx, offsety) -> {});
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_P)) {
+                                if (focusedCooldown <= 0.0f) {
+                                        GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
+                                        });
+                                        GLFW.glfwSetScrollCallback(window, (windowPog, offsetx, offsety) -> {
+                                        });
                                         focused = !focused;
                                         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
                                         focusedCooldown = 0.25f;
@@ -300,10 +307,9 @@ public class Window implements Runnable {
                                         viewModeCooldown = 0.25f;
                                 }
                         }
-                }
-                else {
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_P)){
-                                if (focusedCooldown <= 0.0f){
+                } else {
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_P)) {
+                                if (focusedCooldown <= 0.0f) {
                                         GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
                                                 float xoffset = (float) xpos;
                                                 float yoffset;

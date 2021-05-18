@@ -2,7 +2,6 @@ package cubes;
 
 import org.joml.Vector3f;
 import org.joml.Matrix4f;
-import org.lwjgl.glfw.GLFW;
 
 public class Camera {
         public Vector3f playerPos;
@@ -13,6 +12,7 @@ public class Camera {
 
         private boolean thirdPerson;
         private boolean optifineZoom;
+        private boolean sprinting = false;
 
         private Vector3f keyboardRight;
         private Vector3f keyboardFront;
@@ -20,6 +20,7 @@ public class Camera {
 
         public float rotation = 0.0f;
         public static final float optifineZoomFactor = 44.25f;
+        private float sprintFov = 0.0f;
 
         private float width = (float) Window.WIDTH;
         private float height = (float) Window.HEIGHT;
@@ -61,14 +62,12 @@ public class Camera {
                 width = (float) Window.WIDTH;
                 height = (float) Window.HEIGHT;
                 if (!optifineZoom) {
-                        if (Window.running) {
-                                return new Matrix4f().perspective(zoom + 0.1f, width / height, 0.1f, 1000.0f);
-                        }
-                        else{
+                        if (sprinting) {
+                                return new Matrix4f().perspective(zoom + sprintFov, width / height, 0.1f, 1000.0f);
+                        } else {
                                 return new Matrix4f().perspective(zoom, width / height, 0.1f, 1000.0f);
                         }
-                }
-                else{
+                } else {
                         return new Matrix4f().perspective(optifineZoomFactor, width / height, 0.1f, 1000.0f);
                 }
         }
@@ -80,11 +79,11 @@ public class Camera {
                 if (!optifineZoom) {
                         yaw += xoffset;
                         pitch += yoffset;
-                }
-                else{
+                } else {
                         yaw += xoffset / 5;
                         pitch += yoffset / 5;
                 }
+
                 if (constrainPitch) {
                         if (pitch > 89.0f) {
                                 pitch = 89.0f;
@@ -107,20 +106,20 @@ public class Camera {
 
                 if (direction == 0) {
                         playerPos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
-                        if (Window.running) {
+                        if (sprinting) {
                                 playerPos.add(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
                 if (direction == 1) {
                         playerPos.sub(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
-                        if (Window.running) {
+                        if (sprinting) {
                                 playerPos.sub(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
                 if (direction == 2) {
                         if (!thirdPerson) {
                                 playerPos.sub(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
-                                if (Window.running) {
+                                if (sprinting) {
                                         playerPos.sub(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
                                 }
                         } else {
@@ -131,7 +130,7 @@ public class Camera {
                 if (direction == 3) {
                         if (!thirdPerson) {
                                 playerPos.add(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
-                                if (Window.running) {
+                                if (sprinting) {
                                         playerPos.add(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
                                 }
                         } else {
@@ -201,12 +200,28 @@ public class Camera {
                 updateKeyboardVectors();
         }
 
-        public void setOptifineZoom(boolean optifineZoom){
+        public void setOptifineZoom(boolean optifineZoom) {
                 this.optifineZoom = optifineZoom;
         }
 
-        public boolean getOpifineZoom(){
+        public boolean getOpifineZoom() {
                 return optifineZoom;
+        }
+
+        public void setSprinting(boolean sprinting) {
+                this.sprinting = sprinting;
+        }
+
+        public boolean getSprinting() {
+                return sprinting;
+        }
+
+        public void setSprintFov(float sprintFov) {
+                this.sprintFov = sprintFov;
+        }
+
+        public float getSprintFov() {
+                return sprintFov;
         }
 
         public void setThirdPerson(boolean thirdPerson) {
