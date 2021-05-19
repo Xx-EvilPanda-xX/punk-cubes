@@ -31,7 +31,7 @@ public class Camera {
         public float zoom = 45.0f;
 
         private final float MOVEMENT_SPEED = 3.0f;
-        private final float MOUSE_SENSITIVITY = 0.075f;
+        private final float MOUSE_SENSITIVITY = 0.045f;
 
         public Camera(Vector3f pos, float yaw, float pitch) {
                 this.front = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());

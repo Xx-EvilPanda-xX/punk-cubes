@@ -1,0 +1,5 @@
+fullscreen ---- | false |
+width --------- | 1080 |
+height -------- | 720 |
+cube_count ---- | 4096 |
+skybox_scale -- | 100.0 |
