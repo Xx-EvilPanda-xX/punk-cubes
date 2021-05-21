@@ -18,13 +18,13 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Window implements Runnable {
-        public static boolean FULLSCREEN;
+        public static boolean FULLSCREEN = false;
 
-        public static int CUBE_COUNT;
-        public static float SKYBOX_SCALE;
+        public static int CUBE_COUNT = 4096;
+        public static float SKYBOX_SCALE = 100.0f;
 
-        public static int WIDTH;
-        public static int HEIGHT;
+        public static int WIDTH = 1080;
+        public static int HEIGHT = 720;
 
         public static float deltaTime = 0.0f;
         private float viewModeCooldown = 0.0f, renderQuadsCooldown = 0.0f, useProjMatCooldown = 0.0f, focusedCooldown = 0.0f, lastFrame = 0.0f;
@@ -56,43 +56,6 @@ public class Window implements Runnable {
 
                 System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
-                try {
-                        StringBuilder builder = new StringBuilder();
-                        BufferedReader reader = new BufferedReader(new FileReader("configs.txt"));
-                        String read;
-                        while ((read = reader.readLine()) != null) {
-                                builder.append(read + "\n");
-                        }
-                        read = builder.toString();
-                        String[] configs = read.split(" | ");
-                        FULLSCREEN = Boolean.parseBoolean(configs[3]);
-                        if (!FULLSCREEN) {
-                                WIDTH = Integer.parseInt(configs[7]);
-                                HEIGHT = Integer.parseInt(configs[11]);
-                        }
-                        else {
-                                WIDTH = 1920;
-                                HEIGHT = 1080;
-                        }
-                        CUBE_COUNT = Integer.parseInt(configs[15]);
-                        if (CUBE_COUNT > 10000){
-                                CUBE_COUNT = 10000;
-                        }
-                        SKYBOX_SCALE = Float.parseFloat(configs[19]);
-                        if (SKYBOX_SCALE < 5){
-                                SKYBOX_SCALE = 5;
-                        }
-                }
-                catch (Exception e){
-                        System.out.println("Config file not found or corrupted. Configs will be set to default values");
-                        FULLSCREEN = false;
-                        CUBE_COUNT = 4096;
-                        SKYBOX_SCALE = 100.0f;
-                        WIDTH = 1080;
-                        HEIGHT = 720;
-                }
-
-
                 init();
                 create();
                 while (!GLFW.glfwWindowShouldClose(window)) {
@@ -105,6 +68,43 @@ public class Window implements Runnable {
         }
 
         private void init() {
+                try {
+                        StringBuilder builder = new StringBuilder();
+                        BufferedReader reader = new BufferedReader(new FileReader("configs.txt"));
+                        String read;
+                        while ((read = reader.readLine()) != null) {
+                                builder.append(read + "\n");
+                        }
+
+                        read = builder.toString();
+                        String[] configLines = read.split("\n");
+                        String[] configs = new String[configLines.length];
+                        for (int i = 0; i < configLines.length; i++) {
+                                configs[i] = configLines[i].split(" = ")[1];
+                        }
+
+                        if (FULLSCREEN) {
+                                GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+                                WIDTH = vidmode.width();
+                                HEIGHT = vidmode.height();
+                        }
+
+                        if (CUBE_COUNT > 10000) {
+                                System.out.println("Too many cubes! Cube count will be set to 4096");
+                                CUBE_COUNT = 10000;
+                        }
+
+                        if (SKYBOX_SCALE > 250 || SKYBOX_SCALE < 5) {
+                                System.out.println("Invalid skybox size! Skybox size will be size to 100.0");
+                                SKYBOX_SCALE = 100.0f;
+                        }
+
+                } catch (Exception e) {
+                        System.out.println("Config file not found or corrupted. Configs will be set to default values");
+                }
+
+                System.out.println("Custom config file successfully loaded!");
+
                 GLFWErrorCallback.createPrint(System.err).set();
 
                 if (!GLFW.glfwInit()) {
@@ -115,8 +115,7 @@ public class Window implements Runnable {
 
                 if (FULLSCREEN) {
                         window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, title, GLFW.glfwGetPrimaryMonitor(), MemoryUtil.NULL);
-                }
-                else {
+                } else {
                         window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, title, MemoryUtil.NULL, MemoryUtil.NULL);
                 }
 
@@ -159,13 +158,13 @@ public class Window implements Runnable {
                         HEIGHT = height;
                 });
 
-                bouncyShaderProj = new Shader("shaders/BouncyQuadVert.glsl", "shaders/BouncyQuadFrag.glsl");
+                bouncyShaderProj = new Shader("shaders/es-shaders/BouncyQuadVert.glsl", "shaders/es-shaders/BouncyQuadFrag.glsl");
                 bouncyShaderProj.create();
 
-                bouncyShader = new Shader("shaders/BouncyQuadVertNOPROJ.glsl", "shaders/BouncyQuadFragNOPROJ.glsl");
+                bouncyShader = new Shader("shaders/es-shaders/BouncyQuadVertNOPROJ.glsl", "shaders/es-shaders/BouncyQuadFragNOPROJ.glsl");
                 bouncyShader.create();
 
-                staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
+                staticQuadShader = new Shader("shaders/es-shaders/basicVert.glsl", "shaders/es-shaders/basicFrag.glsl");
                 staticQuadShader.create();
 
                 quads = new Renderer[]{new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),

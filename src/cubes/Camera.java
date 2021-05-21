@@ -68,7 +68,11 @@ public class Camera {
                                 return new Matrix4f().perspective(zoom, width / height, 0.1f, 1000.0f);
                         }
                 } else {
-                        return new Matrix4f().perspective(optifineZoomFactor, width / height, 0.1f, 1000.0f);
+                        if (sprinting) {
+                                return new Matrix4f().perspective(optifineZoomFactor + sprintFov / 2.0f, width / height, 0.1f, 1000.0f);
+                        } else {
+                                return new Matrix4f().perspective(optifineZoomFactor, width / height, 0.1f, 1000.0f);
+                        }
                 }
         }
 
