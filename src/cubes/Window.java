@@ -19,6 +19,8 @@ import org.joml.Vector3f;
 
 public class Window implements Runnable {
         public static boolean FULLSCREEN = false;
+        public static boolean DEBUG = false;
+        public static boolean RENDER_CUBES = true;
 
         public static int CUBE_COUNT = 4096;
         public static float SKYBOX_SCALE = 100.0f;
@@ -41,7 +43,7 @@ public class Window implements Runnable {
         private StaticQuadRenderer player;
         private Shader bouncyShader, bouncyShaderProj;
         private Shader staticQuadShader;
-        private boolean renderCubes = true, renderQuads = false, focused = true;
+        private boolean renderQuads = false, focused = true;
         public Vector3f[] cubePositions;
         public float[] cubeRots;
 
@@ -59,8 +61,9 @@ public class Window implements Runnable {
                 init();
                 create();
                 while (!GLFW.glfwWindowShouldClose(window)) {
-                        loop(renderCubes, renderQuads, false);
+                        loop(RENDER_CUBES, renderQuads, DEBUG);
                 }
+
                 Callbacks.glfwFreeCallbacks(window);
                 GLFW.glfwDestroyWindow(window);
                 GLFW.glfwTerminate();
@@ -68,6 +71,10 @@ public class Window implements Runnable {
         }
 
         private void init() {
+                if (!GLFW.glfwInit()) {
+                        throw new IllegalStateException("Unable to initialize GLFW");
+                }
+
                 try {
                         StringBuilder builder = new StringBuilder();
                         BufferedReader reader = new BufferedReader(new FileReader("configs.txt"));
@@ -83,33 +90,37 @@ public class Window implements Runnable {
                                 configs[i] = configLines[i].split(" = ")[1];
                         }
 
-                        if (FULLSCREEN) {
+                        DEBUG = Boolean.parseBoolean(configs[1]);
+                        RENDER_CUBES = Boolean.parseBoolean(configs[2]);
+
+                        if ((FULLSCREEN = Boolean.parseBoolean(configs[0]))) {
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
                                 WIDTH = vidmode.width();
                                 HEIGHT = vidmode.height();
+                        } else {
+                                WIDTH = Integer.parseInt(configs[3]);
+                                HEIGHT = Integer.parseInt(configs[4]);
                         }
 
-                        if (CUBE_COUNT > 10000) {
+                        if ((CUBE_COUNT = Integer.parseInt(configs[5])) > 10000) {
                                 System.out.println("Too many cubes! Cube count will be set to 4096");
                                 CUBE_COUNT = 10000;
                         }
 
-                        if (SKYBOX_SCALE > 250 || SKYBOX_SCALE < 5) {
+                        if ((SKYBOX_SCALE = Float.parseFloat(configs[6])) > 250 || (SKYBOX_SCALE = Float.parseFloat(configs[6])) < 5) {
                                 System.out.println("Invalid skybox size! Skybox size will be size to 100.0");
                                 SKYBOX_SCALE = 100.0f;
                         }
 
+                        System.out.println("Custom config file successfully loaded!");
+
                 } catch (Exception e) {
                         System.out.println("Config file not found or corrupted. Configs will be set to default values");
+                        e.printStackTrace();
                 }
-
-                System.out.println("Custom config file successfully loaded!");
 
                 GLFWErrorCallback.createPrint(System.err).set();
 
-                if (!GLFW.glfwInit()) {
-                        throw new IllegalStateException("Unable to initialize GLFW");
-                }
                 GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
                 GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
 
@@ -129,8 +140,11 @@ public class Window implements Runnable {
                         if (!FULLSCREEN) {
                                 GLFW.glfwGetWindowSize(window, pWidth, pHeight);
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+                                System.out.println(vidmode.width() + ", " + vidmode.height());
                                 GLFW.glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
                         }
+                } catch (Exception e) {
+                        e.printStackTrace();
                 }
 
                 GLFW.glfwMakeContextCurrent(window);
@@ -247,15 +261,17 @@ public class Window implements Runnable {
 
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+                staticQuadShader.bind();
+                skyBox.render(staticQuadShader, camera, new Vector3f(0.0f, 0.0f, 0.0f), SKYBOX_SCALE, 0.0f, debug);
                 if (renderCubes) {
-                        staticQuadShader.bind();
                         cube.render(staticQuadShader, camera, null, 0.0f, 0.0f, debug);
-                        skyBox.render(staticQuadShader, camera, new Vector3f(0.0f, 0.0f, 0.0f), SKYBOX_SCALE, 0.0f, debug);
                         if (camera.getThirdPerson()) {
                                 player.render(staticQuadShader, camera, camera.playerPos, 1.0f, camera.rotation, debug);
                         }
-                        staticQuadShader.unbind();
                 }
+                staticQuadShader.unbind();
+
                 if (renderQuads) {
                         if (Renderer.USE_PROJ_VIEW_MAT) {
                                 bouncyShaderProj.bind();
