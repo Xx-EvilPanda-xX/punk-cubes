@@ -1,5 +1,6 @@
 package cubes;
 
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -133,6 +134,7 @@ public class Window implements Runnable {
                 if (window == MemoryUtil.NULL) {
                         throw new RuntimeException("Failed to create the GLFW window");
                 }
+                System.out.println("Window memory address: " + window);
 
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                         IntBuffer pWidth = stack.mallocInt(1);
@@ -140,7 +142,6 @@ public class Window implements Runnable {
                         if (!FULLSCREEN) {
                                 GLFW.glfwGetWindowSize(window, pWidth, pHeight);
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-                                System.out.println(vidmode.width() + ", " + vidmode.height());
                                 GLFW.glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
                         }
                 } catch (Exception e) {
@@ -364,8 +365,9 @@ public class Window implements Runnable {
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
-                                camera.processKeyboard(6, deltaTime);
-                                staticQuadShader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
+                                player.setCurrentLightPos(new Vector3f(camera.playerPos));
+                                skyBox.setCurrentLightPos(new Vector3f(camera.playerPos));
+                                cube.setCurrentLightPos(new Vector3f(camera.playerPos));
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
                                 if (viewModeCooldown <= 0.0f) {
