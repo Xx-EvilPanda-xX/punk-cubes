@@ -97,10 +97,10 @@ public class Camera {
                         }
                 }
                 if (yaw > 360.0f) {
-                        yaw = 0.0f;
+                        yaw = yaw - 360.0f;
                 }
                 if (yaw < 0.0f) {
-                        yaw = 360.0f;
+                        yaw = 360.0f - yaw;
                 }
                 updateAllVectors();
         }
@@ -148,14 +148,11 @@ public class Camera {
                 if (direction == 5) {
                         playerPos.sub(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
                 }
-                if (direction == 6) {
-                        playerPos.set(new Vector3f(0.0f, 0.0f, 0.0f));
-                }
                 if (keyBoardYaw > 360.0f) {
-                        keyBoardYaw = 0.0f;
+                        keyBoardYaw = keyBoardYaw - 360.0f;
                 }
                 if (keyBoardYaw < 0.0f) {
-                        keyBoardYaw = 360.0f;
+                        keyBoardYaw = 360.0f - keyBoardYaw;
                 }
                 updateAllVectors();
         }

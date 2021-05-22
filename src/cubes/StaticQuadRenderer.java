@@ -20,6 +20,7 @@ public class StaticQuadRenderer {
         private FloatBuffer vertices, textureCoords, colors, normals;
         private IntBuffer indices;
         private String texturePath;
+        private Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
         private boolean indexed;
         private boolean hasColors;
         private float rotation;
@@ -166,7 +167,7 @@ public class StaticQuadRenderer {
                                 }
 
                                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                                shader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
+                                shader.setUniform("lightPos", currentLightPos);
                                 if (!camera.getThirdPerson()) {
                                         shader.setUniform("viewPos", camera.playerPos);
                                 } else {
@@ -216,7 +217,7 @@ public class StaticQuadRenderer {
                         }
 
                         shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                        shader.setUniform("lightPos", new Vector3f(0.0f, 0.0f, 0.0f));
+                        shader.setUniform("lightPos", currentLightPos);
                         if (!camera.getThirdPerson()) {
                                 shader.setUniform("viewPos", camera.playerPos);
                         } else {
@@ -264,7 +265,7 @@ public class StaticQuadRenderer {
                         IntBuffer nrChannels = MemoryUtil.memAllocInt(256);
                         InputStream in = new FileInputStream("resources/" + path);
                         int bytes = in.available();
-                        System.out.println(bytes);
+                        System.out.println("texture size: " + bytes);
                         byte[] data = new byte[bytes];
                         in.read(data);
                         System.out.println("Texture located!");
@@ -327,6 +328,10 @@ public class StaticQuadRenderer {
                 normalCount = normals.length / 3;
         }
 
+        public void setCurrentLightPos(Vector3f lightPos){
+                this.currentLightPos = lightPos;
+        }
+
         public IntBuffer getIndices() {
                 return indices;
         }
@@ -341,5 +346,9 @@ public class StaticQuadRenderer {
 
         public FloatBuffer getNormals() {
                 return normals;
+        }
+
+        public Vector3f getCurrentLightPos() {
+                return currentLightPos;
         }
 }
