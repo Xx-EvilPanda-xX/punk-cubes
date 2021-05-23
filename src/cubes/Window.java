@@ -1,6 +1,5 @@
 package cubes;
 
-import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -38,10 +37,10 @@ public class Window implements Runnable {
         private static long time;
         private Thread pog;
         private long window;
-        private Renderer quads[];
-        private StaticQuadRenderer cube;
-        private StaticQuadRenderer skyBox;
-        private StaticQuadRenderer player;
+        private QuadRenderer quads[];
+        private Renderer cube;
+        private Renderer skyBox;
+        private Renderer player;
         private Shader bouncyShader, bouncyShaderProj;
         private Shader staticQuadShader;
         private boolean renderQuads = false, focused = true;
@@ -182,16 +181,16 @@ public class Window implements Runnable {
                 staticQuadShader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
                 staticQuadShader.create();
 
-                quads = new Renderer[]{new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
-                        new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.7f, 0.5f, -0.5f, 0),
-                        new Renderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.05f, 1.0f, 0.0f, 0),
+                quads = new QuadRenderer[]{new QuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
+                        new QuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.7f, 0.5f, -0.5f, 0),
+                        new QuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.05f, 1.0f, 0.0f, 0),
                 };
 
-                skyBox = new StaticQuadRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, null, null, "textures/pumserver.png", false);
-                cube = new StaticQuadRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, cubePositions, cubeRots, "textures/wood.png", false);
-                player = new StaticQuadRenderer(Geometry.OCTAHEDRON_VERTICES, Geometry.OCTAHEDRON_COLORS, Geometry.OCTAHEDRON_NORMALS, null, null, null, true);
+                skyBox = new Renderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, null, null, "textures/pumserver.png", false);
+                cube = new Renderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, cubePositions, cubeRots, "textures/wood.png", false);
+                player = new Renderer(Geometry.OCTAHEDRON_VERTICES, Geometry.OCTAHEDRON_COLORS, Geometry.OCTAHEDRON_NORMALS, null, null, null, true);
 
-                for (Renderer r : quads) {
+                for (QuadRenderer r : quads) {
                         r.create(true);
                 }
                 cube.create(staticQuadShader);
@@ -274,19 +273,19 @@ public class Window implements Runnable {
                 staticQuadShader.unbind();
 
                 if (renderQuads) {
-                        if (Renderer.USE_PROJ_VIEW_MAT) {
+                        if (QuadRenderer.USE_PROJ_VIEW_MAT) {
                                 bouncyShaderProj.bind();
                         } else {
                                 bouncyShader.bind();
                         }
-                        for (Renderer r : quads) {
-                                if (Renderer.USE_PROJ_VIEW_MAT) {
+                        for (QuadRenderer r : quads) {
+                                if (QuadRenderer.USE_PROJ_VIEW_MAT) {
                                         r.render(bouncyShaderProj, camera, debug);
                                 } else {
                                         r.render(bouncyShader, camera, debug);
                                 }
                         }
-                        if (Renderer.USE_PROJ_VIEW_MAT) {
+                        if (QuadRenderer.USE_PROJ_VIEW_MAT) {
                                 bouncyShaderProj.unbind();
                         } else {
                                 bouncyShader.unbind();
@@ -360,7 +359,7 @@ public class Window implements Runnable {
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
                                 if (useProjMatCooldown <= 0.0f) {
-                                        Renderer.USE_PROJ_VIEW_MAT = !Renderer.USE_PROJ_VIEW_MAT;
+                                        QuadRenderer.USE_PROJ_VIEW_MAT = !QuadRenderer.USE_PROJ_VIEW_MAT;
                                         useProjMatCooldown = 0.25f;
                                 }
                         }

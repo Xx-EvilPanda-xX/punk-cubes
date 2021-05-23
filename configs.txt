@@ -1,7 +1,7 @@
-fullscreen = true
+fullscreen = false
 debug = false
 render_cubes = true
 width = 1080
 height = 720
-cube_count = 4096
-skybox_scale = 100.0
+cube_count = 800
+skybox_scale = 70.0

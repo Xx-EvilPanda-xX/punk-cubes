@@ -10,156 +10,250 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class Renderer {
-        public static boolean USE_PROJ_VIEW_MAT = true;
-
-        public final float SCALE;
-        public final float LIMIT;
-        public final float SPEED;
-        public final float YPOS;
-
-        private FloatBuffer vertices, colors;
+        private FloatBuffer vertices, textureCoords, colors, normals;
         private IntBuffer indices;
+        private String texturePath;
+        private Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
         private boolean indexed;
-        private float uniformRed, colorOffset, trans, transOffset, rotation;
-        private int vao, vbo, ebo, cbo;
-        public int vertexCount, indexCount, colorCount;
+        private boolean hasColors;
+        private float rotation;
+        private Texture texture;
+        private Vao vao;
+        private int vbo, ebo, tbo, cbo, nbo;
+        public int indexCount, vertexCount, texCoordCount, colorCount, normalCount, numCubes;
+        private float[] rotSpeeds;
+        private Vector3f[] cubePositions;
 
-        public Renderer(float[] vertexData, float[] colorData, int[] indexData, float scale, float speed, float ypos, float rotation) {
-                SCALE = scale;
-                LIMIT = 1 - (scale / 2);
-                SPEED = speed;
-                YPOS = ypos;
+        public Renderer(float[] vertexData, float[] texCoordsOrColors, float[] normals, int[] indexData, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath, boolean hasColors) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-                this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
+                if (hasColors) {
+                        this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+                        colorCount = texCoordsOrColors.length / 3;
+                } else {
+                        this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+                        texCoordCount = texCoordsOrColors.length / 2;
+                }
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
                 this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
                 indexCount = indexData.length;
                 vertexCount = vertexData.length / 3;
-                colorCount = colorData.length / 3;
-                uniformRed = 0.0f;
-                colorOffset = 0.5f;
-                transOffset = SPEED;
-                trans = 0.0f;
-                this.rotation = rotation;
+                normalCount = normals.length / 3;
+                this.cubePositions = cubePositions;
+                this.rotSpeeds = rotSpeeds;
+                if (cubePositions == null || rotSpeeds == null) {
+                        numCubes = 0;
+                } else {
+                        numCubes = cubePositions.length;
+                        if (cubePositions.length != rotSpeeds.length) {
+                                throw new IllegalStateException();
+                        }
+                }
+                this.texturePath = texturePath;
+                this.hasColors = hasColors;
+                indexed = true;
         }
 
-        public Renderer(float[] vertexData, float[] colorData, float scale, float speed, float ypos) {
-                SCALE = scale;
-                LIMIT = 1 - (scale / 2);
-                SPEED = speed;
-                YPOS = ypos;
+        public Renderer(float[] vertexData, float[] texCoordsOrColors, float[] normals, Vector3f[] cubePositions, float[] rotSpeeds, String texturePath, boolean hasColors) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-                this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-                this.indices = null;
+                if (hasColors) {
+                        this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+                        colorCount = texCoordsOrColors.length / 3;
+                } else {
+                        this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoordsOrColors.length).put(texCoordsOrColors).flip();
+                        texCoordCount = texCoordsOrColors.length / 2;
+                }
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
                 vertexCount = vertexData.length / 3;
-                colorCount = colorData.length / 3;
-                indexCount = 0;
-                uniformRed = 0.0f;
-                colorOffset = 0.5f;
-                transOffset = SPEED;
-                trans = 0.0f;
+                normalCount = normals.length / 3;
+                this.cubePositions = cubePositions;
+                this.rotSpeeds = rotSpeeds;
+                if (cubePositions == null || rotSpeeds == null) {
+                        numCubes = 0;
+                } else {
+                        numCubes = cubePositions.length;
+                        if (cubePositions.length != rotSpeeds.length) {
+                                throw new IllegalStateException();
+                        }
+                }
+                this.texturePath = texturePath;
+                this.hasColors = hasColors;
+                indexed = false;
         }
 
-        public void create(boolean indexed) {
-                this.indexed = indexed;
+        public void create(Shader shader) {
                 if (indexed) {
-                        vao = GL30.glGenVertexArrays();
-                        vbo = storeBuffer(vao, 0, 3, vertices);
-                        cbo = storeBuffer(vao, 1, 3, colors);
+                        vao = new Vao();
+                        vbo = vao.storeBuffer(0, 3, vertices);
+                        if (!hasColors) {
+                                tbo = vao.storeBuffer(1, 2, textureCoords);
+                                texture = new Texture(texturePath);
+                                texture.storeDirectTexture();
+                                shader.setUniform("hasColors", false);
+
+                                //init color buffer as a default value to avoid opengl shader errors even though its not being used
+                                cbo = vao.storeBuffer(2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[]{0.0f, 0.0f, 0.0f}).flip());
+                        }
+                        if (hasColors) {
+                                cbo = vao.storeBuffer(2, 3, colors);
+                                shader.setUniform("hasColors", true);
+
+                                //init texture coordinate buffer as a default value to avoid opengl shader errors even though its not being used
+                                tbo = vao.storeBuffer(1, 2, (FloatBuffer) MemoryUtil.memAllocFloat(2).put(new float[]{0.0f, 0.0f}).flip());
+                        }
+                        nbo = vao.storeBuffer(3, 3, normals);
+
+
                         ebo = GL15.glGenBuffers();
 
-                        GL30.glBindVertexArray(vao);
+                        GL30.glBindVertexArray(vao.getHandle());
                         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
                         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
                         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
                 } else {
-                        vao = GL30.glGenVertexArrays();
-                        vbo = storeBuffer(vao, 0, 3, vertices);
-                        cbo = storeBuffer(vao, 1, 3, colors);
+                        vao = new Vao();
+                        vbo = vao.storeBuffer(0, 3, vertices);
+                        if (!hasColors) {
+                                tbo = vao.storeBuffer(1, 2, textureCoords);
+                                texture = new Texture(texturePath);
+                                texture.storeDirectTexture();
+                                shader.setUniform("hasColors", false);
+
+                                //init color buffer as a default value to avoid opengl shader errors even though its not being used
+                                cbo = vao.storeBuffer(2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[]{0.0f, 0.0f, 0.0f}).flip());
+                        }
+                        if (hasColors) {
+                                cbo = vao.storeBuffer(2, 3, colors);
+                                shader.setUniform("hasColors", true);
+
+                                //init texture coordinate buffer as a default value to avoid opengl shader errors even though its not being used
+                                tbo = vao.storeBuffer(1, 2, (FloatBuffer) MemoryUtil.memAllocFloat(2).put(new float[]{0.0f, 0.0f}).flip());
+                        }
+                        nbo = vao.storeBuffer(3, 3, normals);
+
                         ebo = 0;
                 }
         }
 
-        public void render(Shader shader, Camera camera, boolean debug) {
+        public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
-                trans += transOffset * Window.deltaTime;
-                if (trans > LIMIT) {
-                        transOffset = -SPEED;
-                        trans = LIMIT;
-                }
-                if (trans < -LIMIT) {
-                        transOffset = SPEED;
-                        trans = -LIMIT;
-                }
+                if (trans == null) {
+                        for (int i = 0; i < numCubes; i++) {
 
-                Matrix4f model;
+                                Matrix4f model = new Matrix4f().translate(cubePositions[i]).scale(0.5f, 0.5f, 0.5f).rotate(rotation * rotSpeeds[i], 0.0f, 1.0f, 0.0f).rotate(rotation * rotSpeeds[i], 1.0f, 0.0f, 0.0f);
 
-                if (USE_PROJ_VIEW_MAT) {
-                        model = new Matrix4f().translate(trans, YPOS, -3.0f).scale(SCALE, SCALE, SCALE).rotate(rotation * trans, 0.0f, 0.0f, 1.0f);
+                                Matrix4f proj = camera.getProjectionMatrix();
+
+                                Matrix4f view = camera.getViewMatrix();
+
+                                if (!hasColors) {
+                                        GL20.glActiveTexture(GL20.GL_TEXTURE0);
+                                        GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture.getHandle());
+                                }
+                                if (debug) {
+                                        System.out.println(model.toString());
+                                        shader.setUniform("model", model, true);
+                                        System.out.println(proj.toString());
+                                        shader.setUniform("projection", proj, true);
+                                        System.out.println(view.toString());
+                                        shader.setUniform("view", view, true);
+                                } else {
+                                        shader.setUniform("model", model, false);
+                                        shader.setUniform("projection", proj, false);
+                                        shader.setUniform("view", view, false);
+                                }
+
+                                shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
+                                shader.setUniform("lightPos", currentLightPos);
+                                if (!camera.getThirdPerson()) {
+                                        shader.setUniform("viewPos", camera.playerPos);
+                                } else {
+                                        shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                                }
+                                shader.setUniform("hasColors", hasColors);
+
+                                if (indexed) {
+                                        GL30.glBindVertexArray(vao.getHandle());
+                                        enableAttribs();
+                                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+                                        GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0);
+                                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+                                        disableAttribs();
+                                        GL30.glBindVertexArray(0);
+                                } else {
+                                        GL30.glBindVertexArray(vao.getHandle());
+                                        enableAttribs();
+                                        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
+                                        disableAttribs();
+                                        GL30.glBindVertexArray(0);
+                                }
+                        }
                 } else {
-                        model = new Matrix4f().translate(trans, YPOS, 0.0f).scale(SCALE, SCALE, SCALE).rotate(rotation * trans, 0.0f, 0.0f, 1.0f);
-                }
 
-                Matrix4f proj = camera.getProjectionMatrix();
+                        Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotate, 0.0f, 1.0f, 0.0f);
 
-                Matrix4f view = camera.getViewMatrix();
+                        Matrix4f proj = camera.getProjectionMatrix();
 
-                if (debug) {
-                        System.out.println(model.toString());
-                        shader.setUniform("model", model, true);
-                        if (USE_PROJ_VIEW_MAT) {
+                        Matrix4f view = camera.getViewMatrix();
+
+                        if (!hasColors) {
+                                GL20.glActiveTexture(GL20.GL_TEXTURE0);
+                                GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture.getHandle());
+                        }
+                        if (debug) {
+                                System.out.println(model.toString());
+                                shader.setUniform("model", model, true);
                                 System.out.println(proj.toString());
                                 shader.setUniform("projection", proj, true);
                                 System.out.println(view.toString());
                                 shader.setUniform("view", view, true);
-                        }
-                } else {
-                        shader.setUniform("model", model, false);
-                        if (USE_PROJ_VIEW_MAT) {
+                        } else {
+                                shader.setUniform("model", model, false);
                                 shader.setUniform("projection", proj, false);
                                 shader.setUniform("view", view, false);
                         }
-                }
 
-                shader.setUniform("red", uniformRed);
+                        shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
+                        shader.setUniform("lightPos", currentLightPos);
+                        if (!camera.getThirdPerson()) {
+                                shader.setUniform("viewPos", camera.playerPos);
+                        } else {
+                                shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                        }
+                        shader.setUniform("hasColors", hasColors);
 
-                if (indexed) {
-                        GL30.glBindVertexArray(this.vao);
-                        GL20.glEnableVertexAttribArray(0);
-                        GL20.glEnableVertexAttribArray(1);
-                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
-                        GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0);
-                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-                        GL20.glDisableVertexAttribArray(1);
-                        GL20.glDisableVertexAttribArray(0);
-                        GL30.glBindVertexArray(0);
-                } else {
-                        GL30.glBindVertexArray(vao);
-                        GL20.glEnableVertexAttribArray(0);
-                        GL20.glEnableVertexAttribArray(1);
-                        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
-                        GL20.glDisableVertexAttribArray(1);
-                        GL20.glDisableVertexAttribArray(0);
-                        GL30.glBindVertexArray(0);
+                        if (indexed) {
+                                GL30.glBindVertexArray(vao.getHandle());
+                                enableAttribs();
+                                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+                                GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0);
+                                GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+                                disableAttribs();
+                                GL30.glBindVertexArray(0);
+                        } else {
+                                GL30.glBindVertexArray(vao.getHandle());
+                                enableAttribs();
+                                GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
+                                disableAttribs();
+                                GL30.glBindVertexArray(0);
+                        }
                 }
-                uniformRed += colorOffset * Window.deltaTime;
-                if (uniformRed > 1.0f) {
-                        colorOffset = -0.5f;
-                } else if (uniformRed < 0.0f) {
-                        colorOffset = 0.5f;
+                rotation += (1.0f * Window.deltaTime);
+        }
+
+        private void enableAttribs() {
+                for (int i = 0; i < vao.getAttribCount(); i++) {
+                        GL20.glEnableVertexAttribArray(i);
                 }
         }
 
-        public int storeBuffer(int vao, int index, int size, FloatBuffer data) {
-                GL30.glBindVertexArray(vao);
-                int buf = GL15.glGenBuffers();
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, buf);
-                GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
-                GL20.glVertexAttribPointer(index, size, GL11.GL_FLOAT, false, 0, 0);
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-                return buf;
+        private void disableAttribs() {
+                for (int i = 0; i < vao.getAttribCount(); i++) {
+                        GL20.glDisableVertexAttribArray(i);
+                }
         }
 
         public void setIndices(int[] indexData) {
@@ -172,9 +266,18 @@ public class Renderer {
                 vertexCount = vertexData.length / 3;
         }
 
-        public void setColors(float[] colorData) {
-                this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-                colorCount = colorData.length / 3;
+        public void setTextureCoords(float[] textureCoords) {
+                this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(textureCoords.length).put(textureCoords).flip();
+                texCoordCount = textureCoords.length / 3;
+        }
+
+        public void setNormals(float[] normals) {
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+                normalCount = normals.length / 3;
+        }
+
+        public void setCurrentLightPos(Vector3f lightPos){
+                this.currentLightPos = lightPos;
         }
 
         public IntBuffer getIndices() {
@@ -185,7 +288,15 @@ public class Renderer {
                 return vertices;
         }
 
-        public FloatBuffer getColors() {
-                return colors;
+        public FloatBuffer getTextureCoords() {
+                return textureCoords;
+        }
+
+        public FloatBuffer getNormals() {
+                return normals;
+        }
+
+        public Vector3f getCurrentLightPos() {
+                return currentLightPos;
         }
 }
