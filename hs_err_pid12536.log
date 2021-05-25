@@ -35,8 +35,8 @@ Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
 j  org.lwjgl.opengl.GL11C.nglTexImage2D(IIIIIIIIJ)V+0
 j  org.lwjgl.opengl.GL11C.glTexImage2D(IIIIIIIILjava/nio/ByteBuffer;)V+17
 j  org.lwjgl.opengl.GL11.glTexImage2D(IIIIIIIILjava/nio/ByteBuffer;)V+14
-j  cubes.Renderer.storeTexture(Ljava/lang/String;)I+105
-j  cubes.Renderer.create(Z)V+244
+j  temp.Renderer.storeTexture(Ljava/lang/String;)I+105
+j  temp.Renderer.create(Z)V+244
 j  cubes.Window.create()V+2369
 j  cubes.Window.run()V+71
 j  java.lang.Thread.run()V+11 java.base@15.0.1

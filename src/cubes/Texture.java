@@ -62,6 +62,11 @@ public class Texture {
                 }
         }
 
+        public void bind(){
+                GL20.glActiveTexture(GL20.GL_TEXTURE0);
+                GL20.glBindTexture(GL20.GL_TEXTURE_2D, handle);
+        }
+
         public String getTexturePath(){
                 return texturePath;
         }

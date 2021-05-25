@@ -8,15 +8,32 @@ out vec2 passTextureCoords;
 out vec3 passNormal;
 out vec3 fragPos;
 out vec3 passColor;
+flat out int passMode;
+flat out int passColorMode;
 
 uniform mat4 model;
 uniform mat4 projection;
 uniform mat4 view;
+uniform int mode;
+uniform int colorMode;
+//modes:
+//0: Texture, with projection and view matrix
+//1: Color, with projection and view matrix
+//2: Texture, without projection and view matrix, no lighting
+//3: Color, without projection and view matrix, no lighting
+//4: Texture, with projection and view matrix, no lighting
+//5: Color, with projection and view matrix, no lighting
 
 void main(){
-    gl_Position =  projection * view * model * vec4(vPos, 1.0);
+    if (mode == 2 || mode == 3){
+        gl_Position = model * vec4(vPos, 1.0);
+    } else {
+        gl_Position =  projection * view * model * vec4(vPos, 1.0);
+    }
     passTextureCoords = vTexCoords;
     passNormal = mat3(transpose(inverse(model))) * vNormal;
     fragPos = vec3(model * vec4(vPos, 1.0));
     passColor = vColor;
+    passMode = mode;
+    passColorMode = colorMode;
 }

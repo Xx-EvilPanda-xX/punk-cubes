@@ -1,9 +1,7 @@
 package cubes;
 
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL15;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
@@ -11,7 +9,7 @@ import java.nio.IntBuffer;
 
 import org.joml.Matrix4f;
 
-public class QuadRenderer {
+public class QuadRenderer{
         public static boolean USE_PROJ_VIEW_MAT = true;
 
         public final float SCALE;
@@ -23,7 +21,8 @@ public class QuadRenderer {
         private IntBuffer indices;
         private boolean indexed;
         private float uniformRed, colorOffset, trans, transOffset, rotation;
-        private int vao, vbo, ebo, cbo;
+        private Vao vao;
+        private int vbo, cbo;
         public int vertexCount, indexCount, colorCount;
 
         public QuadRenderer(float[] vertexData, float[] colorData, int[] indexData, float scale, float speed, float ypos, float rotation) {
@@ -42,6 +41,7 @@ public class QuadRenderer {
                 transOffset = SPEED;
                 trans = 0.0f;
                 this.rotation = rotation;
+                this.indexed = true;
         }
 
         public QuadRenderer(float[] vertexData, float[] colorData, float scale, float speed, float ypos) {
@@ -59,47 +59,41 @@ public class QuadRenderer {
                 colorOffset = 0.5f;
                 transOffset = SPEED;
                 trans = 0.0f;
+                this.indexed = false;
         }
 
-        public void create(boolean indexed) {
-                this.indexed = indexed;
-                if (indexed) {
-                        vao = GL30.glGenVertexArrays();
-                        vbo = storeBuffer(vao, 0, 3, vertices);
-                        cbo = storeBuffer(vao, 1, 3, colors);
-                        ebo = GL15.glGenBuffers();
+        public void create() {
+                vao = new Vao();
 
-                        GL30.glBindVertexArray(vao);
-                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
-                        GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indices, GL15.GL_STATIC_DRAW);
-                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
+                if (indexed) {
+                        vbo = vao.storeBuffer(0, 3, vertices);
+                        cbo = vao.storeBuffer(2, 3, colors);
+                        vao.storeIndices(indices);
                 } else {
-                        vao = GL30.glGenVertexArrays();
-                        vbo = storeBuffer(vao, 0, 3, vertices);
-                        cbo = storeBuffer(vao, 1, 3, colors);
-                        ebo = 0;
+                        vbo = vao.storeBuffer(0, 3, vertices);
+                        cbo = vao.storeBuffer(2, 3, colors);
                 }
         }
 
-        public void render(Shader shader, Camera camera, boolean debug) {
+        public void prepare(Shader shader, Camera camera, boolean debug){
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
-                trans += transOffset * Window.deltaTime;
-                if (trans > LIMIT) {
+                this.trans += transOffset * Window.deltaTime;
+                if (this.trans > LIMIT) {
                         transOffset = -SPEED;
-                        trans = LIMIT;
+                        this.trans = LIMIT;
                 }
-                if (trans < -LIMIT) {
+                if (this.trans < -LIMIT) {
                         transOffset = SPEED;
-                        trans = -LIMIT;
+                        this.trans = -LIMIT;
                 }
 
                 Matrix4f model;
 
                 if (USE_PROJ_VIEW_MAT) {
-                        model = new Matrix4f().translate(trans, YPOS, -3.0f).scale(SCALE, SCALE, SCALE).rotate(rotation * trans, 0.0f, 0.0f, 1.0f);
+                        model = new Matrix4f().translate(this.trans, YPOS, -3.0f).scale(SCALE, SCALE, SCALE).rotate(rotation * this.trans, 0.0f, 0.0f, 1.0f);
                 } else {
-                        model = new Matrix4f().translate(trans, YPOS, 0.0f).scale(SCALE, SCALE, SCALE).rotate(rotation * trans, 0.0f, 0.0f, 1.0f);
+                        model = new Matrix4f().translate(this.trans, YPOS, 0.0f).scale(SCALE, SCALE, SCALE).rotate(rotation * this.trans, 0.0f, 0.0f, 1.0f);
                 }
 
                 Matrix4f proj = camera.getProjectionMatrix();
@@ -114,52 +108,53 @@ public class QuadRenderer {
                                 shader.setUniform("projection", proj, true);
                                 System.out.println(view.toString());
                                 shader.setUniform("view", view, true);
+                                shader.setUniform("mode", 5);
+                        }
+                        else{
+                                shader.setUniform("mode", 3);
                         }
                 } else {
                         shader.setUniform("model", model, false);
                         if (USE_PROJ_VIEW_MAT) {
                                 shader.setUniform("projection", proj, false);
                                 shader.setUniform("view", view, false);
+                                shader.setUniform("mode", 5);
+                        }
+                        else{
+                                shader.setUniform("mode", 3);
                         }
                 }
 
                 shader.setUniform("red", uniformRed);
+                shader.setUniform("colorMode", 0);
+
+        }
+
+        public void render(Shader shader, Camera camera, boolean debug) {
+                prepare(shader, camera, debug);
 
                 if (indexed) {
-                        GL30.glBindVertexArray(this.vao);
-                        GL20.glEnableVertexAttribArray(0);
-                        GL20.glEnableVertexAttribArray(1);
-                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
+                        vao.bind();
+                        vao.enableAttribs();
+                        vao.bindIndices();
                         GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0);
-                        GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
-                        GL20.glDisableVertexAttribArray(1);
-                        GL20.glDisableVertexAttribArray(0);
-                        GL30.glBindVertexArray(0);
+                        vao.unbindIndices();
+                        vao.disableAttribs();
+                        vao.unbind();
                 } else {
-                        GL30.glBindVertexArray(vao);
-                        GL20.glEnableVertexAttribArray(0);
-                        GL20.glEnableVertexAttribArray(1);
+                        vao.bind();
+                        vao.enableAttribs();
                         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
-                        GL20.glDisableVertexAttribArray(1);
-                        GL20.glDisableVertexAttribArray(0);
-                        GL30.glBindVertexArray(0);
+                        vao.disableAttribs();
+                        vao.unbind();
                 }
+
                 uniformRed += colorOffset * Window.deltaTime;
                 if (uniformRed > 1.0f) {
                         colorOffset = -0.5f;
                 } else if (uniformRed < 0.0f) {
                         colorOffset = 0.5f;
                 }
-        }
-
-        public int storeBuffer(int vao, int index, int size, FloatBuffer data) {
-                GL30.glBindVertexArray(vao);
-                int buf = GL15.glGenBuffers();
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, buf);
-                GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
-                GL20.glVertexAttribPointer(index, size, GL11.GL_FLOAT, false, 0, 0);
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-                return buf;
         }
 
         public void setIndices(int[] indexData) {
@@ -187,5 +182,13 @@ public class QuadRenderer {
 
         public FloatBuffer getColors() {
                 return colors;
+        }
+
+        public boolean isIndexed() {
+                return indexed;
+        }
+
+        public Vao getVao() {
+                return vao;
         }
 }
