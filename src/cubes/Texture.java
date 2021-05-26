@@ -15,7 +15,7 @@ public class Texture {
         private String texturePath;
         private int handle;
 
-        public Texture(String texturePath){
+        public Texture(String texturePath) {
                 this.texturePath = texturePath;
         }
 
@@ -62,16 +62,16 @@ public class Texture {
                 }
         }
 
-        public void bind(){
+        public void bind() {
                 GL20.glActiveTexture(GL20.GL_TEXTURE0);
                 GL20.glBindTexture(GL20.GL_TEXTURE_2D, handle);
         }
 
-        public String getTexturePath(){
+        public String getTexturePath() {
                 return texturePath;
         }
 
-        public int getHandle(){
+        public int getHandle() {
                 return handle;
         }
 }

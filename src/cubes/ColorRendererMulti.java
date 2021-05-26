@@ -6,12 +6,12 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
-public class ColorRendererMulti extends ColorRenderer{
+public class ColorRendererMulti extends ColorRenderer {
         public ArrayList<Vector3f> cubePositions;
         public ArrayList<Float> rotSpeeds;
         private float rotation;
 
-        public ColorRendererMulti(float[] vertexData, float[] colorData, float[] normals, int[] indexData, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots){
+        public ColorRendererMulti(float[] vertexData, float[] colorData, float[] normals, int[] indexData, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots) {
                 super(vertexData, colorData, normals, indexData);
                 this.cubePositions = cubePositions;
                 this.rotSpeeds = cubeRots;
@@ -20,7 +20,7 @@ public class ColorRendererMulti extends ColorRenderer{
                 }
         }
 
-        public ColorRendererMulti(float[] vertexData, float[] colorData, float[] normals, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots){
+        public ColorRendererMulti(float[] vertexData, float[] colorData, float[] normals, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots) {
                 super(vertexData, colorData, normals);
                 this.cubePositions = cubePositions;
                 this.rotSpeeds = cubeRots;
@@ -29,8 +29,13 @@ public class ColorRendererMulti extends ColorRenderer{
                 }
         }
 
-        public void prepare(Shader shader, Camera camera, boolean debug, int i){
+        public void prepareMulti(Shader shader, Camera camera, boolean debug, int i) {
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
+
+                if (cubePositions.size() != rotSpeeds.size()) {
+                        System.out.println(cubePositions.size() + ", " + rotSpeeds.size());
+                        throw new IllegalStateException();
+                }
 
                 Matrix4f model = new Matrix4f().translate(cubePositions.get(i)).scale(0.5f, 0.5f, 0.5f).rotate(rotation * rotSpeeds.get(i), 0.0f, 1.0f, 0.0f).rotate(rotation * rotSpeeds.get(i), 1.0f, 0.0f, 0.0f);
 
@@ -51,6 +56,7 @@ public class ColorRendererMulti extends ColorRenderer{
                         shader.setUniform("view", view, false);
                 }
 
+                shader.setUniform("lightPos", Window.currentLightPos);
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                 if (!camera.getThirdPerson()) {
                         shader.setUniform("viewPos", camera.playerPos);
@@ -58,14 +64,12 @@ public class ColorRendererMulti extends ColorRenderer{
                         shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
                 }
                 shader.setUniform("mode", 1);
-                shader.setUniform("numLights", 1);
-                shader.setUniform("colorMode", -1);
 
         }
 
-        public void render(Shader shader, Camera camera, boolean debug) {
-                for (int i = 0; i < cubePositions.size(); i++){
-                        prepare(shader, camera, debug, i);
+        public void renderMulti(Shader shader, Camera camera, boolean debug) {
+                for (int i = 0; i < cubePositions.size(); i++) {
+                        prepareMulti(shader, camera, debug, i);
 
                         if (isIndexed()) {
                                 getVao().bind();
@@ -84,5 +88,15 @@ public class ColorRendererMulti extends ColorRenderer{
                         }
                 }
                 rotation += Window.deltaTime;
+        }
+
+        @Override
+        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
+                throw new UnsupportedOperationException("No calling the parent class method from the child class!");
+        }
+
+        @Override
+        public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
+                throw new UnsupportedOperationException("No calling the parent class method from the child class!");
         }
 }

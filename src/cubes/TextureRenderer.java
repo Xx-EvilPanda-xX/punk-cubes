@@ -4,10 +4,11 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
+
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class TextureRenderer implements Renderer{
+public class TextureRenderer implements Renderer {
         private FloatBuffer vertices, textureCoords, normals;
         private IntBuffer indices;
         private String texturePath;
@@ -15,37 +16,34 @@ public class TextureRenderer implements Renderer{
         private Texture texture;
         private Vao vao;
         private int vbo, tbo, nbo, cbo;
-        public int indexCount, vertexCount, texCoordCount, normalCount;
+        public int indexCount, vertexCount;
 
-        public TextureRenderer(float[] vertexData, float[] texCoords, float[] normals, int[] indexData, String texturePath) {
+        public TextureRenderer(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-                texCoordCount = texCoords.length / 2;
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
                 this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
-                indexCount = indexData.length;
                 vertexCount = vertexData.length / 3;
-                normalCount = normals.length / 3;
+                indexCount = indexData.length;
                 this.texturePath = texturePath;
                 indexed = true;
         }
 
-        public TextureRenderer(float[] vertexData, float[] texCoords, float[] normals, String texturePath) {
+        public TextureRenderer(float[] vertexData, float[] texCoords, float[] normalData, String texturePath) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-                texCoordCount = texCoords.length / 2;
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
                 this.indices = null;
-                indexCount = 0;
                 vertexCount = vertexData.length / 3;
-                normalCount = normals.length / 3;
+                indexCount = 0;
                 this.texturePath = texturePath;
                 indexed = false;
         }
 
         public void create() {
+                vao = new Vao();
+
                 if (indexed) {
-                        vao = new Vao();
                         vbo = vao.storeBuffer(0, 3, vertices);
                         tbo = vao.storeBuffer(1, 2, textureCoords);
 
@@ -58,7 +56,6 @@ public class TextureRenderer implements Renderer{
 
                         vao.storeIndices(indices);
                 } else {
-                        vao = new Vao();
                         vbo = vao.storeBuffer(0, 3, vertices);
                         tbo = vao.storeBuffer(1, 2, textureCoords);
 
@@ -71,7 +68,7 @@ public class TextureRenderer implements Renderer{
                 }
         }
 
-        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug){
+        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
                 Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotate, 0.0f, 1.0f, 0.0f);
@@ -93,6 +90,7 @@ public class TextureRenderer implements Renderer{
                         shader.setUniform("view", view, false);
                 }
 
+                shader.setUniform("lightPos", Window.currentLightPos);
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                 if (!camera.getThirdPerson()) {
                         shader.setUniform("viewPos", camera.playerPos);
@@ -100,8 +98,6 @@ public class TextureRenderer implements Renderer{
                         shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
                 }
                 shader.setUniform("mode", 0);
-                shader.setUniform("numLights", 1);
-                shader.setUniform("colorMode", -1);
         }
 
         public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
@@ -123,26 +119,6 @@ public class TextureRenderer implements Renderer{
                         vao.disableAttribs();
                         vao.unbind();
                 }
-        }
-
-        public void setIndices(int[] indexData) {
-                this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
-                indexCount = indexData.length;
-        }
-
-        public void setVertices(float[] vertexData) {
-                this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-                vertexCount = vertexData.length / 3;
-        }
-
-        public void setTextureCoords(float[] textureCoords) {
-                this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(textureCoords.length).put(textureCoords).flip();
-                texCoordCount = textureCoords.length / 3;
-        }
-
-        public void setNormals(float[] normals) {
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
-                normalCount = normals.length / 3;
         }
 
         public IntBuffer getIndices() {

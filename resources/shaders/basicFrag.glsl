@@ -3,16 +3,11 @@ in vec2 passTextureCoords;
 in vec3 passColor;
 in vec3 passNormal;
 in vec3 fragPos;
-flat in int passMode;
-flat in int passColorMode;
 
 out vec4 FragColor;
 
-uniform int numLights;
+uniform int mode;
 uniform sampler2D tex;
-uniform float red;
-uniform float green;
-uniform float blue;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
@@ -21,20 +16,18 @@ uniform vec3 viewPos;
 //1: Color, with projection and view matrix
 //2: Texture, without projection and view matrix, no lighting
 //3: Color, without projection and view matrix, no lighting
-//4: Texture, with projection and view matrix, no lighting
-//5: Color, with projection and view matrix, no lighting
 
 void main(){
     //find the initial fragment color in the texture or color buffer
     vec4 color;
-    if (passMode == 0 || passMode == 2){
+    if (mode == 0 || mode == 2){
         color = texture(tex, passTextureCoords);
     }
     else{
         color = vec4(passColor, 1.0);
     }
 
-    if (passMode == 0 || passMode == 1){
+    if (mode == 0 || mode == 1){
         vec4 finalResult = vec4(0.0, 0.0, 0.0, 0.0);
 
         //calculate ambient lighting
@@ -60,18 +53,7 @@ void main(){
 
         FragColor = finalResult;
     }
-    else {
-        if (passColorMode == 0){
-            FragColor = vec4(red, passColor.yz, 1.0);
-        }
-        if (passColorMode == 1){
-            FragColor = vec4(passColor.x, green, passColor.z, 1.0);
-        }
-        if (passColorMode == 2){
-            FragColor = vec4(passColor.xy, blue, 1.0);
-        }
-        else{
-            FragColor = vec4(passColor, 1.0);
-        }
+    else{
+        FragColor = vec4(passColor, 1.0);
     }
 }

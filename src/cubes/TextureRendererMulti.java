@@ -6,12 +6,12 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 
-public class TextureRendererMulti extends TextureRenderer{
+public class TextureRendererMulti extends TextureRenderer {
         public ArrayList<Vector3f> cubePositions;
         public ArrayList<Float> rotSpeeds;
         private float rotation;
 
-        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, int[] indexData, String texturePath, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots){
+        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, int[] indexData, String texturePath, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots) {
                 super(vertexData, texCoords, normals, indexData, texturePath);
                 this.cubePositions = cubePositions;
                 this.rotSpeeds = cubeRots;
@@ -20,7 +20,7 @@ public class TextureRendererMulti extends TextureRenderer{
                 }
         }
 
-        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, String texturePath, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots){
+        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, String texturePath, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots) {
                 super(vertexData, texCoords, normals, texturePath);
                 this.cubePositions = cubePositions;
                 this.rotSpeeds = cubeRots;
@@ -29,8 +29,12 @@ public class TextureRendererMulti extends TextureRenderer{
                 }
         }
 
-        public void prepare(Shader shader, Camera camera, boolean debug, int i){
+        public void prepareMulti(Shader shader, Camera camera, boolean debug, int i) {
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
+
+                if (cubePositions.size() != rotSpeeds.size()) {
+                        throw new IllegalStateException();
+                }
 
                 Matrix4f model = new Matrix4f().translate(cubePositions.get(i)).scale(0.5f, 0.5f, 0.5f).rotate(rotation * rotSpeeds.get(i), 0.0f, 1.0f, 0.0f).rotate(rotation * rotSpeeds.get(i), 1.0f, 0.0f, 0.0f);
 
@@ -51,6 +55,7 @@ public class TextureRendererMulti extends TextureRenderer{
                         shader.setUniform("view", view, false);
                 }
 
+                shader.setUniform("lightPos", Window.currentLightPos);
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                 if (!camera.getThirdPerson()) {
                         shader.setUniform("viewPos", camera.playerPos);
@@ -58,14 +63,12 @@ public class TextureRendererMulti extends TextureRenderer{
                         shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
                 }
                 shader.setUniform("mode", 0);
-                shader.setUniform("numLights", 1);
-                shader.setUniform("colorMode", -1);
 
         }
 
-        public void render(Shader shader, Camera camera, boolean debug) {
-                for (int i = 0; i < cubePositions.size(); i++){
-                        prepare(shader, camera, debug, i);
+        public void renderMulti(Shader shader, Camera camera, boolean debug) {
+                for (int i = 0; i < cubePositions.size(); i++) {
+                        prepareMulti(shader, camera, debug, i);
 
                         getTexture().bind();
                         if (isIndexed()) {
@@ -85,5 +88,15 @@ public class TextureRendererMulti extends TextureRenderer{
                         }
                 }
                 rotation += Window.deltaTime;
+        }
+
+        @Override
+        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
+                throw new UnsupportedOperationException("No calling the parent class method from the child class!");
+        }
+
+        @Override
+        public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
+                throw new UnsupportedOperationException("No calling the parent class method from the child class!");
         }
 }

@@ -25,7 +25,7 @@ public class Vao {
                 return buf;
         }
 
-        public void storeIndices(IntBuffer data){
+        public void storeIndices(IntBuffer data) {
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
                 GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -43,27 +43,27 @@ public class Vao {
                 }
         }
 
-        public void bind(){
+        public void bind() {
                 GL30.glBindVertexArray(handle);
         }
 
-        public void unbind(){
+        public void unbind() {
                 GL30.glBindVertexArray(0);
         }
 
-        public void bindIndices(){
+        public void bindIndices() {
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, ebo);
         }
 
-        public void unbindIndices(){
+        public void unbindIndices() {
                 GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
         }
 
-        public ArrayList<Integer> getAttribs(){
+        public ArrayList<Integer> getAttribs() {
                 return attribs;
         }
 
-        public int getHandle(){
+        public int getHandle() {
                 return handle;
         }
 }

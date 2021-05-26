@@ -5,33 +5,23 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.CallbackI;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class Window implements Runnable {
-        public static boolean FULLSCREEN = false;
-        public static boolean DEBUG = false;
-        public static boolean RENDER_CUBES = true;
-
-        public static int CUBE_COUNT = 4096;
-        public static float SKYBOX_SCALE = 100.0f;
-
-        public static int WIDTH = 1080;
-        public static int HEIGHT = 720;
+        private static final float RECHARGE_TIME = 0.25f;
 
         public static float deltaTime = 0.0f;
-        private float viewModeCooldown = 0.0f, renderQuadsCooldown = 0.0f, useProjMatCooldown = 0.0f, focusedCooldown = 0.0f, addLightCoolDown = 0.0f, lastFrame = 0.0f;
+        private float[] coolDownPool = new float[32];
+        private float lastFrame = 0.0f;
         private final String title = "Cubes!!!";
         public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
         public Camera camera;
@@ -40,17 +30,17 @@ public class Window implements Runnable {
         private static long time;
         private Thread pog;
         private long window;
-        private QuadRenderer quads[];
+        private ColorQuadRenderer quads[];
         private TextureRenderer skyBox;
         private ColorRenderer player;
-        ColorRendererMulti blocks;
-        TextureRendererMulti cubes;
+        private ColorRendererMulti blocks;
+        private TextureRendererMulti cubes;
         private Shader shader;
         private boolean renderQuads = false, focused = true, cullFirstBlock = false;
-        public ArrayList<Vector3f> cubePositions = new ArrayList<>();
-        public ArrayList<Float> cubeRots = new ArrayList<>();
-        public ArrayList<Vector3f> blockPositions = new ArrayList<>();
-        public ArrayList<Float> blockRots = new ArrayList<>();
+        private ArrayList<Vector3f> cubePositions = new ArrayList<>();
+        private ArrayList<Float> cubeRots = new ArrayList<>();
+        private ArrayList<Vector3f> blockPositions = new ArrayList<>();
+        private ArrayList<Float> blockRots = new ArrayList<>();
 
         public void start() {
                 pog = new Thread(this, "fortnite;");
@@ -66,7 +56,7 @@ public class Window implements Runnable {
                 init();
                 create();
                 while (!GLFW.glfwWindowShouldClose(window)) {
-                        loop(RENDER_CUBES, renderQuads, DEBUG);
+                        loop(Configs.RENDER_CUBES, renderQuads, Configs.DEBUG);
                 }
 
                 Callbacks.glfwFreeCallbacks(window);
@@ -79,16 +69,15 @@ public class Window implements Runnable {
                 if (!GLFW.glfwInit()) {
                         throw new IllegalStateException("Unable to initialize GLFW");
                 }
-                parseConfigs();
                 GLFWErrorCallback.createPrint(System.err).set();
 
                 GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
                 GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
 
-                if (FULLSCREEN) {
-                        window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, title, GLFW.glfwGetPrimaryMonitor(), MemoryUtil.NULL);
+                if (Configs.FULLSCREEN) {
+                        window = GLFW.glfwCreateWindow(Configs.WIDTH, Configs.HEIGHT, title, GLFW.glfwGetPrimaryMonitor(), MemoryUtil.NULL);
                 } else {
-                        window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, title, MemoryUtil.NULL, MemoryUtil.NULL);
+                        window = GLFW.glfwCreateWindow(Configs.WIDTH, Configs.HEIGHT, title, MemoryUtil.NULL, MemoryUtil.NULL);
                 }
 
                 if (window == MemoryUtil.NULL) {
@@ -99,7 +88,7 @@ public class Window implements Runnable {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                         IntBuffer pWidth = stack.mallocInt(1);
                         IntBuffer pHeight = stack.mallocInt(1);
-                        if (!FULLSCREEN) {
+                        if (!Configs.FULLSCREEN) {
                                 GLFW.glfwGetWindowSize(window, pWidth, pHeight);
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
                                 GLFW.glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
@@ -113,54 +102,8 @@ public class Window implements Runnable {
                 GLFW.glfwShowWindow(window);
         }
 
-        public void parseConfigs(){
-                try {
-                        StringBuilder builder = new StringBuilder();
-                        BufferedReader reader = new BufferedReader(new FileReader("configs.txt"));
-                        String read;
-                        while ((read = reader.readLine()) != null) {
-                                builder.append(read + "\n");
-                        }
-
-                        read = builder.toString();
-                        String[] configLines = read.split("\n");
-                        String[] configs = new String[configLines.length];
-                        for (int i = 0; i < configLines.length; i++) {
-                                configs[i] = configLines[i].split(" = ")[1];
-                        }
-
-                        DEBUG = Boolean.parseBoolean(configs[1]);
-                        RENDER_CUBES = Boolean.parseBoolean(configs[2]);
-
-                        if ((FULLSCREEN = Boolean.parseBoolean(configs[0]))) {
-                                GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-                                WIDTH = vidmode.width();
-                                HEIGHT = vidmode.height();
-                        } else {
-                                WIDTH = Integer.parseInt(configs[3]);
-                                HEIGHT = Integer.parseInt(configs[4]);
-                        }
-
-                        if ((CUBE_COUNT = Integer.parseInt(configs[5])) > 10000) {
-                                System.out.println("Too many cubes! Cube count will be set to 4096");
-                                CUBE_COUNT = 10000;
-                        }
-
-                        if ((SKYBOX_SCALE = Float.parseFloat(configs[6])) > 250 || (SKYBOX_SCALE = Float.parseFloat(configs[6])) < 5) {
-                                System.out.println("Invalid skybox size! Skybox size will be size to 100.0");
-                                SKYBOX_SCALE = 100.0f;
-                        }
-
-                        System.out.println("Custom config file successfully loaded!");
-
-                } catch (Exception e) {
-                        System.out.println("Config file not found or corrupted. Configs will be set to default values");
-                        e.printStackTrace();
-                }
-        }
-
         private void create() {
-                for (int ptr = 0; ptr < CUBE_COUNT; ptr++) {
+                for (int ptr = 0; ptr < Configs.CUBE_COUNT; ptr++) {
                         cubePositions.add(genRandVec());
                         cubeRots.add(genRandFloat());
                 }
@@ -172,16 +115,16 @@ public class Window implements Runnable {
                 time = System.currentTimeMillis();
 
                 GLFW.glfwSetWindowSizeCallback(window, (windowPog, width, height) -> {
-                        WIDTH = width;
-                        HEIGHT = height;
+                        Configs.WIDTH = width;
+                        Configs.HEIGHT = height;
                 });
 
                 shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
                 shader.create();
 
-                quads = new QuadRenderer[]{new QuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
-                        new QuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.7f, 0.5f, -0.5f, 0),
-                        new QuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, new int[]{0, 1, 2, 0, 2, 3}, 0.05f, 1.0f, 0.0f, 0),
+                quads = new ColorQuadRenderer[]{new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
+                        new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.7f, 0.5f, -0.5f, 0),
+                        new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.05f, 1.0f, 0.0f, 0),
                 };
 
                 skyBox = new TextureRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/pumserver.png");
@@ -190,7 +133,7 @@ public class Window implements Runnable {
                 blocks = new ColorRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_COLORS, Geometry.CUBE_NORMALS, blockPositions, blockRots);
 
 
-                for (QuadRenderer r : quads) {
+                for (ColorQuadRenderer r : quads) {
                         r.create();
                 }
                 cubes.create();
@@ -221,17 +164,17 @@ public class Window implements Runnable {
                 float randZ;
 
                 randX = ((float) Math.random() * 1000.0f) - 500.0f;
-                while (randX > ((SKYBOX_SCALE - 2.5f) / 2.0f) || randX < -((SKYBOX_SCALE - 2.5f) / 2.0f)) {
+                while (randX > ((Configs.SKYBOX_SCALE - 2.5f) / 2.0f) || randX < -((Configs.SKYBOX_SCALE - 2.5f) / 2.0f)) {
                         randX = ((float) Math.random() * 1000.0f) - 500.0f;
                 }
 
                 randY = ((float) Math.random() * 1000.0f) - 500.0f;
-                while (randY > ((SKYBOX_SCALE - 2.5f) / 2.0f) || randY < -((SKYBOX_SCALE - 2.5f) / 2.0f)) {
+                while (randY > ((Configs.SKYBOX_SCALE - 2.5f) / 2.0f) || randY < -((Configs.SKYBOX_SCALE - 2.5f) / 2.0f)) {
                         randY = ((float) Math.random() * 1000.0f) - 500.0f;
                 }
 
                 randZ = ((float) Math.random() * 1000.0f) - 500.0f;
-                while (randZ > ((SKYBOX_SCALE - 2.5f) / 2.0f) || randZ < -((SKYBOX_SCALE - 2.5f) / 2.0f)) {
+                while (randZ > ((Configs.SKYBOX_SCALE - 2.5f) / 2.0f) || randZ < -((Configs.SKYBOX_SCALE - 2.5f) / 2.0f)) {
                         randZ = ((float) Math.random() * 1000.0f) - 500.0f;
                 }
 
@@ -250,8 +193,6 @@ public class Window implements Runnable {
 
 
         private void loop(boolean renderCubes, boolean renderQuads, boolean debug) {
-                shader.setUniform("lightPos", currentLightPos);
-
                 if (focused) {
                         GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
                 }
@@ -260,29 +201,30 @@ public class Window implements Runnable {
                 lastFrame = currentFrame;
 
                 processInput(this.window);
-                GL11.glViewport(0, 0, WIDTH, HEIGHT);
+                GL11.glViewport(0, 0, Configs.WIDTH, Configs.HEIGHT);
 
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
                 if (blockPositions.size() > 0 && !camera.getThirdPerson()) {
                         cullFirstBlock = true;
-                }
-                else{
+                } else {
                         cullFirstBlock = false;
                 }
                 shader.bind();
-                skyBox.render(shader, camera, new Vector3f(0.0f, 0.0f, 0.0f), SKYBOX_SCALE, 0.0f, debug);
+                skyBox.render(shader, camera, new Vector3f(0.0f, 0.0f, 0.0f), Configs.SKYBOX_SCALE, 0.0f, debug);
                 if (renderCubes) {
-                        cubes.render(shader, camera, debug);
-                        if (cullFirstBlock){
-                                Vector3f temp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
+                        cubes.renderMulti(shader, camera, debug);
+                        if (cullFirstBlock) {
+                                Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
+                                float rotTemp = blockRots.get(blockRots.size() - 1);
                                 blockPositions.remove(blockPositions.size() - 1);
-                                blocks.render(shader, camera, debug);
-                                blockPositions.add(temp);
-                        }
-                        else {
-                                blocks.render(shader, camera, debug);
+                                blockRots.remove(blockRots.size() - 1);
+                                blocks.renderMulti(shader, camera, debug);
+                                blockRots.add(rotTemp);
+                                blockPositions.add(posTemp);
+                        } else {
+                                blocks.renderMulti(shader, camera, debug);
                         }
                         if (camera.getThirdPerson()) {
                                 player.render(shader, camera, camera.playerPos, 1.0f, camera.rotation, debug);
@@ -290,8 +232,8 @@ public class Window implements Runnable {
                 }
 
                 if (renderQuads) {
-                        for (QuadRenderer r : quads) {
-                                r.render(shader, camera, debug);
+                        for (ColorQuadRenderer r : quads) {
+                                r.renderQuad(shader, camera, debug);
                         }
                 }
                 GLFW.glfwSwapBuffers(window);
@@ -320,14 +262,14 @@ public class Window implements Runnable {
                         }
 
                         if (Input.isKeyDown(GLFW.GLFW_KEY_P)) {
-                                if (focusedCooldown <= 0.0f) {
+                                if (coolDownPool[0] <= 0.0f) {
                                         GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
                                         });
                                         GLFW.glfwSetScrollCallback(window, (windowPog, offsetx, offsety) -> {
                                         });
                                         focused = !focused;
                                         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
-                                        focusedCooldown = 0.25f;
+                                        coolDownPool[0] = RECHARGE_TIME;
                                         return;
                                 }
                         }
@@ -355,36 +297,45 @@ public class Window implements Runnable {
                                 camera.setOptifineZoom(false);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
-                                if (renderQuadsCooldown <= 0.0f) {
+                                if (coolDownPool[1] <= 0.0f) {
                                         renderQuads = !renderQuads;
-                                        renderQuadsCooldown = 0.25f;
+                                        coolDownPool[1] = RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
-                                if (useProjMatCooldown <= 0.0f) {
-                                        QuadRenderer.USE_PROJ_VIEW_MAT = !QuadRenderer.USE_PROJ_VIEW_MAT;
-                                        useProjMatCooldown = 0.25f;
+                                if (coolDownPool[2] <= 0.0f) {
+                                        for (int i = 0; i < quads.length; i++) {
+                                                quads[i].USE_PROJ_VIEW_MAT = !quads[i].USE_PROJ_VIEW_MAT;
+                                        }
+                                        coolDownPool[2] = RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
-                                if (addLightCoolDown <= 0.0f) {
+                                if (coolDownPool[3] <= 0.0f) {
                                         blockPositions.add(new Vector3f(camera.playerPos));
                                         blockRots.add(0.0f);
-                                        addLightCoolDown = 0.1f;
+                                        coolDownPool[3] = Configs.BLOCK_PLACEMENT_RATE;
                                 }
                         }
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_R)){
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
+                                if (coolDownPool[4] <= 0.0f) {
+                                        blockPositions.clear();
+                                        blockRots.clear();
+                                        coolDownPool[4] = RECHARGE_TIME;
+                                }
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_R)) {
                                 currentLightPos = new Vector3f(camera.playerPos);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
-                                if (viewModeCooldown <= 0.0f) {
+                                if (coolDownPool[5] <= 0.0f) {
                                         camera.setThirdPerson(!camera.getThirdPerson());
-                                        viewModeCooldown = 0.25f;
+                                        coolDownPool[5] = RECHARGE_TIME;
                                 }
                         }
                 } else {
                         if (Input.isKeyDown(GLFW.GLFW_KEY_P)) {
-                                if (focusedCooldown <= 0.0f) {
+                                if (coolDownPool[0] <= 0.0f) {
                                         GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
                                                 float xoffset = (float) xpos;
                                                 float yoffset;
@@ -401,15 +352,13 @@ public class Window implements Runnable {
                                         });
                                         focused = !focused;
                                         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-                                        focusedCooldown = 0.25f;
+                                        coolDownPool[0] = RECHARGE_TIME;
                                 }
                         }
                 }
-                viewModeCooldown -= deltaTime;
-                renderQuadsCooldown -= deltaTime;
-                useProjMatCooldown -= deltaTime;
-                focusedCooldown -= deltaTime;
-                addLightCoolDown -= deltaTime;
+                for (int i = 0; i < coolDownPool.length; i++) {
+                        coolDownPool[i] -= deltaTime;
+                }
         }
 
         public static void main(String[] args) {

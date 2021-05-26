@@ -1,6 +1,10 @@
 package cubes;
 
 public class Geometry {
+        private static float r = Configs.BLOCK_COLOR.x;
+        private static float g = Configs.BLOCK_COLOR.y;
+        private static float b = Configs.BLOCK_COLOR.z;
+
         public static final float[] QUAD_VERTICES = new float[]{
                 -0.5f, 0.5f, 0.0f,
                 -0.5f, -0.5f, 0.0f,
@@ -13,6 +17,13 @@ public class Geometry {
                 1.0f, 0.0f, 1.0f,
                 0.0f, 1.0f, 1.0f,
                 1.0f, 0.0f, 0.0f,
+        };
+
+        public static final float[] QUAD_NORMALS = new float[]{
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f,
         };
 
         public static final float[] CUBE_VERTICES = new float[]{
@@ -43,12 +54,12 @@ public class Geometry {
         };
 
         public static final float[] CUBE_COLORS = new float[]{
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f
+                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b
         };
 
         public static final float[] OCTAHEDRON_VERTICES = new float[]{

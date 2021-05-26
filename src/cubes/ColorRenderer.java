@@ -3,48 +3,44 @@ package cubes;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class ColorRenderer implements Renderer{
+public class ColorRenderer implements Renderer {
         private FloatBuffer vertices, colors, normals;
         private IntBuffer indices;
         private boolean indexed;
         private Vao vao;
         private int vbo, tbo, cbo, nbo;
-        public int indexCount, vertexCount, colorCount, normalCount;
+        public int indexCount, vertexCount;
 
-        public ColorRenderer(float[] vertexData, float[] colorData, float[] normals, int[] indexData) {
+        public ColorRenderer(float[] vertexData, float[] colorData, float[] normalData, int[] indexData) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-                colorCount = colorData.length / 3;
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
                 this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
-                indexCount = indexData.length;
                 vertexCount = vertexData.length / 3;
-                normalCount = normals.length / 3;
+                indexCount = indexData.length;
                 indexed = true;
         }
 
-        public ColorRenderer(float[] vertexData, float[] colorData, float[] normals) {
+        public ColorRenderer(float[] vertexData, float[] colorData, float[] normalData) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-                colorCount = colorData.length / 3;
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
+                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
                 this.indices = null;
-                indexCount = 0;
                 vertexCount = vertexData.length / 3;
-                normalCount = normals.length / 3;
+                indexCount = 0;
                 indexed = false;
         }
 
         public void create() {
+                vao = new Vao();
+
                 if (indexed) {
-                        vao = new Vao();
                         vbo = vao.storeBuffer(0, 3, vertices);
 
                         //init tex coord buffer as a default value to avoid opengl shader errors even though its not being used
@@ -54,7 +50,6 @@ public class ColorRenderer implements Renderer{
 
                         vao.storeIndices(indices);
                 } else {
-                        vao = new Vao();
                         vbo = vao.storeBuffer(0, 3, vertices);
 
                         //init tex coord buffer as a default value to avoid opengl shader errors even though its not being used
@@ -64,7 +59,7 @@ public class ColorRenderer implements Renderer{
                 }
         }
 
-        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug){
+        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
                 Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotate, 0.0f, 1.0f, 0.0f);
@@ -86,6 +81,7 @@ public class ColorRenderer implements Renderer{
                         shader.setUniform("view", view, false);
                 }
 
+                shader.setUniform("lightPos", Window.currentLightPos);
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
                 if (!camera.getThirdPerson()) {
                         shader.setUniform("viewPos", camera.playerPos);
@@ -93,8 +89,6 @@ public class ColorRenderer implements Renderer{
                         shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
                 }
                 shader.setUniform("mode", 1);
-                shader.setUniform("numLights", 1);
-                shader.setUniform("colorMode", -1);
         }
 
         public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
@@ -115,26 +109,6 @@ public class ColorRenderer implements Renderer{
                         vao.disableAttribs();
                         vao.unbind();
                 }
-        }
-
-        public void setIndices(int[] indexData) {
-                this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
-                indexCount = indexData.length;
-        }
-
-        public void setVertices(float[] vertexData) {
-                this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-                vertexCount = vertexData.length / 3;
-        }
-
-        public void setColors(float[] textureCoords) {
-                this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(textureCoords.length).put(textureCoords).flip();
-                colorCount = textureCoords.length / 3;
-        }
-
-        public void setNormals(float[] normals) {
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normals.length).put(normals).flip();
-                normalCount = normals.length / 3;
         }
 
         public IntBuffer getIndices() {
