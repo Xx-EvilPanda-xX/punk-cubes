@@ -119,7 +119,7 @@ public class Window implements Runnable {
                         Configs.HEIGHT = height;
                 });
 
-                shader = new Shader("shaders/es-shaders/basicVert.glsl", "shaders/es-shaders/basicFrag.glsl");
+                shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
                 shader.create();
 
                 quads = new ColorQuadRenderer[]{new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
