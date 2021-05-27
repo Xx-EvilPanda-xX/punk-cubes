@@ -1,45 +1,59 @@
 #version 300 es
-in mediump vec2 passTextureCoords;
-in mediump vec3 passColor;
-in mediump vec3 passNormal;
-in mediump vec3 fragPos;
+in highp vec2 passTextureCoords;
+in highp vec3 passColor;
+in highp vec3 passNormal;
+in highp vec3 fragPos;
 
-out mediump vec4 FragColor;
+out highp vec4 FragColor;
 
-uniform mediump sampler2D tex;
-uniform mediump vec3 lightColor;
-uniform mediump vec3 lightPos;
-uniform mediump vec3 viewPos;
-uniform bool hasColors;
+uniform highp int mode;
+uniform highp sampler2D tex;
+uniform highp vec3 lightColor;
+uniform highp vec3 lightPos;
+uniform highp vec3 viewPos;
+//modes:
+//0: Texture, with projection and view matrix
+//1: Color, with projection and view matrix
+//2: Texture, without projection and view matrix, no lighting
+//3: Color, without projection and view matrix, no lighting
 
 void main(){
     //find the initial fragment color in the texture or color buffer
-    mediump vec4 color;
-    if (!hasColors){
+    highp vec4 color;
+    if (mode == 0 || mode == 2){
         color = texture(tex, passTextureCoords);
     }
     else{
         color = vec4(passColor, 1.0);
     }
 
-    //calculate ambient lighting
-    mediump float ambientStrength = 0.5;
-    mediump vec3 ambient  = ambientStrength * lightColor;
+    if (mode == 0 || mode == 1){
+        highp vec4 finalResult = vec4(0.0, 0.0, 0.0, 0.0);
 
-    //calculate diffuse lighting
-    mediump vec3 norm = normalize(passNormal);
-    mediump vec3 lightDir = normalize(lightPos - fragPos);
-    mediump float diff = max(dot(norm, lightDir), 0.0);
-    mediump vec3 diffuse = diff * lightColor;
+        //calculate ambient lighting
+        highp float ambientStrength = 0.5;
+        highp vec3 ambient  = ambientStrength * lightColor;
 
-    //calculate specular lighting
-    mediump float specularStrength = 0.8;
-    mediump vec3 viewDir = normalize(viewPos - fragPos);
-    mediump vec3 reflectDir = reflect(-lightDir, norm);
-    mediump float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0);
-    mediump vec3 specular = specularStrength * spec * lightColor;
+        //calculate diffuse lighting
+        highp vec3 norm = normalize(passNormal);
+        highp vec3 lightDir = normalize(lightPos - fragPos);
+        highp float diff = max(dot(norm, lightDir), 0.0);
+        highp vec3 diffuse = diff * lightColor;
 
-    //final result
-    mediump vec4 result = (vec4(ambient, 1.0) + vec4(diffuse, 1.0) + vec4(specular, 1.0)) * color;
-    FragColor = result;
+        //calculate specular lighting
+        highp float specularStrength = 0.8;
+        highp vec3 viewDir = normalize(viewPos - fragPos);
+        highp vec3 reflectDir = reflect(-lightDir, norm);
+        highp float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0);
+        highp vec3 specular = specularStrength * spec * lightColor;
+
+        //final result
+        highp vec3 result = (ambient + diffuse + specular) * vec3(color.rgb);
+        finalResult += vec4(result, color.w);
+
+        FragColor = finalResult;
+    }
+    else{
+        FragColor = vec4(passColor, 1.0);
+    }
 }

@@ -109,7 +109,7 @@ public class Window implements Runnable {
                 }
 
                 GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-                camera = new Camera(new Vector3f(0.0f, 0.0f, -5.0f), 81.7f, 7.3f);
+                camera = new Camera(new Vector3f(0.0f, 0.0f, -5.0f), 90.0f, 0.0f);
                 input = new Input(camera, window);
 
                 time = System.currentTimeMillis();
@@ -119,7 +119,7 @@ public class Window implements Runnable {
                         Configs.HEIGHT = height;
                 });
 
-                shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
+                shader = new Shader("shaders/es-shaders/basicVert.glsl", "shaders/es-shaders/basicFrag.glsl");
                 shader.create();
 
                 quads = new ColorQuadRenderer[]{new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
@@ -206,16 +206,17 @@ public class Window implements Runnable {
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-                if (blockPositions.size() > 0 && !camera.getThirdPerson()) {
+                if (blockPositions.size() > 0 && !camera.getThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F)) {
                         cullFirstBlock = true;
-                } else {
+                }
+                else{
                         cullFirstBlock = false;
                 }
                 shader.bind();
                 skyBox.render(shader, camera, new Vector3f(0.0f, 0.0f, 0.0f), Configs.SKYBOX_SCALE, 0.0f, debug);
                 if (renderCubes) {
                         cubes.renderMulti(shader, camera, debug);
-                        if (cullFirstBlock) {
+                        if (cullFirstBlock){
                                 Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
                                 float rotTemp = blockRots.get(blockRots.size() - 1);
                                 blockPositions.remove(blockPositions.size() - 1);
@@ -223,7 +224,8 @@ public class Window implements Runnable {
                                 blocks.renderMulti(shader, camera, debug);
                                 blockRots.add(rotTemp);
                                 blockPositions.add(posTemp);
-                        } else {
+                        }
+                        else {
                                 blocks.renderMulti(shader, camera, debug);
                         }
                         if (camera.getThirdPerson()) {
@@ -304,7 +306,7 @@ public class Window implements Runnable {
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
                                 if (coolDownPool[2] <= 0.0f) {
-                                        for (int i = 0; i < quads.length; i++) {
+                                        for (int i = 0; i < quads.length; i++){
                                                 quads[i].USE_PROJ_VIEW_MAT = !quads[i].USE_PROJ_VIEW_MAT;
                                         }
                                         coolDownPool[2] = RECHARGE_TIME;
@@ -313,18 +315,18 @@ public class Window implements Runnable {
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
                                 if (coolDownPool[3] <= 0.0f) {
                                         blockPositions.add(new Vector3f(camera.playerPos));
-                                        blockRots.add(0.0f);
+                                        blockRots.add(Configs.BLOCK_ROTATION);
                                         coolDownPool[3] = Configs.BLOCK_PLACEMENT_RATE;
                                 }
                         }
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
-                                if (coolDownPool[4] <= 0.0f) {
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_G)){
+                                if (coolDownPool[4] <= 0.0f){
                                         blockPositions.clear();
                                         blockRots.clear();
                                         coolDownPool[4] = RECHARGE_TIME;
                                 }
                         }
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_R)) {
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_R)){
                                 currentLightPos = new Vector3f(camera.playerPos);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
@@ -356,7 +358,7 @@ public class Window implements Runnable {
                                 }
                         }
                 }
-                for (int i = 0; i < coolDownPool.length; i++) {
+                for (int i = 0; i < coolDownPool.length; i++){
                         coolDownPool[i] -= deltaTime;
                 }
         }

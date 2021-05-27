@@ -5,9 +5,7 @@ import org.lwjgl.opengl.GL20;
 
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -23,47 +21,28 @@ public class Shader {
         private int programID;
 
         public Shader(String vertPath, String fragPath) {
-                try {
-                        this.vertex = loadShaderFile(vertPath);
-                        this.fragment = loadShaderFile(fragPath);
-                        this.vertPath = vertPath;
-                        this.fragPath = fragPath;
-                } catch (ClassNotFoundException e) {
-                        System.out.println("Incorrect class name literal");
-                }
+                this.vertex = loadShaderFile(vertPath);
+                this.fragment = loadShaderFile(fragPath);
+                this.vertPath = vertPath;
+                this.fragPath = fragPath;
         }
 
-        private static String loadShaderFile(String path) throws ClassNotFoundException {
+        private static String loadShaderFile(String path) {
                 try {
-                        System.out.println("Attempting to load shader from jar resources at: " + path);
-                        Class cl = Class.forName("cubes.Shader");
-                        ClassLoader loader = cl.getClassLoader();
-                        InputStream is = loader.getResourceAsStream(path);
-                        if (is == null) {
-                                System.out.println("input stream is null, could not find resource");
+                        StringBuilder builder = new StringBuilder();
+                        BufferedReader reader = new BufferedReader(new FileReader("resources/" + path));
+                        String read = "";
+
+                        while ((read = reader.readLine()) != null) {
+                                builder.append(read + "\n");
                         }
-                        String shader = (new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))).lines().collect(Collectors.joining("\n"));
-                        System.out.println("Shader loaded from jar resources!");
-                        return shader;
-                } catch (NullPointerException e) {
-                        System.out.println("File not being run from executable jar. Attempting to load shader from direct path: resources/" + path);
 
-                        try {
-                                StringBuilder builder = new StringBuilder();
-                                BufferedReader reader = new BufferedReader(new FileReader("resources/" + path));
-                                String read = "";
-
-                                while ((read = reader.readLine()) != null) {
-                                        builder.append(read + "\n");
-                                }
-
-                                System.out.println("Shader loaded from direct path!");
-                                return builder.toString();
-                        } catch (IOException ex) {
-                                System.out.println("Failed to load shader at all possible locations. PROGRAM WILL EXIT");
-                                System.exit(-1);
-                                return null;
-                        }
+                        System.out.println("Shader loaded from direct path!");
+                        return builder.toString();
+                } catch (IOException ex) {
+                        System.out.println("Failed to load shader at all possible locations. PROGRAM WILL EXIT");
+                        System.exit(-1);
+                        return null;
                 }
         }
 
