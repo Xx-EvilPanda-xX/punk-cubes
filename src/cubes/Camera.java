@@ -18,7 +18,7 @@ public class Camera {
         private Vector3f keyboardFront;
         private Vector3f keyboardWorldUp;
 
-        public float rotation;
+        public float thirdPersonRotation;
         public static final float optifineZoomFactor = 44.25f;
         private float sprintFov = 0.0f;
 
@@ -42,7 +42,7 @@ public class Camera {
                 this.pitch = pitch;
                 this.right = front.cross(this.worldUp, new Vector3f()).normalize();
                 this.up = right.cross(this.front, new Vector3f()).normalize();
-                this.rotation = (float) Math.toRadians(keyBoardYaw);
+                this.thirdPersonRotation = (float) Math.toRadians(keyBoardYaw);
 
                 this.keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);
                 this.keyboardFront = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
@@ -98,10 +98,10 @@ public class Camera {
                         }
                 }
                 if (yaw > 360.0f) {
-                        yaw = yaw - 360.0f;
+                        yaw = 0.0f;
                 }
                 if (yaw < 0.0f) {
-                        yaw = 360.0f - yaw;
+                        yaw = 360.0f;
                 }
                 updateAllVectors();
         }
@@ -129,7 +129,7 @@ public class Camera {
                                 }
                         } else {
                                 keyBoardYaw -= velocity * 25.0f;
-                                rotation = -((float) Math.toRadians(keyBoardYaw));
+                                thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
                         }
                 }
                 if (direction == 3) {
@@ -140,7 +140,7 @@ public class Camera {
                                 }
                         } else {
                                 keyBoardYaw += velocity * 25.0f;
-                                rotation = -((float) Math.toRadians(keyBoardYaw));
+                                thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
                         }
                 }
                 if (direction == 4) {
@@ -234,7 +234,7 @@ public class Camera {
                         updateCameraVectors();
                 } else {
                         keyBoardYaw = yaw;
-                        rotation = -((float) Math.toRadians(keyBoardYaw));
+                        thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
                         updateKeyboardVectors();
                 }
         }

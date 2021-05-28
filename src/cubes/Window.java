@@ -18,28 +18,33 @@ import org.joml.Vector3f;
 
 public class Window implements Runnable {
         private static final float RECHARGE_TIME = 0.25f;
-
         public static float deltaTime = 0.0f;
-        private float[] coolDownPool = new float[32];
-        private float lastFrame = 0.0f;
-        private final String title = "Cubes!!!";
-        public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 0.0f);
+        public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 1.0f);
         public Camera camera;
         public Input input;
+
+        private float lastFrame = 0.0f;
+        private boolean renderQuads = false, focused = true, cullFirstBlock = false;
         private int frames;
         private static long time;
-        private Thread pog;
         private long window;
+
+        private Thread pog;
+        private Shader shader;
+        private final String title = "Cubes!!!";
+        private float[] coolDownPool = new float[32];
+
         private ColorQuadRenderer quads[];
         private TextureRenderer skyBox;
         private ColorRenderer player;
         private ColorRendererMulti blocks;
         private TextureRendererMulti cubes;
-        private Shader shader;
-        private boolean renderQuads = false, focused = true, cullFirstBlock = false;
+
         private ArrayList<Vector3f> cubePositions = new ArrayList<>();
+        private ArrayList<Float> cubeScales = new ArrayList<>();
         private ArrayList<Float> cubeRots = new ArrayList<>();
         private ArrayList<Vector3f> blockPositions = new ArrayList<>();
+        private ArrayList<Float> blockScales = new ArrayList<>();
         private ArrayList<Float> blockRots = new ArrayList<>();
 
         public void start() {
@@ -105,6 +110,7 @@ public class Window implements Runnable {
         private void create() {
                 for (int ptr = 0; ptr < Configs.CUBE_COUNT; ptr++) {
                         cubePositions.add(genRandVec());
+                        cubeScales.add(genRandFloat());
                         cubeRots.add(genRandFloat());
                 }
 
@@ -129,17 +135,17 @@ public class Window implements Runnable {
 
                 skyBox = new TextureRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/pumserver.png");
                 player = new ColorRenderer(Geometry.OCTAHEDRON_VERTICES, Geometry.OCTAHEDRON_COLORS, Geometry.OCTAHEDRON_NORMALS);
-                cubes = new TextureRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/wood.png", cubePositions, cubeRots);
-                blocks = new ColorRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_COLORS, Geometry.CUBE_NORMALS, blockPositions, blockRots);
+                cubes = new TextureRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/wood.png", cubePositions, cubeScales, cubeRots);
+                blocks = new ColorRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_COLORS, Geometry.CUBE_NORMALS, blockPositions, blockScales, blockRots);
 
 
                 for (ColorQuadRenderer r : quads) {
-                        r.create();
+                        r.create(shader, camera);
                 }
-                cubes.create();
-                blocks.create();
-                skyBox.create();
-                player.create();
+                cubes.create(shader, camera);
+                blocks.create(shader, camera);
+                skyBox.create(shader, camera);
+                player.create(shader, camera);
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
                 camera.setThirdPerson(false);
@@ -212,30 +218,36 @@ public class Window implements Runnable {
                 else{
                         cullFirstBlock = false;
                 }
+
                 shader.bind();
-                skyBox.render(shader, camera, new Vector3f(0.0f, 0.0f, 0.0f), Configs.SKYBOX_SCALE, 0.0f, debug);
+                skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(0.0f).render(debug);
                 if (renderCubes) {
-                        cubes.renderMulti(shader, camera, debug);
-                        if (cullFirstBlock){
-                                Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
-                                float rotTemp = blockRots.get(blockRots.size() - 1);
-                                blockPositions.remove(blockPositions.size() - 1);
-                                blockRots.remove(blockRots.size() - 1);
-                                blocks.renderMulti(shader, camera, debug);
-                                blockRots.add(rotTemp);
-                                blockPositions.add(posTemp);
-                        }
-                        else {
-                                blocks.renderMulti(shader, camera, debug);
-                        }
-                        if (camera.getThirdPerson()) {
-                                player.render(shader, camera, camera.playerPos, 1.0f, camera.rotation, debug);
-                        }
+                        cubes.render(debug);
+                }
+
+                if (cullFirstBlock){
+                        Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
+                        float scaleTemp = blockScales.get(blockScales.size() - 1);
+                        float rotTemp = blockRots.get(blockRots.size() - 1);
+                        blockPositions.remove(blockPositions.size() - 1);
+                        blockScales.remove(blockScales.size() - 1);
+                        blockRots.remove(blockRots.size() - 1);
+                        blocks.render(debug);
+                        blockPositions.add(posTemp);
+                        blockScales.add(scaleTemp);
+                        blockRots.add(rotTemp);
+                }
+                else {
+                        blocks.render(debug);
+                }
+
+                if (camera.getThirdPerson()) {
+                        player.setTrans(camera.playerPos).setScale(1.0f).setRotation(camera.thirdPersonRotation).render(debug);
                 }
 
                 if (renderQuads) {
                         for (ColorQuadRenderer r : quads) {
-                                r.renderQuad(shader, camera, debug);
+                                r.render(debug);
                         }
                 }
                 GLFW.glfwSwapBuffers(window);
@@ -315,6 +327,7 @@ public class Window implements Runnable {
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
                                 if (coolDownPool[3] <= 0.0f) {
                                         blockPositions.add(new Vector3f(camera.playerPos));
+                                        blockScales.add(Configs.BLOCK_SCALE);
                                         blockRots.add(Configs.BLOCK_ROTATION);
                                         coolDownPool[3] = Configs.BLOCK_PLACEMENT_RATE;
                                 }
@@ -360,6 +373,7 @@ public class Window implements Runnable {
                 }
                 for (int i = 0; i < coolDownPool.length; i++){
                         coolDownPool[i] -= deltaTime;
+                        if (coolDownPool[i] < 0.0f) coolDownPool[i] = 0.0f;
                 }
         }
 

@@ -3,9 +3,21 @@ package cubes;
 import org.joml.Vector3f;
 
 public interface Renderer {
-        void create();
+        void create(Shader shader, Camera camera);
 
-        void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug);
+        void prepare(boolean debug);
 
-        void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug);
+        void render(boolean debug);
+
+        Vector3f getTrans();
+
+        Renderer setTrans(Vector3f trans);
+
+        float getRotation();
+
+        Renderer setRotation(float rotation);
+
+        float getScale();
+
+        Renderer setScale(float scale);
 }

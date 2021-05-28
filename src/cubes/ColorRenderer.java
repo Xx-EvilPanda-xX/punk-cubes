@@ -12,9 +12,17 @@ public class ColorRenderer implements Renderer {
         private FloatBuffer vertices, colors, normals;
         private IntBuffer indices;
         private boolean indexed;
+        private boolean created = false;
         private Vao vao;
         private int vbo, tbo, cbo, nbo;
         public int indexCount, vertexCount;
+
+        private Shader shader;
+        private Camera camera;
+
+        private Vector3f trans = new Vector3f(0.0f, 0.0f, 0.0f);
+        private float scale = 1.0f;
+        private float rotation = 0.0f;
 
         public ColorRenderer(float[] vertexData, float[] colorData, float[] normalData, int[] indexData) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
@@ -37,7 +45,9 @@ public class ColorRenderer implements Renderer {
                 indexed = false;
         }
 
-        public void create() {
+        public void create(Shader shader, Camera camera) {
+                this.shader = shader;
+                this.camera = camera;
                 vao = new Vao();
 
                 if (indexed) {
@@ -57,12 +67,14 @@ public class ColorRenderer implements Renderer {
                         cbo = vao.storeBuffer(2, 3, colors);
                         nbo = vao.storeBuffer(3, 3, normals);
                 }
+                created = true;
         }
 
-        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
+        public void prepare(boolean debug) {
+                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
-                Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotate, 0.0f, 1.0f, 0.0f);
+                Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation, 0.0f, 1.0f, 0.0f);
 
                 Matrix4f proj = camera.getProjectionMatrix();
 
@@ -91,8 +103,8 @@ public class ColorRenderer implements Renderer {
                 shader.setUniform("mode", 1);
         }
 
-        public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
-                prepare(shader, camera, trans, scale, rotate, debug);
+        public void render(boolean debug) {
+                prepare(debug);
 
                 if (indexed) {
                         vao.bind();
@@ -127,11 +139,50 @@ public class ColorRenderer implements Renderer {
                 return normals;
         }
 
+        public Camera getCamera(){
+                return camera;
+        }
+
+        public Shader getShader(){
+                return shader;
+        }
+
+        public boolean isCreated(){
+                return created;
+        }
+
         public boolean isIndexed() {
                 return indexed;
         }
 
         public Vao getVao() {
                 return vao;
+        }
+
+        public Vector3f getTrans() {
+                return trans;
+        }
+
+        public ColorRenderer setTrans(Vector3f trans) {
+                this.trans = trans;
+                return this;
+        }
+
+        public float getScale() {
+                return scale;
+        }
+
+        public ColorRenderer setScale(float scale) {
+                this.scale = scale;
+                return this;
+        }
+
+        public float getRotation() {
+                return rotation;
+        }
+
+        public ColorRenderer setRotation(float rotation) {
+                this.rotation = rotation;
+                return this;
         }
 }

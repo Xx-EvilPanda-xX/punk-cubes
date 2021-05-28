@@ -13,10 +13,18 @@ public class TextureRenderer implements Renderer {
         private IntBuffer indices;
         private String texturePath;
         private boolean indexed;
+        private boolean created = false;
         private Texture texture;
         private Vao vao;
         private int vbo, tbo, nbo, cbo;
         public int indexCount, vertexCount;
+
+        private Shader shader;
+        private Camera camera;
+
+        private Vector3f trans = new Vector3f(0.0f, 0.0f, 0.0f);
+        private float scale = 1.0f;
+        private float rotation = 0.0f;
 
         public TextureRenderer(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
@@ -40,7 +48,9 @@ public class TextureRenderer implements Renderer {
                 indexed = false;
         }
 
-        public void create() {
+        public void create(Shader shader, Camera camera) {
+                this.shader = shader;
+                this.camera = camera;
                 vao = new Vao();
 
                 if (indexed) {
@@ -66,12 +76,14 @@ public class TextureRenderer implements Renderer {
                         texture = new Texture(texturePath);
                         texture.storeDirectTexture();
                 }
+                created = true;
         }
 
-        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
+        public void prepare(boolean debug) {
+                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
 
-                Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotate, 0.0f, 1.0f, 0.0f);
+                Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation, 0.0f, 1.0f, 0.0f);
 
                 Matrix4f proj = camera.getProjectionMatrix();
 
@@ -100,8 +112,8 @@ public class TextureRenderer implements Renderer {
                 shader.setUniform("mode", 0);
         }
 
-        public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
-                prepare(shader, camera, trans, scale, rotate, debug);
+        public void render(boolean debug) {
+                prepare(debug);
 
                 texture.bind();
                 if (indexed) {
@@ -137,15 +149,54 @@ public class TextureRenderer implements Renderer {
                 return normals;
         }
 
-        public Vao getVao() {
-                return vao;
-        }
-
         public Texture getTexture() {
                 return texture;
         }
 
+        public Camera getCamera(){
+                return camera;
+        }
+
+        public Shader getShader(){
+                return shader;
+        }
+
+        public boolean isCreated(){
+                return created;
+        }
+
         public boolean isIndexed() {
                 return indexed;
+        }
+
+        public Vao getVao() {
+                return vao;
+        }
+
+        public Vector3f getTrans() {
+                return trans;
+        }
+
+        public TextureRenderer setTrans(Vector3f trans) {
+                this.trans = trans;
+                return this;
+        }
+
+        public float getScale() {
+                return scale;
+        }
+
+        public TextureRenderer setScale(float scale) {
+                this.scale = scale;
+                return this;
+        }
+
+        public float getRotation() {
+                return rotation;
+        }
+
+        public TextureRenderer setRotation(float rotation) {
+                this.rotation = rotation;
+                return this;
         }
 }

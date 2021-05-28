@@ -21,6 +21,7 @@ public class Configs {
         public static Vector3f BLOCK_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
         public static float BLOCK_PLACEMENT_RATE = 0.1f;
         public static float BLOCK_ROTATION = 0.0f;
+        public static float BLOCK_SCALE = 1.0f;
 
         static {
                 try {
@@ -41,10 +42,13 @@ public class Configs {
                         DEBUG = Boolean.parseBoolean(configs[1]);
                         RENDER_CUBES = Boolean.parseBoolean(configs[2]);
                         BLOCK_PLACEMENT_RATE = Float.parseFloat(configs[7]);
+
                         BLOCK_COLOR.x = Float.parseFloat(configs[8].split(", ")[0]);
                         BLOCK_COLOR.y = Float.parseFloat(configs[8].split(", ")[1]);
                         BLOCK_COLOR.z = Float.parseFloat(configs[8].split(", ")[2]);
+
                         BLOCK_ROTATION = Float.parseFloat(configs[9]);
+                        BLOCK_SCALE = Float.parseFloat(configs[10]);
 
                         if ((FULLSCREEN = Boolean.parseBoolean(configs[0]))) {
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());

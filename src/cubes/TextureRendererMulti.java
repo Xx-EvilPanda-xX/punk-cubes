@@ -7,68 +7,77 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 
 public class TextureRendererMulti extends TextureRenderer {
-        public ArrayList<Vector3f> cubePositions;
-        public ArrayList<Float> rotSpeeds;
+        private ArrayList<Vector3f> positions;
+        private ArrayList<Float> scales;
+        private ArrayList<Float> rots;
         private float rotation;
+        private int itr;
 
-        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, int[] indexData, String texturePath, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots) {
+        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, int[] indexData, String texturePath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Float> rots) {
                 super(vertexData, texCoords, normals, indexData, texturePath);
-                this.cubePositions = cubePositions;
-                this.rotSpeeds = cubeRots;
-                if (cubePositions.size() != rotSpeeds.size()) {
-                        throw new IllegalStateException();
+                this.positions = positions;
+                this.scales = scales;
+                this.rots = rots;
+                if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
+                        throw new IllegalStateException("Mismatched position, rotation, and scaling arrays!");
                 }
         }
 
-        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, String texturePath, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeRots) {
+        public TextureRendererMulti(float[] vertexData, float[] texCoords, float[] normals, String texturePath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Float> rots) {
                 super(vertexData, texCoords, normals, texturePath);
-                this.cubePositions = cubePositions;
-                this.rotSpeeds = cubeRots;
-                if (cubePositions.size() != rotSpeeds.size()) {
-                        throw new IllegalStateException();
+                this.positions = positions;
+                this.scales = scales;
+                this.rots = rots;
+                if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
+                        throw new IllegalStateException("Mismatched position, rotation, and scaling arrays!");
                 }
         }
 
-        public void prepareMulti(Shader shader, Camera camera, boolean debug, int i) {
-                if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
+        @Override
+        public void prepare(boolean debug) {
+                if (!isCreated()) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
 
-                if (cubePositions.size() != rotSpeeds.size()) {
-                        throw new IllegalStateException();
+                if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
+                        throw new IllegalStateException("Mismatched position, rotation, and scaling arrays!");
                 }
 
-                Matrix4f model = new Matrix4f().translate(cubePositions.get(i)).scale(0.5f, 0.5f, 0.5f).rotate(rotation * rotSpeeds.get(i), 0.0f, 1.0f, 0.0f).rotate(rotation * rotSpeeds.get(i), 1.0f, 0.0f, 0.0f);
+                if (debug) System.out.println("yaw: " + getCamera().yaw + "\npitch: " + getCamera().pitch);
 
-                Matrix4f proj = camera.getProjectionMatrix();
+                Matrix4f model = new Matrix4f().translate(positions.get(itr)).scale(scales.get(itr), scales.get(itr), scales.get(itr)).rotate(rotation * rots.get(itr), 0.0f, 1.0f, 0.0f).rotate(rotation * rots.get(itr), 1.0f, 0.0f, 0.0f);
 
-                Matrix4f view = camera.getViewMatrix();
+                Matrix4f proj = getCamera().getProjectionMatrix();
+
+                Matrix4f view = getCamera().getViewMatrix();
 
                 if (debug) {
                         System.out.println(model.toString());
-                        shader.setUniform("model", model, true);
+                        getShader().setUniform("model", model, true);
                         System.out.println(proj.toString());
-                        shader.setUniform("projection", proj, true);
+                        getShader().setUniform("projection", proj, true);
                         System.out.println(view.toString());
-                        shader.setUniform("view", view, true);
+                        getShader().setUniform("view", view, true);
                 } else {
-                        shader.setUniform("model", model, false);
-                        shader.setUniform("projection", proj, false);
-                        shader.setUniform("view", view, false);
+                        getShader().setUniform("model", model, false);
+                        getShader().setUniform("projection", proj, false);
+                        getShader().setUniform("view", view, false);
                 }
 
-                shader.setUniform("lightPos", Window.currentLightPos);
-                shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                if (!camera.getThirdPerson()) {
-                        shader.setUniform("viewPos", camera.playerPos);
+                getShader().setUniform("lightPos", Window.currentLightPos);
+                getShader().setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
+                if (!getCamera().getThirdPerson()) {
+                        getShader().setUniform("viewPos", getCamera().playerPos);
                 } else {
-                        shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                        getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().front.mul(getCamera().zoom / 10, new Vector3f()), new Vector3f()));
                 }
-                shader.setUniform("mode", 0);
+                getShader().setUniform("mode", 0);
 
         }
 
-        public void renderMulti(Shader shader, Camera camera, boolean debug) {
-                for (int i = 0; i < cubePositions.size(); i++) {
-                        prepareMulti(shader, camera, debug, i);
+        @Override
+        public void render(boolean debug) {
+                for (int i = 0; i < positions.size(); i++) {
+                        itr = i;
+                        prepare(debug);
 
                         getTexture().bind();
                         if (isIndexed()) {
@@ -88,15 +97,5 @@ public class TextureRendererMulti extends TextureRenderer {
                         }
                 }
                 rotation += Window.deltaTime;
-        }
-
-        @Override
-        public void prepare(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
-                throw new UnsupportedOperationException("No calling the parent class method from the child class!");
-        }
-
-        @Override
-        public void render(Shader shader, Camera camera, Vector3f trans, float scale, float rotate, boolean debug) {
-                throw new UnsupportedOperationException("No calling the parent class method from the child class!");
         }
 }

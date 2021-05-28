@@ -1,4 +1,4 @@
-fullscreen = true
+fullscreen = false
 debug = false
 render_cubes = true
 width = 1080
@@ -6,5 +6,6 @@ height = 720
 cube_count = 800
 skybox_scale = 70.0
 block_placement_rate = 0.1
-block_color = 0.956, 0.372, 0.835
+block_color = 0.070, 0.850, 0.905
 block_rotation = 0.0
+block_scale = 0.5

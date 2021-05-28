@@ -85,8 +85,6 @@ public class Geometry {
                 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f, 0.709f, 0.219f, 0.09f
         };
 
-        //0.929f, 0.517f, 0.407f,
-
         public static final float[] OCTAHEDRON_NORMALS = new float[]{
                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
