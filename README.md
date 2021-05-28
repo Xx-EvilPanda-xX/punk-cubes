@@ -12,6 +12,7 @@ C: toggle render quads\
 M: toggle whether quads use the projection view matrix\
 R: set light pos to current player pos\
 F: place block at current player pos\
+G: remove all blocks\
 P: pause game and remove focus
 
 
