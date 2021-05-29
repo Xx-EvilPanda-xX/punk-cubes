@@ -229,10 +229,13 @@ public class Window implements Runnable {
                         Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
                         float scaleTemp = blockScales.get(blockScales.size() - 1);
                         float rotTemp = blockRots.get(blockRots.size() - 1);
+
                         blockPositions.remove(blockPositions.size() - 1);
                         blockScales.remove(blockScales.size() - 1);
                         blockRots.remove(blockRots.size() - 1);
+
                         blocks.render(debug);
+
                         blockPositions.add(posTemp);
                         blockScales.add(scaleTemp);
                         blockRots.add(rotTemp);

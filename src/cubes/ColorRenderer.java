@@ -27,7 +27,6 @@ public class ColorRenderer implements Renderer {
         public ColorRenderer(float[] vertexData, float[] colorData, float[] normalData, int[] indexData) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
-
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
                 this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
                 vertexCount = vertexData.length / 3;
