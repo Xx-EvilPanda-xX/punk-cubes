@@ -103,8 +103,9 @@ public class ColorRenderer implements Renderer {
         }
 
         public void render(boolean debug) {
-                prepare(debug);
+                shader.bind();
 
+                prepare(debug);
                 if (indexed) {
                         vao.bind();
                         vao.enableAttribs();

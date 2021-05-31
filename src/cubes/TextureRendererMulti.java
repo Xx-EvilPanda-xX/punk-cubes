@@ -75,11 +75,13 @@ public class TextureRendererMulti extends TextureRenderer {
 
         @Override
         public void render(boolean debug) {
+                getShader().bind();
+                getTexture().bind();
+
                 for (int i = 0; i < positions.size(); i++) {
                         itr = i;
                         prepare(debug);
 
-                        getTexture().bind();
                         if (isIndexed()) {
                                 getVao().bind();
                                 getVao().enableAttribs();

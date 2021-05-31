@@ -113,9 +113,10 @@ public class TextureRenderer implements Renderer {
         }
 
         public void render(boolean debug) {
-                prepare(debug);
-
+                shader.bind();
                 texture.bind();
+
+                prepare(debug);
                 if (indexed) {
                         vao.bind();
                         vao.enableAttribs();

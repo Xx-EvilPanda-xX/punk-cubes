@@ -219,7 +219,6 @@ public class Window implements Runnable {
                         cullFirstBlock = false;
                 }
 
-                shader.bind();
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(0.0f).render(debug);
                 if (renderCubes) {
                         cubes.render(debug);

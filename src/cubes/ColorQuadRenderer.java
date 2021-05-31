@@ -86,8 +86,9 @@ public class ColorQuadRenderer extends ColorRenderer {
 
         @Override
         public void render(boolean debug) {
-                prepare(debug);
+                getShader().bind();
 
+                prepare(debug);
                 if (isIndexed()) {
                         getVao().bind();
                         getVao().enableAttribs();

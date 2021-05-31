@@ -75,6 +75,8 @@ public class ColorRendererMulti extends ColorRenderer {
 
         @Override
         public void render(boolean debug) {
+                getShader().bind();
+
                 for (int i = 0; i < positions.size(); i++) {
                         itr = i;
                         prepare(debug);
