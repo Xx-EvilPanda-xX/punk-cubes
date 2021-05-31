@@ -21,7 +21,9 @@ public class Vao {
                 GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
                 GL20.glVertexAttribPointer(index, size, GL11.GL_FLOAT, false, 0, 0);
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-                attribs.add(index);
+                if (!attribs.contains(index)) {
+                        attribs.add(index);
+                }
                 return buf;
         }
 
