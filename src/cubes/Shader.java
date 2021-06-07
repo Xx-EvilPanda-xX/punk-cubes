@@ -147,14 +147,6 @@ public class Shader {
                 GL20.glUseProgram(0);
         }
 
-        public int getVertShaderID() {
-                return vertShaderID;
-        }
-
-        public int getFragShaderID() {
-                return fragShaderID;
-        }
-
         public int getProgramID() {
                 return programID;
         }

@@ -5,10 +5,11 @@ import org.joml.Matrix4f;
 
 public class Camera {
         public Vector3f playerPos;
-        public Vector3f front;
-        public Vector3f up;
-        public Vector3f right;
-        public Vector3f worldUp;
+
+        private Vector3f front;
+        private Vector3f up;
+        private Vector3f right;
+        private Vector3f worldUp;
 
         private boolean thirdPerson;
         private boolean optifineZoom;
@@ -18,17 +19,17 @@ public class Camera {
         private Vector3f keyboardFront;
         private Vector3f keyboardWorldUp;
 
-        public float thirdPersonRotation;
-        public static final float optifineZoomFactor = 44.25f;
+        private float thirdPersonRotation;
+        private static final float optifineZoomFactor = 44.25f;
         private float sprintFov = 0.0f;
 
         private float width = (float) Configs.WIDTH;
         private float height = (float) Configs.HEIGHT;
 
-        public float yaw;
-        public float keyBoardYaw;
-        public float pitch;
-        public float zoom = 45.0f;
+        private float yaw;
+        private float keyBoardYaw;
+        private float pitch;
+        private float zoom = 45.0f;
 
         private final float MOVEMENT_SPEED = 3.0f;
         private final float MOUSE_SENSITIVITY = 0.045f;
@@ -202,28 +203,56 @@ public class Camera {
                 updateKeyboardVectors();
         }
 
-        public void setOptifineZoom(boolean optifineZoom) {
-                this.optifineZoom = optifineZoom;
+        public Vector3f getFront() {
+                return front;
         }
 
-        public boolean getOpifineZoom() {
+        public Vector3f getUp() {
+                return up;
+        }
+
+        public Vector3f getWorldUp() {
+                return worldUp;
+        }
+
+        public Vector3f getRight() {
+                return right;
+        }
+
+        public boolean isThirdPerson() {
+                return thirdPerson;
+        }
+
+        public boolean isOptifineZoom() {
                 return optifineZoom;
         }
 
-        public void setSprinting(boolean sprinting) {
-                this.sprinting = sprinting;
-        }
-
-        public boolean getSprinting() {
+        public boolean isSprinting() {
                 return sprinting;
         }
 
-        public void setSprintFov(float sprintFov) {
-                this.sprintFov = sprintFov;
+        public float getThirdPersonRotation() {
+                return thirdPersonRotation;
         }
 
         public float getSprintFov() {
                 return sprintFov;
+        }
+
+        public float getYaw() {
+                return yaw;
+        }
+
+        public float getKeyBoardYaw() {
+                return keyBoardYaw;
+        }
+
+        public float getPitch() {
+                return pitch;
+        }
+
+        public float getZoom() {
+                return zoom;
         }
 
         public void setThirdPerson(boolean thirdPerson) {
@@ -239,7 +268,35 @@ public class Camera {
                 }
         }
 
-        public boolean getThirdPerson() {
-                return thirdPerson;
+        public void setOptifineZoom(boolean optifineZoom) {
+                this.optifineZoom = optifineZoom;
+        }
+
+        public void setSprinting(boolean sprinting) {
+                this.sprinting = sprinting;
+        }
+
+        public void setThirdPersonRotation(float thirdPersonRotation) {
+                this.thirdPersonRotation = thirdPersonRotation;
+        }
+
+        public void setSprintFov(float sprintFov) {
+                this.sprintFov = sprintFov;
+        }
+
+        public void setYaw(float yaw) {
+                this.yaw = yaw;
+        }
+
+        public void setKeyBoardYaw(float keyBoardYaw) {
+                this.keyBoardYaw = keyBoardYaw;
+        }
+
+        public void setPitch(float pitch) {
+                this.pitch = pitch;
+        }
+
+        public void setZoom(float zoom) {
+                this.zoom = zoom;
         }
 }

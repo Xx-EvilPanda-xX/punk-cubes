@@ -212,10 +212,9 @@ public class Window implements Runnable {
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-                if (blockPositions.size() > 0 && !camera.getThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F)) {
+                if (blockPositions.size() > 0 && !camera.isThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F)) {
                         cullFirstBlock = true;
-                }
-                else{
+                } else {
                         cullFirstBlock = false;
                 }
 
@@ -224,7 +223,7 @@ public class Window implements Runnable {
                         cubes.render(debug);
                 }
 
-                if (cullFirstBlock){
+                if (cullFirstBlock) {
                         Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
                         float scaleTemp = blockScales.get(blockScales.size() - 1);
                         float rotTemp = blockRots.get(blockRots.size() - 1);
@@ -238,13 +237,12 @@ public class Window implements Runnable {
                         blockPositions.add(posTemp);
                         blockScales.add(scaleTemp);
                         blockRots.add(rotTemp);
-                }
-                else {
+                } else {
                         blocks.render(debug);
                 }
 
-                if (camera.getThirdPerson()) {
-                        player.setTrans(camera.playerPos).setScale(1.0f).setRotation(camera.thirdPersonRotation).render(debug);
+                if (camera.isThirdPerson()) {
+                        player.setTrans(camera.playerPos).setScale(1.0f).setRotation(camera.getThirdPersonRotation()).render(debug);
                 }
 
                 if (renderQuads) {
@@ -320,7 +318,7 @@ public class Window implements Runnable {
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
                                 if (coolDownPool[2] <= 0.0f) {
-                                        for (int i = 0; i < quads.length; i++){
+                                        for (int i = 0; i < quads.length; i++) {
                                                 quads[i].USE_PROJ_VIEW_MAT = !quads[i].USE_PROJ_VIEW_MAT;
                                         }
                                         coolDownPool[2] = RECHARGE_TIME;
@@ -334,20 +332,20 @@ public class Window implements Runnable {
                                         coolDownPool[3] = Configs.BLOCK_PLACEMENT_RATE;
                                 }
                         }
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_G)){
-                                if (coolDownPool[4] <= 0.0f){
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
+                                if (coolDownPool[4] <= 0.0f) {
                                         blockPositions.clear();
                                         blockScales.clear();
                                         blockRots.clear();
                                         coolDownPool[4] = RECHARGE_TIME;
                                 }
                         }
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_R)){
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_R)) {
                                 currentLightPos = new Vector3f(camera.playerPos);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
                                 if (coolDownPool[5] <= 0.0f) {
-                                        camera.setThirdPerson(!camera.getThirdPerson());
+                                        camera.setThirdPerson(!camera.isThirdPerson());
                                         coolDownPool[5] = RECHARGE_TIME;
                                 }
                         }
@@ -357,7 +355,7 @@ public class Window implements Runnable {
                                         GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
                                                 float xoffset = (float) xpos;
                                                 float yoffset;
-                                                if (!camera.getThirdPerson()) {
+                                                if (!camera.isThirdPerson()) {
                                                         yoffset = (float) -ypos;
                                                 } else {
                                                         yoffset = (float) ypos;
@@ -374,7 +372,7 @@ public class Window implements Runnable {
                                 }
                         }
                 }
-                for (int i = 0; i < coolDownPool.length; i++){
+                for (int i = 0; i < coolDownPool.length; i++) {
                         coolDownPool[i] -= deltaTime;
                         if (coolDownPool[i] < 0.0f) coolDownPool[i] = 0.0f;
                 }

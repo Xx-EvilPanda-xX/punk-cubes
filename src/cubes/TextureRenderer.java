@@ -14,13 +14,13 @@ public class TextureRenderer implements Renderer {
         private String texturePath;
         private boolean indexed;
         private boolean created = false;
-        private Texture texture;
         private Vao vao;
         private int vbo, tbo, nbo, cbo;
         public int indexCount, vertexCount;
 
         private Shader shader;
         private Camera camera;
+        private Texture texture;
 
         private Vector3f trans = new Vector3f(0.0f, 0.0f, 0.0f);
         private float scale = 1.0f;
@@ -80,8 +80,9 @@ public class TextureRenderer implements Renderer {
         }
 
         public void prepare(boolean debug) {
-                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
-                if (debug) System.out.println("yaw: " + camera.yaw + "\npitch: " + camera.pitch);
+                if (!created)
+                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+                if (debug) System.out.println("yaw: " + camera.getYaw() + "\npitch: " + camera.getPitch());
 
                 Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation, 0.0f, 1.0f, 0.0f);
 
@@ -104,10 +105,10 @@ public class TextureRenderer implements Renderer {
 
                 shader.setUniform("lightPos", Window.currentLightPos);
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                if (!camera.getThirdPerson()) {
+                if (!camera.isThirdPerson()) {
                         shader.setUniform("viewPos", camera.playerPos);
                 } else {
-                        shader.setUniform("viewPos", camera.playerPos.sub(camera.front.mul(camera.zoom / 10, new Vector3f()), new Vector3f()));
+                        shader.setUniform("viewPos", camera.playerPos.sub(camera.getFront().mul(camera.getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 shader.setUniform("mode", 0);
         }
@@ -134,10 +135,6 @@ public class TextureRenderer implements Renderer {
                 }
         }
 
-        public IntBuffer getIndices() {
-                return indices;
-        }
-
         public FloatBuffer getVertices() {
                 return vertices;
         }
@@ -150,32 +147,44 @@ public class TextureRenderer implements Renderer {
                 return normals;
         }
 
-        public Texture getTexture() {
-                return texture;
-        }
-
-        public Camera getCamera(){
-                return camera;
-        }
-
-        public Shader getShader(){
-                return shader;
-        }
-
-        public boolean isCreated(){
-                return created;
+        public IntBuffer getIndices() {
+                return indices;
         }
 
         public boolean isIndexed() {
                 return indexed;
         }
 
+        public boolean isCreated() {
+                return created;
+        }
+
         public Vao getVao() {
                 return vao;
         }
 
+        public Shader getShader() {
+                return shader;
+        }
+
+        public Camera getCamera() {
+                return camera;
+        }
+
+        public Texture getTexture() {
+                return texture;
+        }
+
         public Vector3f getTrans() {
                 return trans;
+        }
+
+        public float getScale() {
+                return scale;
+        }
+
+        public float getRotation() {
+                return rotation;
         }
 
         public TextureRenderer setTrans(Vector3f trans) {
@@ -183,17 +192,9 @@ public class TextureRenderer implements Renderer {
                 return this;
         }
 
-        public float getScale() {
-                return scale;
-        }
-
         public TextureRenderer setScale(float scale) {
                 this.scale = scale;
                 return this;
-        }
-
-        public float getRotation() {
-                return rotation;
         }
 
         public TextureRenderer setRotation(float rotation) {

@@ -37,8 +37,9 @@ public class ColorQuadRenderer extends ColorRenderer {
 
         @Override
         public void prepare(boolean debug) {
-                if (!isCreated()) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
-                if (debug) System.out.println("yaw: " + getCamera().yaw + "\npitch: " + getCamera().pitch);
+                if (!isCreated())
+                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+                if (debug) System.out.println("yaw: " + getCamera().getYaw() + "\npitch: " + getCamera().getPitch());
 
                 this.trans += transOffset * Window.deltaTime;
                 if (this.trans > (1 - (SCALE / 2))) {
@@ -76,10 +77,10 @@ public class ColorQuadRenderer extends ColorRenderer {
                 }
                 getShader().setUniform("lightPos", Window.currentLightPos);
                 getShader().setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                if (!getCamera().getThirdPerson()) {
+                if (!getCamera().isThirdPerson()) {
                         getShader().setUniform("viewPos", getCamera().playerPos);
                 } else {
-                        getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().front.mul(getCamera().zoom / 10, new Vector3f()), new Vector3f()));
+                        getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", USE_PROJ_VIEW_MAT ? 1 : 3);
         }

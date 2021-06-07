@@ -11,7 +11,7 @@ public class Input {
                 GLFW.glfwSetCursorPosCallback(windowPog, (window, xpos, ypos) -> {
                         float xoffset = (float) xpos;
                         float yoffset;
-                        if (!camera.getThirdPerson()) {
+                        if (!camera.isThirdPerson()) {
                                 yoffset = (float) -ypos;
                         } else {
                                 yoffset = (float) ypos;
