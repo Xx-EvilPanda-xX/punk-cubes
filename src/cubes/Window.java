@@ -337,6 +337,7 @@ public class Window implements Runnable {
                         if (Input.isKeyDown(GLFW.GLFW_KEY_G)){
                                 if (coolDownPool[4] <= 0.0f){
                                         blockPositions.clear();
+                                        blockScales.clear();
                                         blockRots.clear();
                                         coolDownPool[4] = RECHARGE_TIME;
                                 }
