@@ -175,11 +175,11 @@ public class Window implements Runnable {
                 }
         }
 
-        private void updateSolarEntityRotation(){
-                for (int i = 0; i < planetRots.size(); i++){
+        private void updateSolarEntityRotation() {
+                for (int i = 0; i < planetRots.size(); i++) {
                         planetRots.set(i, planetRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
-                for (int i = 0; i < asteroidRots.size(); i++){
+                for (int i = 0; i < asteroidRots.size(); i++) {
                         asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
         }
@@ -360,7 +360,7 @@ public class Window implements Runnable {
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
-                                if (coolDownPool[3] <= 0.0f){
+                                if (coolDownPool[3] <= 0.0f) {
                                         placingBlocks = !placingBlocks;
                                         coolDownPool[3] = RECHARGE_TIME;
                                 }

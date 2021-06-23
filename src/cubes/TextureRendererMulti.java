@@ -48,8 +48,8 @@ public class TextureRendererMulti extends TextureRenderer {
                 if (debug) {
                         System.out.println(model.toString());
                         float[] matrix = new float[16];
-                        for (int i = 0; i < 4; i++){
-                                for (int j = 0; j < 4; j++){
+                        for (int i = 0; i < 4; i++) {
+                                for (int j = 0; j < 4; j++) {
                                         matrix[(i * 4) + j] = model.get(i, j);
                                 }
                         }
@@ -74,8 +74,8 @@ public class TextureRendererMulti extends TextureRenderer {
                         getShader().setUniform("view", view, true);
                 } else {
                         float[] matrix = new float[16];
-                        for (int i = 0; i < 4; i++){
-                                for (int j = 0; j < 4; j++){
+                        for (int i = 0; i < 4; i++) {
+                                for (int j = 0; j < 4; j++) {
                                         matrix[(i * 4) + j] = model.get(i, j);
                                 }
                         }
@@ -117,7 +117,7 @@ public class TextureRendererMulti extends TextureRenderer {
 
                 for (int i = 0; i < positions.size(); i++) {
                         itr = i;
-                        if (i > MAX_INSTANCES){
+                        if (i > MAX_INSTANCES) {
                                 throw new UnsupportedOperationException("Tried to render more than allowed instances");
                         }
                         prepare(debug);

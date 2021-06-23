@@ -115,8 +115,8 @@ public class Shader {
 
         public void setUniform(String name, Matrix4f value, boolean debug) {
                 float[] matrix = new float[16];
-                for (int i = 0; i < 4; i++){
-                        for (int j = 0; j < 4; j++){
+                for (int i = 0; i < 4; i++) {
+                        for (int j = 0; j < 4; j++) {
                                 matrix[(i * 4) + j] = value.get(j, i);
                         }
                 }

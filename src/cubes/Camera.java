@@ -9,7 +9,8 @@ public class Camera {
         private Vector3f front;
         private Vector3f up;
         private Vector3f right;
-        private Vector3f worldUp = new Vector3f(0.0f, 1.0f, 0.0f);;
+        private Vector3f worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
+        ;
 
         private boolean thirdPerson;
         private boolean optifineZoom;
@@ -17,7 +18,8 @@ public class Camera {
 
         private Vector3f keyboardRight;
         private Vector3f keyboardFront;
-        private Vector3f keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);;
+        private Vector3f keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);
+        ;
 
         private float thirdPersonRotation;
         private static final float optifineZoomFactor = 44.25f;

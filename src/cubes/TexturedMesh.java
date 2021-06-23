@@ -17,7 +17,7 @@ public class TexturedMesh {
         private Vao vao = new Vao();
         private int vbo, tbo, cbo, nbo, uao;
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath){
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();

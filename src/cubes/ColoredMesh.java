@@ -14,7 +14,7 @@ public class ColoredMesh {
         private Vao vao = new Vao();
         private int vbo, tbo, cbo, nbo, uao;
 
-        public ColoredMesh(float[] vertexData, float[] colorData, float[] normalData, int[] indexData){
+        public ColoredMesh(float[] vertexData, float[] colorData, float[] normalData, int[] indexData) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
@@ -24,7 +24,7 @@ public class ColoredMesh {
                 indexed = true;
         }
 
-        public ColoredMesh(float[] vertexData, float[] colorData, float[] normalData){
+        public ColoredMesh(float[] vertexData, float[] colorData, float[] normalData) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.colors = (FloatBuffer) MemoryUtil.memAllocFloat(colorData.length).put(colorData).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();

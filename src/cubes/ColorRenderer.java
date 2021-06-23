@@ -84,8 +84,8 @@ public class ColorRenderer implements Renderer {
                 if (debug) {
                         System.out.println(model.toString());
                         float[] matrix = new float[16];
-                        for (int i = 0; i < 4; i++){
-                                for (int j = 0; j < 4; j++){
+                        for (int i = 0; i < 4; i++) {
+                                for (int j = 0; j < 4; j++) {
                                         matrix[(i * 4) + j] = model.get(i, j);
                                 }
                         }
@@ -110,8 +110,8 @@ public class ColorRenderer implements Renderer {
                         shader.setUniform("view", view, true);
                 } else {
                         float[] matrix = new float[16];
-                        for (int i = 0; i < 4; i++){
-                                for (int j = 0; j < 4; j++){
+                        for (int i = 0; i < 4; i++) {
+                                for (int j = 0; j < 4; j++) {
                                         matrix[(i * 4) + j] = model.get(i, j);
                                 }
                         }
@@ -169,7 +169,7 @@ public class ColorRenderer implements Renderer {
                 GL30.glDisableVertexAttribArray(7);
         }
 
-        public ColoredMesh getMesh(){
+        public ColoredMesh getMesh() {
                 return mesh;
         }
 
