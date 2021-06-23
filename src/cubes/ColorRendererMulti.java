@@ -3,33 +3,29 @@ package cubes;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL42;
+import org.lwjgl.system.MemoryUtil;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class ColorRendererMulti extends ColorRenderer {
+        private static final int MAX_INSTANCES = 32767;
         private ArrayList<Vector3f> positions;
         private ArrayList<Float> scales;
         private ArrayList<Float> rots;
         private float rotation;
         private int itr;
 
-        public ColorRendererMulti(float[] vertexData, float[] colorData, float[] normals, int[] indexData, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Float> rots) {
-                super(vertexData, colorData, normals, indexData);
+        public ColorRendererMulti(ColoredMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Float> rots) {
+                super(mesh);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;
                 if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
-                        throw new IllegalStateException("Mismatched position, rotation, and scaling arrays!");
-                }
-        }
-
-        public ColorRendererMulti(float[] vertexData, float[] colorData, float[] normals, ArrayList<Vector3f> cubePositions, ArrayList<Float> cubeScales, ArrayList<Float> cubeRots) {
-                super(vertexData, colorData, normals);
-                this.positions = cubePositions;
-                this.scales = cubeScales;
-                this.rots = cubeRots;
-                if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
-                        throw new IllegalStateException("Mismatched position, rotation, and scaling arrays!");
+                        throw new IllegalStateException("Mismatched position, rotation, and scaling array sizes!");
                 }
         }
 
@@ -39,12 +35,12 @@ public class ColorRendererMulti extends ColorRenderer {
                         throw new IllegalStateException("Attempted to call render pass without initializing renderer");
 
                 if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
-                        throw new IllegalStateException("Mismatched position, rotation, and scaling arrays!");
+                        throw new IllegalStateException("Mismatched position, rotation, and scaling array sizes!");
                 }
 
                 if (debug) System.out.println("yaw: " + getCamera().getYaw() + "\npitch: " + getCamera().getPitch());
 
-                Matrix4f model = new Matrix4f().translate(positions.get(itr)).scale(scales.get(itr), scales.get(itr), scales.get(itr)).rotate(rotation * rots.get(itr), 0.0f, 1.0f, 0.0f).rotate(rotation * rots.get(itr), 1.0f, 0.0f, 0.0f);
+                Matrix4f model = new Matrix4f().translate(positions.get(itr)).scale(scales.get(itr), scales.get(itr), scales.get(itr)).rotate(rotation * rots.get(itr), 1.0f, 0.0f, 0.0f).rotate(rotation * rots.get(itr), 0.0f, 1.0f, 0.0f).rotate(rotation * rots.get(itr), 0.0f, 0.0f, 1.0f);
 
                 Matrix4f proj = getCamera().getProjectionMatrix();
 
@@ -52,13 +48,53 @@ public class ColorRendererMulti extends ColorRenderer {
 
                 if (debug) {
                         System.out.println(model.toString());
-                        getShader().setUniform("model", model, true);
+                        float[] matrix = new float[16];
+                        for (int i = 0; i < 4; i++){
+                                for (int j = 0; j < 4; j++){
+                                        matrix[(i * 4) + j] = model.get(i, j);
+                                }
+                        }
+                        GL30.glBindVertexArray(getMesh().getVao().getHandle());
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+
+                        FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
+                        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
+                        MemoryUtil.memFree(buf);
+
+                        GL30.glEnableVertexAttribArray(4);
+                        GL30.glEnableVertexAttribArray(5);
+                        GL30.glEnableVertexAttribArray(6);
+                        GL30.glEnableVertexAttribArray(7);
+
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+                        GL30.glBindVertexArray(0);
+
                         System.out.println(proj.toString());
                         getShader().setUniform("projection", proj, true);
                         System.out.println(view.toString());
                         getShader().setUniform("view", view, true);
                 } else {
-                        getShader().setUniform("model", model, false);
+                        float[] matrix = new float[16];
+                        for (int i = 0; i < 4; i++){
+                                for (int j = 0; j < 4; j++){
+                                        matrix[(i * 4) + j] = model.get(i, j);
+                                }
+                        }
+                        GL30.glBindVertexArray(getMesh().getVao().getHandle());
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+
+                        FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
+                        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
+                        MemoryUtil.memFree(buf);
+
+                        GL30.glEnableVertexAttribArray(4);
+                        GL30.glEnableVertexAttribArray(5);
+                        GL30.glEnableVertexAttribArray(6);
+                        GL30.glEnableVertexAttribArray(7);
+
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+                        GL30.glBindVertexArray(0);
+
                         getShader().setUniform("projection", proj, false);
                         getShader().setUniform("view", view, false);
                 }
@@ -71,6 +107,7 @@ public class ColorRendererMulti extends ColorRenderer {
                         getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", 1);
+                getShader().setUniform("instanced", true);
 
         }
 
@@ -80,24 +117,32 @@ public class ColorRendererMulti extends ColorRenderer {
 
                 for (int i = 0; i < positions.size(); i++) {
                         itr = i;
-                        prepare(debug);
-
-                        if (isIndexed()) {
-                                getVao().bind();
-                                getVao().enableAttribs();
-                                getVao().bindIndices();
-                                GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0);
-                                getVao().unbindIndices();
-                                getVao().disableAttribs();
-                                getVao().unbind();
-                        } else {
-                                getVao().bind();
-                                getVao().enableAttribs();
-                                GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
-                                getVao().disableAttribs();
-                                getVao().unbind();
+                        if (i > MAX_INSTANCES){
+                                throw new UnsupportedOperationException("Tried to render more than allowed instances");
                         }
+                        prepare(debug);
+                }
+
+                if (getMesh().isIndexed()) {
+                        getMesh().getVao().bind();
+                        getMesh().getVao().enableAttribs();
+                        getMesh().getVao().bindIndices();
+                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, positions.size());
+                        getMesh().getVao().unbindIndices();
+                        getMesh().getVao().disableAttribs();
+                        getMesh().getVao().unbind();
+                } else {
+                        getMesh().getVao().bind();
+                        getMesh().getVao().enableAttribs();
+                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), positions.size());
+                        getMesh().getVao().disableAttribs();
+                        getMesh().getVao().unbind();
                 }
                 rotation += Window.deltaTime;
+
+                GL30.glDisableVertexAttribArray(4);
+                GL30.glDisableVertexAttribArray(5);
+                GL30.glDisableVertexAttribArray(6);
+                GL30.glDisableVertexAttribArray(7);
         }
 }

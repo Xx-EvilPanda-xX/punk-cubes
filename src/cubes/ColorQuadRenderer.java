@@ -3,6 +3,11 @@ package cubes;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.system.MemoryUtil;
+
+import java.nio.FloatBuffer;
 
 public class ColorQuadRenderer extends ColorRenderer {
         public boolean USE_PROJ_VIEW_MAT = true;
@@ -13,8 +18,8 @@ public class ColorQuadRenderer extends ColorRenderer {
 
         private float trans, transOffset, rotation;
 
-        public ColorQuadRenderer(float[] vertexData, float[] colorData, float[] normalData, int[] indexData, float scale, float speed, float ypos, float rotation) {
-                super(vertexData, colorData, normalData, indexData);
+        public ColorQuadRenderer(ColoredMesh mesh, float scale, float speed, float ypos, float rotation) {
+                super(mesh);
                 SCALE = scale;
                 SPEED = speed;
                 YPOS = ypos;
@@ -22,17 +27,6 @@ public class ColorQuadRenderer extends ColorRenderer {
                 transOffset = SPEED;
                 trans = 0.0f;
                 this.rotation = rotation;
-        }
-
-        public ColorQuadRenderer(float[] vertexData, float[] colorData, float[] normalData, float scale, float speed, float ypos) {
-                super(vertexData, colorData, normalData);
-                SCALE = scale;
-                SPEED = speed;
-                YPOS = ypos;
-
-                indexCount = 0;
-                transOffset = SPEED;
-                trans = 0.0f;
         }
 
         @Override
@@ -60,7 +54,27 @@ public class ColorQuadRenderer extends ColorRenderer {
 
                 if (debug) {
                         System.out.println(model.toString());
-                        getShader().setUniform("model", model, true);
+                        float[] matrix = new float[16];
+                        for (int i = 0; i < 4; i++){
+                                for (int j = 0; j < 4; j++){
+                                        matrix[(i * 4) + j] = model.get(i, j);
+                                }
+                        }
+                        GL30.glBindVertexArray(getMesh().getVao().getHandle());
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+
+                        FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
+                        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buf);
+                        MemoryUtil.memFree(buf);
+
+                        GL30.glEnableVertexAttribArray(4);
+                        GL30.glEnableVertexAttribArray(5);
+                        GL30.glEnableVertexAttribArray(6);
+                        GL30.glEnableVertexAttribArray(7);
+
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+                        GL30.glBindVertexArray(0);
+
                         if (USE_PROJ_VIEW_MAT) {
                                 System.out.println(proj.toString());
                                 getShader().setUniform("projection", proj, true);
@@ -69,7 +83,27 @@ public class ColorQuadRenderer extends ColorRenderer {
 
                         }
                 } else {
-                        getShader().setUniform("model", model, false);
+                        float[] matrix = new float[16];
+                        for (int i = 0; i < 4; i++){
+                                for (int j = 0; j < 4; j++){
+                                        matrix[(i * 4) + j] = model.get(i, j);
+                                }
+                        }
+                        GL30.glBindVertexArray(getMesh().getVao().getHandle());
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+
+                        FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
+                        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buf);
+                        MemoryUtil.memFree(buf);
+
+                        GL30.glEnableVertexAttribArray(4);
+                        GL30.glEnableVertexAttribArray(5);
+                        GL30.glEnableVertexAttribArray(6);
+                        GL30.glEnableVertexAttribArray(7);
+
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+                        GL30.glBindVertexArray(0);
+
                         if (USE_PROJ_VIEW_MAT) {
                                 getShader().setUniform("projection", proj, false);
                                 getShader().setUniform("view", view, false);
@@ -90,20 +124,24 @@ public class ColorQuadRenderer extends ColorRenderer {
                 getShader().bind();
 
                 prepare(debug);
-                if (isIndexed()) {
-                        getVao().bind();
-                        getVao().enableAttribs();
-                        getVao().bindIndices();
-                        GL11.glDrawElements(GL11.GL_TRIANGLES, indexCount, GL11.GL_UNSIGNED_INT, 0);
-                        getVao().unbindIndices();
-                        getVao().disableAttribs();
-                        getVao().unbind();
+                if (getMesh().isIndexed()) {
+                        getMesh().getVao().bind();
+                        getMesh().getVao().enableAttribs();
+                        getMesh().getVao().bindIndices();
+                        GL11.glDrawElements(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0);
+                        getMesh().getVao().unbindIndices();
+                        getMesh().getVao().disableAttribs();
+                        getMesh().getVao().unbind();
                 } else {
-                        getVao().bind();
-                        getVao().enableAttribs();
-                        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
-                        getVao().disableAttribs();
-                        getVao().unbind();
+                        getMesh().getVao().bind();
+                        getMesh().getVao().enableAttribs();
+                        GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount());
+                        getMesh().getVao().disableAttribs();
+                        getMesh().getVao().unbind();
                 }
+                GL30.glDisableVertexAttribArray(4);
+                GL30.glDisableVertexAttribArray(5);
+                GL30.glDisableVertexAttribArray(6);
+                GL30.glDisableVertexAttribArray(7);
         }
 }

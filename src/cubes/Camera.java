@@ -9,7 +9,7 @@ public class Camera {
         private Vector3f front;
         private Vector3f up;
         private Vector3f right;
-        private Vector3f worldUp;
+        private Vector3f worldUp = new Vector3f(0.0f, 1.0f, 0.0f);;
 
         private boolean thirdPerson;
         private boolean optifineZoom;
@@ -17,7 +17,7 @@ public class Camera {
 
         private Vector3f keyboardRight;
         private Vector3f keyboardFront;
-        private Vector3f keyboardWorldUp;
+        private Vector3f keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);;
 
         private float thirdPersonRotation;
         private static final float optifineZoomFactor = 44.25f;
@@ -37,15 +37,12 @@ public class Camera {
         public Camera(Vector3f pos, float yaw, float pitch) {
                 this.front = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
                 this.playerPos = pos;
-                this.worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
                 this.yaw = yaw;
                 this.keyBoardYaw = yaw;
                 this.pitch = pitch;
                 this.right = front.cross(this.worldUp, new Vector3f()).normalize();
                 this.up = right.cross(this.front, new Vector3f()).normalize();
                 this.thirdPersonRotation = (float) Math.toRadians(keyBoardYaw);
-
-                this.keyboardWorldUp = new Vector3f(0.0f, 1.0f, 0.0f);
                 this.keyboardFront = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
                 this.keyboardRight = keyboardFront.cross(this.worldUp, new Vector3f()).normalize();
 
@@ -56,7 +53,7 @@ public class Camera {
                 if (!thirdPerson) {
                         return new Matrix4f().lookAt(playerPos, playerPos.add(front, new Vector3f()), up);
                 } else {
-                        return new Matrix4f().lookAt(playerPos.sub(front.mul(zoom / 10, new Vector3f()), new Vector3f()), playerPos, up);
+                        return new Matrix4f().lookAt(playerPos.sub(front.mul(zoom / 10.0f, new Vector3f()), new Vector3f()), playerPos, up);
                 }
         }
 
@@ -86,8 +83,8 @@ public class Camera {
                         yaw += xoffset;
                         pitch += yoffset;
                 } else {
-                        yaw += xoffset / 5;
-                        pitch += yoffset / 5;
+                        yaw += xoffset / 5.0f;
+                        pitch += yoffset / 5.0f;
                 }
 
                 if (constrainPitch) {
@@ -107,22 +104,22 @@ public class Camera {
                 updateAllVectors();
         }
 
-        public void processKeyboard(int direction, float deltaTime) {
-                float velocity = MOVEMENT_SPEED * deltaTime;
+        public void processKeyboard(Direction dir) {
+                float velocity = MOVEMENT_SPEED * Window.deltaTime;
 
-                if (direction == 0) {
+                if (dir == Direction.FORWARD) {
                         playerPos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
                         if (sprinting) {
                                 playerPos.add(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
-                if (direction == 1) {
+                if (dir == Direction.BACK) {
                         playerPos.sub(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
                         if (sprinting) {
                                 playerPos.sub(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
                         }
                 }
-                if (direction == 2) {
+                if (dir == Direction.LEFT) {
                         if (!thirdPerson) {
                                 playerPos.sub(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
                                 if (sprinting) {
@@ -133,7 +130,7 @@ public class Camera {
                                 thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
                         }
                 }
-                if (direction == 3) {
+                if (dir == Direction.RIGHT) {
                         if (!thirdPerson) {
                                 playerPos.add(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
                                 if (sprinting) {
@@ -144,10 +141,10 @@ public class Camera {
                                 thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
                         }
                 }
-                if (direction == 4) {
+                if (dir == Direction.UP) {
                         playerPos.add(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
                 }
-                if (direction == 5) {
+                if (dir == Direction.DOWN) {
                         playerPos.sub(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
                 }
                 if (keyBoardYaw > 360.0f) {
@@ -160,7 +157,7 @@ public class Camera {
         }
 
         public void processMouseScroll(float yoffset) {
-                zoom -= yoffset / 30;
+                zoom -= yoffset / 30.0f;
 
                 if (zoom < 44.5f) {
                         zoom = 44.5f;
@@ -183,16 +180,16 @@ public class Camera {
         private void updateKeyboardVectors() {
                 if (thirdPerson) {
                         Vector3f front = new Vector3f();
-                        front.x = (float) Math.cos(Math.toRadians(keyBoardYaw)) * (float) Math.cos(Math.toRadians(0));
-                        front.y = (float) Math.sin(Math.toRadians(0));
-                        front.z = (float) Math.sin(Math.toRadians(keyBoardYaw)) * (float) Math.cos(Math.toRadians(0));
+                        front.x = (float) Math.cos(Math.toRadians(keyBoardYaw)) * (float) Math.cos(Math.toRadians(0.0f));
+                        front.y = (float) Math.sin(Math.toRadians(0.0f));
+                        front.z = (float) Math.sin(Math.toRadians(keyBoardYaw)) * (float) Math.cos(Math.toRadians(0.0f));
                         this.keyboardFront = front.normalize();
                         this.keyboardRight = front.cross(this.keyboardWorldUp, new Vector3f()).normalize();
                 } else {
                         Vector3f front = new Vector3f();
-                        front.x = (float) Math.cos(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(0));
-                        front.y = (float) Math.sin(Math.toRadians(0));
-                        front.z = (float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(0));
+                        front.x = (float) Math.cos(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(0.0f));
+                        front.y = (float) Math.sin(Math.toRadians(0.0f));
+                        front.z = (float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(0.0f));
                         this.keyboardFront = front.normalize();
                         this.keyboardRight = front.cross(this.keyboardWorldUp, new Vector3f()).normalize();
                 }

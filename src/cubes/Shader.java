@@ -1,7 +1,6 @@
 package cubes;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.*;
 
 
 import java.io.*;
@@ -86,6 +85,7 @@ public class Shader {
 
                 GL20.glDeleteShader(vertShaderID);
                 GL20.glDeleteShader(fragShaderID);
+
                 return true;
         }
 
@@ -115,27 +115,15 @@ public class Shader {
 
         public void setUniform(String name, Matrix4f value, boolean debug) {
                 float[] matrix = new float[16];
-                matrix[0] = value.get(0, 0);
-                matrix[1] = value.get(1, 0);
-                matrix[2] = value.get(2, 0);
-                matrix[3] = value.get(3, 0);
-                matrix[4] = value.get(0, 1);
-                matrix[5] = value.get(1, 1);
-                matrix[6] = value.get(2, 1);
-                matrix[7] = value.get(3, 1);
-                matrix[8] = value.get(0, 2);
-                matrix[9] = value.get(1, 2);
-                matrix[10] = value.get(2, 2);
-                matrix[11] = value.get(3, 2);
-                matrix[12] = value.get(0, 3);
-                matrix[13] = value.get(1, 3);
-                matrix[14] = value.get(2, 3);
-                matrix[15] = value.get(3, 3);
+                for (int i = 0; i < 4; i++){
+                        for (int j = 0; j < 4; j++){
+                                matrix[(i * 4) + j] = value.get(j, i);
+                        }
+                }
+
+                GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
                 if (debug) {
                         System.out.println(Arrays.toString(matrix));
-                        GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
-                } else {
-                        GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
                 }
         }
 

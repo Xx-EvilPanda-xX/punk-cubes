@@ -21,7 +21,9 @@ public class Input {
                 });
 
                 GLFW.glfwSetScrollCallback(windowPog, (window, offsetx, offsety) -> {
-                        camera.processMouseScroll((float) offsety);
+                        if (!camera.isOptifineZoom()) {
+                                camera.processMouseScroll((float) offsety);
+                        }
                 });
         }
 

@@ -10,9 +10,10 @@ import java.io.FileReader;
 public class Configs {
         public static boolean FULLSCREEN = false;
         public static boolean DEBUG = false;
-        public static boolean RENDER_CUBES = true;
+        public static boolean RENDER_SOLAR_ENTITIES = true;
 
-        public static int CUBE_COUNT = 4096;
+        public static int PLANET_COUNT = 100;
+        public static int ASTEROID_COUNT = 100;
         public static float SKYBOX_SCALE = 100.0f;
 
         public static int WIDTH = 1080;
@@ -40,15 +41,15 @@ public class Configs {
                         }
 
                         DEBUG = Boolean.parseBoolean(configs[1]);
-                        RENDER_CUBES = Boolean.parseBoolean(configs[2]);
-                        BLOCK_PLACEMENT_RATE = Float.parseFloat(configs[7]);
+                        RENDER_SOLAR_ENTITIES = Boolean.parseBoolean(configs[2]);
+                        BLOCK_PLACEMENT_RATE = Float.parseFloat(configs[8]);
 
-                        BLOCK_COLOR.x = Float.parseFloat(configs[8].split(", ")[0]);
-                        BLOCK_COLOR.y = Float.parseFloat(configs[8].split(", ")[1]);
-                        BLOCK_COLOR.z = Float.parseFloat(configs[8].split(", ")[2]);
+                        BLOCK_COLOR.x = Float.parseFloat(configs[9].split(", ")[0]);
+                        BLOCK_COLOR.y = Float.parseFloat(configs[9].split(", ")[1]);
+                        BLOCK_COLOR.z = Float.parseFloat(configs[9].split(", ")[2]);
 
-                        BLOCK_ROTATION = Float.parseFloat(configs[9]);
-                        BLOCK_SCALE = Float.parseFloat(configs[10]);
+                        BLOCK_ROTATION = Float.parseFloat(configs[10]);
+                        BLOCK_SCALE = Float.parseFloat(configs[11]);
 
                         if ((FULLSCREEN = Boolean.parseBoolean(configs[0]))) {
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
@@ -59,12 +60,17 @@ public class Configs {
                                 HEIGHT = Integer.parseInt(configs[4]);
                         }
 
-                        if ((CUBE_COUNT = Integer.parseInt(configs[5])) > 10000) {
-                                System.out.println("Too many cubes! Cube count will be set to 4096");
-                                CUBE_COUNT = 10000;
+                        if ((PLANET_COUNT = Integer.parseInt(configs[5])) > 10000) {
+                                System.out.println("Too many planets! Cube count will be set to 10000");
+                                PLANET_COUNT = 10000;
                         }
 
-                        if ((SKYBOX_SCALE = Float.parseFloat(configs[6])) > 250 || (SKYBOX_SCALE = Float.parseFloat(configs[6])) < 5) {
+                        if ((ASTEROID_COUNT = Integer.parseInt(configs[6])) > 10000) {
+                                System.out.println("Too many asteroids! Cube count will be set to 10000");
+                                ASTEROID_COUNT = 10000;
+                        }
+
+                        if ((SKYBOX_SCALE = Float.parseFloat(configs[7])) > 250 || (SKYBOX_SCALE = Float.parseFloat(configs[7])) < 5) {
                                 System.out.println("Invalid skybox size! Skybox size will be size to 100.0");
                                 SKYBOX_SCALE = 100.0f;
                         }

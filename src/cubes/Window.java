@@ -24,7 +24,7 @@ public class Window implements Runnable {
         public Input input;
 
         private float lastFrame = 0.0f;
-        private boolean renderQuads = false, focused = true, cullFirstBlock = false;
+        private boolean renderQuads = false, focused = true, cullFirstBlock = false, showCoords = false, placingBlocks = false;
         private int frames;
         private static long time;
         private long window;
@@ -38,11 +38,15 @@ public class Window implements Runnable {
         private TextureRenderer skyBox;
         private ColorRenderer player;
         private ColorRendererMulti blocks;
-        private TextureRendererMulti cubes;
+        private TextureRendererMulti planets;
+        private TextureRendererMulti asteroids;
 
-        private ArrayList<Vector3f> cubePositions = new ArrayList<>();
-        private ArrayList<Float> cubeScales = new ArrayList<>();
-        private ArrayList<Float> cubeRots = new ArrayList<>();
+        private ArrayList<Vector3f> planetPositions = new ArrayList<>();
+        private ArrayList<Float> planetScales = new ArrayList<>();
+        private ArrayList<Float> planetRots = new ArrayList<>();
+        private ArrayList<Vector3f> asteroidPositions = new ArrayList<>();
+        private ArrayList<Float> asteroidScales = new ArrayList<>();
+        private ArrayList<Float> asteroidRots = new ArrayList<>();
         private ArrayList<Vector3f> blockPositions = new ArrayList<>();
         private ArrayList<Float> blockScales = new ArrayList<>();
         private ArrayList<Float> blockRots = new ArrayList<>();
@@ -61,7 +65,7 @@ public class Window implements Runnable {
                 init();
                 create();
                 while (!GLFW.glfwWindowShouldClose(window)) {
-                        loop(Configs.RENDER_CUBES, renderQuads, Configs.DEBUG);
+                        loop(Configs.RENDER_SOLAR_ENTITIES, renderQuads, Configs.DEBUG);
                 }
 
                 Callbacks.glfwFreeCallbacks(window);
@@ -108,14 +112,20 @@ public class Window implements Runnable {
         }
 
         private void create() {
-                for (int ptr = 0; ptr < Configs.CUBE_COUNT; ptr++) {
-                        cubePositions.add(genRandVec());
-                        cubeScales.add(genRandFloat());
-                        cubeRots.add(genRandFloat());
+                for (int ptr = 0; ptr < Configs.PLANET_COUNT; ptr++) {
+                        planetPositions.add(genRandVec());
+                        planetScales.add(genRandFloat());
+                        planetRots.add(genRandFloat());
+                }
+
+                for (int ptr = 0; ptr < Configs.ASTEROID_COUNT; ptr++) {
+                        asteroidPositions.add(genRandVec());
+                        asteroidScales.add(genRandFloat());
+                        asteroidRots.add(genRandFloat());
                 }
 
                 GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-                camera = new Camera(new Vector3f(0.0f, 0.0f, -5.0f), 90.0f, 0.0f);
+                camera = new Camera(new Vector3f(0.0f, 0.0f, -5.0f), 0.0f, 0.0f);
                 input = new Input(camera, window);
 
                 time = System.currentTimeMillis();
@@ -128,27 +138,29 @@ public class Window implements Runnable {
                 shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
                 shader.create();
 
-                quads = new ColorQuadRenderer[]{new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.5f, 0.7f, 0.5f, 0),
-                        new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.7f, 0.5f, -0.5f, 0),
-                        new ColorQuadRenderer(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, 0.05f, 1.0f, 0.0f, 0),
+                quads = new ColorQuadRenderer[]{new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.5f, 0.7f, 0.5f, 0),
+                        new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.7f, 0.5f, -0.5f, 0),
+                        new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.05f, 1.0f, 0.0f, 0),
                 };
 
-                skyBox = new TextureRenderer(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/pumserver.png");
-                player = new ColorRenderer(Geometry.OCTAHEDRON_VERTICES, Geometry.OCTAHEDRON_COLORS, Geometry.OCTAHEDRON_NORMALS);
-                cubes = new TextureRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/wood.png", cubePositions, cubeScales, cubeRots);
-                blocks = new ColorRendererMulti(Geometry.CUBE_VERTICES, Geometry.CUBE_COLORS, Geometry.CUBE_NORMALS, blockPositions, blockScales, blockRots);
+                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png"));
+                player = new ColorRenderer(new ColoredMesh(Geometry.SPACESHIP_VERTICES, Geometry.SPACESHIP_COLORS, Geometry.SPACESHIP_NORMALS));
+                planets = new TextureRendererMulti(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/planet.png"), planetPositions, planetScales, planetRots);
+                asteroids = new TextureRendererMulti(new TexturedMesh(Geometry.PYRAMID_VERTICES, Geometry.PYRAMID_TEX_COORDS, Geometry.PYRAMID_NORMALS, "textures/asteroid.png"), asteroidPositions, asteroidScales, asteroidRots);
+                blocks = new ColorRendererMulti(new ColoredMesh(Geometry.CUBE_VERTICES, Geometry.BLOCK_COLORS, Geometry.CUBE_NORMALS), blockPositions, blockScales, blockRots);
 
 
                 for (ColorQuadRenderer r : quads) {
                         r.create(shader, camera);
                 }
-                cubes.create(shader, camera);
+                planets.create(shader, camera);
                 blocks.create(shader, camera);
                 skyBox.create(shader, camera);
+                asteroids.create(shader, camera);
                 player.create(shader, camera);
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
-                camera.setThirdPerson(false);
+                camera.setThirdPerson(true);
 
                 System.out.println(GL11.glGetString(GL11.GL_VERSION));
                 GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
@@ -212,15 +224,12 @@ public class Window implements Runnable {
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-                if (blockPositions.size() > 0 && !camera.isThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F)) {
-                        cullFirstBlock = true;
-                } else {
-                        cullFirstBlock = false;
-                }
+                cullFirstBlock = blockPositions.size() > 0 && !camera.isThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F);
 
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(0.0f).render(debug);
                 if (renderCubes) {
-                        cubes.render(debug);
+                        planets.render(debug);
+                        asteroids.render(debug);
                 }
 
                 if (cullFirstBlock) {
@@ -250,6 +259,21 @@ public class Window implements Runnable {
                                 r.render(debug);
                         }
                 }
+
+                if (showCoords) {
+                        if (coolDownPool[8] <= 0.0f) {
+                                System.out.println("x: " + camera.playerPos.x + ", y: " + camera.playerPos.y + ", z: " + camera.playerPos.z);
+                                coolDownPool[8] = RECHARGE_TIME;
+                        }
+                }
+
+                if (placingBlocks && coolDownPool[4] <= 0.0f) {
+                        blockPositions.add(new Vector3f(camera.playerPos));
+                        blockScales.add(Configs.BLOCK_SCALE);
+                        blockRots.add(Configs.BLOCK_ROTATION);
+                        coolDownPool[4] = Configs.BLOCK_PLACEMENT_RATE;
+                }
+
                 GLFW.glfwSwapBuffers(window);
                 GLFW.glfwPollEvents();
                 updateFPS();
@@ -288,22 +312,22 @@ public class Window implements Runnable {
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_W)) {
-                                camera.processKeyboard(0, deltaTime);
+                                camera.processKeyboard(Direction.FORWARD);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_S)) {
-                                camera.processKeyboard(1, deltaTime);
+                                camera.processKeyboard(Direction.BACK);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_A)) {
-                                camera.processKeyboard(2, deltaTime);
+                                camera.processKeyboard(Direction.LEFT);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_D)) {
-                                camera.processKeyboard(3, deltaTime);
+                                camera.processKeyboard(Direction.RIGHT);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
-                                camera.processKeyboard(4, deltaTime);
+                                camera.processKeyboard(Direction.UP);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
-                                camera.processKeyboard(5, deltaTime);
+                                camera.processKeyboard(Direction.DOWN);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
                                 camera.setOptifineZoom(true);
@@ -325,28 +349,32 @@ public class Window implements Runnable {
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
-                                if (coolDownPool[3] <= 0.0f) {
-                                        blockPositions.add(new Vector3f(camera.playerPos));
-                                        blockScales.add(Configs.BLOCK_SCALE);
-                                        blockRots.add(Configs.BLOCK_ROTATION);
-                                        coolDownPool[3] = Configs.BLOCK_PLACEMENT_RATE;
+                                if (coolDownPool[3] <= 0.0f){
+                                        placingBlocks = !placingBlocks;
+                                        coolDownPool[3] = RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
-                                if (coolDownPool[4] <= 0.0f) {
+                                if (coolDownPool[5] <= 0.0f) {
                                         blockPositions.clear();
                                         blockScales.clear();
                                         blockRots.clear();
-                                        coolDownPool[4] = RECHARGE_TIME;
+                                        coolDownPool[5] = RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_R)) {
                                 currentLightPos = new Vector3f(camera.playerPos);
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
-                                if (coolDownPool[5] <= 0.0f) {
+                                if (coolDownPool[6] <= 0.0f) {
                                         camera.setThirdPerson(!camera.isThirdPerson());
-                                        coolDownPool[5] = RECHARGE_TIME;
+                                        coolDownPool[6] = RECHARGE_TIME;
+                                }
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_T)) {
+                                if (coolDownPool[7] <= 0.0f) {
+                                        showCoords = !showCoords;
+                                        coolDownPool[7] = RECHARGE_TIME;
                                 }
                         }
                 } else {
@@ -363,9 +391,13 @@ public class Window implements Runnable {
 
                                                 camera.processMouseMovement(xoffset, yoffset, true);
                                         });
+
                                         GLFW.glfwSetScrollCallback(window, (windowPog, offsetx, offsety) -> {
-                                                camera.processMouseScroll((float) offsety);
+                                                if (!camera.isOptifineZoom()) {
+                                                        camera.processMouseScroll((float) offsety);
+                                                }
                                         });
+
                                         focused = !focused;
                                         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
                                         coolDownPool[0] = RECHARGE_TIME;

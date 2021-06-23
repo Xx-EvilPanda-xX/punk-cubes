@@ -13,7 +13,9 @@ M: toggle whether quads use the projection view matrix\
 R: set light pos to current player pos\
 F: place block at current player pos\
 G: remove all blocks\
-P: pause game and remove focus
+P: pause game and remove focus\
+T: toggle show coordinates\
+V: switch perspective (first person/third person)
 
 
 

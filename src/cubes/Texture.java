@@ -23,7 +23,6 @@ public class Texture {
                 STBImage.stbi_set_flip_vertically_on_load(true);
 
                 try {
-                        int width, height;
                         IntBuffer x = MemoryUtil.memAllocInt(8);
                         IntBuffer y = MemoryUtil.memAllocInt(8);
                         IntBuffer nrChannels = MemoryUtil.memAllocInt(256);
@@ -34,6 +33,7 @@ public class Texture {
                         byte[] data = new byte[bytes];
                         in.read(data);
                         System.out.println("Texture located!");
+
                         ByteBuffer imgData = STBImage.stbi_load_from_memory((ByteBuffer) MemoryUtil.memAlloc(bytes).put(data).flip(), x, y, nrChannels, 0);
                         if (imgData == null) {
                                 System.out.println("FAILED TO LOAD TEXTURE FROM DIRECT RESOURCES WHILE LOADING");
@@ -42,16 +42,19 @@ public class Texture {
 
                         int texture = GL20.glGenTextures();
                         GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
-                        width = x.get();
-                        height = y.get();
+                        int width = x.get();
+                        int height = y.get();
                         GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, GL20.GL_RGB, width, height, 0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, imgData);
+
                         GL30.glGenerateMipmap(GL20.GL_TEXTURE_2D);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
                         GL20.glBindTexture(GL20.GL_TEXTURE_2D, 0);
+
                         STBImage.stbi_image_free(imgData);
+
                         System.out.println("Texture loaded!");
                         handle = texture;
                         return texture;
