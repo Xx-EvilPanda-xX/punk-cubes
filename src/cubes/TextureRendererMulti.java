@@ -12,7 +12,6 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class TextureRendererMulti extends TextureRenderer {
-        private static final int MAX_INSTANCES = 32767;
         private ArrayList<Vector3f> positions;
         private ArrayList<Float> scales;
         private ArrayList<Vector3f> rots;
@@ -106,8 +105,6 @@ public class TextureRendererMulti extends TextureRenderer {
                         getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", 0);
-                getShader().setUniform("instanced", true);
-
         }
 
         @Override
@@ -117,28 +114,28 @@ public class TextureRendererMulti extends TextureRenderer {
 
                 for (int i = 0; i < positions.size(); i++) {
                         itr = i;
-                        if (i > MAX_INSTANCES) {
+                        if (itr > MAX_INSTANCES) {
                                 throw new UnsupportedOperationException("Tried to render more than allowed instances");
                         }
                         prepare(debug);
                 }
 
+                Vao vao = getMesh().getVao();
                 if (getMesh().isIndexed()) {
-                        getMesh().getVao().bind();
-                        getMesh().getVao().enableAttribs();
-                        getMesh().getVao().bindIndices();
+                        vao.bind();
+                        vao.enableAttribs();
+                        vao.bindIndices();
                         GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, positions.size());
-                        getMesh().getVao().unbindIndices();
-                        getMesh().getVao().disableAttribs();
-                        getMesh().getVao().unbind();
+                        vao.unbindIndices();
+                        vao.disableAttribs();
+                        vao.unbind();
                 } else {
-                        getMesh().getVao().bind();
-                        getMesh().getVao().enableAttribs();
+                        vao.bind();
+                        vao.enableAttribs();
                         GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), positions.size());
-                        getMesh().getVao().disableAttribs();
-                        getMesh().getVao().unbind();
+                        vao.disableAttribs();
+                        vao.unbind();
                 }
-
                 GL30.glDisableVertexAttribArray(4);
                 GL30.glDisableVertexAttribArray(5);
                 GL30.glDisableVertexAttribArray(6);

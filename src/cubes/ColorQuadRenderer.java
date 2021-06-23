@@ -124,20 +124,21 @@ public class ColorQuadRenderer extends ColorRenderer {
                 getShader().bind();
 
                 prepare(debug);
+                Vao vao = getMesh().getVao();
                 if (getMesh().isIndexed()) {
-                        getMesh().getVao().bind();
-                        getMesh().getVao().enableAttribs();
-                        getMesh().getVao().bindIndices();
+                        vao.bind();
+                        vao.enableAttribs();
+                        vao.bindIndices();
                         GL11.glDrawElements(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0);
-                        getMesh().getVao().unbindIndices();
-                        getMesh().getVao().disableAttribs();
-                        getMesh().getVao().unbind();
+                        vao.unbindIndices();
+                        vao.disableAttribs();
+                        vao.unbind();
                 } else {
-                        getMesh().getVao().bind();
-                        getMesh().getVao().enableAttribs();
+                        vao.bind();
+                        vao.enableAttribs();
                         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount());
-                        getMesh().getVao().disableAttribs();
-                        getMesh().getVao().unbind();
+                        vao.disableAttribs();
+                        vao.unbind();
                 }
                 GL30.glDisableVertexAttribArray(4);
                 GL30.glDisableVertexAttribArray(5);

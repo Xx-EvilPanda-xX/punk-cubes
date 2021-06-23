@@ -11,7 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.FloatBuffer;
 
 public class ColorRenderer implements Renderer {
-        private static final int MAX_INSTANCES = 32767;
+        public static final int MAX_INSTANCES = 32767;
 
         ColoredMesh mesh;
         private boolean created = false;

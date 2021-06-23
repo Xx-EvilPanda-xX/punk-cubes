@@ -24,7 +24,7 @@ public class Window implements Runnable {
         public Input input;
 
         private float lastFrame = 0.0f;
-        private boolean renderQuads = false, focused = true, cullFirstBlock = false, showCoords = false, placingBlocks = false;
+        private boolean renderQuads = false, focused = true, cullFirstBlocks = false, showCoords = false, placingBlocks = false;
         private int frames;
         private static long time;
         private long window;
@@ -190,19 +190,19 @@ public class Window implements Runnable {
                 float randY;
                 float randZ;
 
-                randX = ((float) Math.random() * 1000.0f) - 500.0f;
-                while (randX > ((Configs.SKYBOX_SCALE - 2.5f) / 2.0f) || randX < -((Configs.SKYBOX_SCALE - 2.5f) / 2.0f)) {
-                        randX = ((float) Math.random() * 1000.0f) - 500.0f;
+                randX = ((float) Math.random() * 10000.0f) - 5000.0f;
+                while (randX > ((Configs.SKYBOX_SCALE - 2.0f) / 2.0f) || randX < -((Configs.SKYBOX_SCALE - 2.0f) / 2.0f)) {
+                        randX = ((float) Math.random() * 10000.0f) - 5000.0f;
                 }
 
-                randY = ((float) Math.random() * 1000.0f) - 500.0f;
-                while (randY > ((Configs.SKYBOX_SCALE - 2.5f) / 2.0f) || randY < -((Configs.SKYBOX_SCALE - 2.5f) / 2.0f)) {
-                        randY = ((float) Math.random() * 1000.0f) - 500.0f;
+                randY = ((float) Math.random() * 10000.0f) - 5000.0f;
+                while (randY > ((Configs.SKYBOX_SCALE - 2.0f) / 2.0f) || randY < -((Configs.SKYBOX_SCALE - 2.0f) / 2.0f)) {
+                        randY = ((float) Math.random() * 10000.0f) - 5000.0f;
                 }
 
-                randZ = ((float) Math.random() * 1000.0f) - 500.0f;
-                while (randZ > ((Configs.SKYBOX_SCALE - 2.5f) / 2.0f) || randZ < -((Configs.SKYBOX_SCALE - 2.5f) / 2.0f)) {
-                        randZ = ((float) Math.random() * 1000.0f) - 500.0f;
+                randZ = ((float) Math.random() * 10000.0f) - 5000.0f;
+                while (randZ > ((Configs.SKYBOX_SCALE - 2.0f) / 2.0f) || randZ < -((Configs.SKYBOX_SCALE - 2.0f) / 2.0f)) {
+                        randZ = ((float) Math.random() * 10000.0f) - 5000.0f;
                 }
 
                 return new Vector3f(randX, randY, randZ);
@@ -235,7 +235,7 @@ public class Window implements Runnable {
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-                cullFirstBlock = blockPositions.size() > 0 && !camera.isThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F);
+                cullFirstBlocks = blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks;
 
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 if (renderCubes) {
@@ -243,7 +243,7 @@ public class Window implements Runnable {
                         asteroids.render(debug);
                 }
 
-                if (cullFirstBlock) {
+                if (cullFirstBlocks) {
                         Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
                         float scaleTemp = blockScales.get(blockScales.size() - 1);
                         Vector3f rotTemp = blockRots.get(blockRots.size() - 1);

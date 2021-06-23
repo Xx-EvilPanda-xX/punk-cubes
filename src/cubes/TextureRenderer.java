@@ -11,7 +11,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.FloatBuffer;
 
 public class TextureRenderer implements Renderer {
-        private static final int MAX_INSTANCES = 32767;
+        public static final int MAX_INSTANCES = 32767;
 
         TexturedMesh mesh;
         private boolean created = false;
@@ -149,20 +149,21 @@ public class TextureRenderer implements Renderer {
                 mesh.getTexture().bind();
 
                 prepare(debug);
+                Vao vao = mesh.getVao();
                 if (mesh.isIndexed()) {
-                        mesh.getVao().bind();
-                        mesh.getVao().enableAttribs();
-                        mesh.getVao().bindIndices();
+                        vao.bind();
+                        vao.enableAttribs();
+                        vao.bindIndices();
                         GL11.glDrawElements(GL11.GL_TRIANGLES, mesh.getIndexCount(), GL11.GL_UNSIGNED_INT, 0);
-                        mesh.getVao().unbindIndices();
-                        mesh.getVao().disableAttribs();
-                        mesh.getVao().unbind();
+                        vao.unbindIndices();
+                        vao.disableAttribs();
+                        vao.unbind();
                 } else {
-                        mesh.getVao().bind();
-                        mesh.getVao().enableAttribs();
+                        vao.bind();
+                        vao.enableAttribs();
                         GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, mesh.getVertexCount());
-                        mesh.getVao().disableAttribs();
-                        mesh.getVao().unbind();
+                        vao.disableAttribs();
+                        vao.unbind();
                 }
                 GL30.glDisableVertexAttribArray(4);
                 GL30.glDisableVertexAttribArray(5);
