@@ -21,7 +21,7 @@ public class Configs {
 
         public static Vector3f BLOCK_COLOR = new Vector3f(1.0f, 1.0f, 1.0f);
         public static float BLOCK_PLACEMENT_RATE = 0.1f;
-        public static float BLOCK_ROTATION = 0.0f;
+        public static Vector3f BLOCK_ROTATION = new Vector3f(0.0f, 0.0f, 0.0f);
         public static float BLOCK_SCALE = 1.0f;
 
         static {
@@ -48,7 +48,10 @@ public class Configs {
                         BLOCK_COLOR.y = Float.parseFloat(configs[9].split(", ")[1]);
                         BLOCK_COLOR.z = Float.parseFloat(configs[9].split(", ")[2]);
 
-                        BLOCK_ROTATION = Float.parseFloat(configs[10]);
+                        BLOCK_ROTATION.x = Float.parseFloat(configs[10].split(", ")[0]);
+                        BLOCK_ROTATION.y = Float.parseFloat(configs[10].split(", ")[1]);
+                        BLOCK_ROTATION.z = Float.parseFloat(configs[10].split(", ")[2]);
+
                         BLOCK_SCALE = Float.parseFloat(configs[11]);
 
                         if ((FULLSCREEN = Boolean.parseBoolean(configs[0]))) {

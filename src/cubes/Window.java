@@ -43,13 +43,13 @@ public class Window implements Runnable {
 
         private ArrayList<Vector3f> planetPositions = new ArrayList<>();
         private ArrayList<Float> planetScales = new ArrayList<>();
-        private ArrayList<Float> planetRots = new ArrayList<>();
+        private ArrayList<Vector3f> planetRots = new ArrayList<>();
         private ArrayList<Vector3f> asteroidPositions = new ArrayList<>();
         private ArrayList<Float> asteroidScales = new ArrayList<>();
-        private ArrayList<Float> asteroidRots = new ArrayList<>();
+        private ArrayList<Vector3f> asteroidRots = new ArrayList<>();
         private ArrayList<Vector3f> blockPositions = new ArrayList<>();
         private ArrayList<Float> blockScales = new ArrayList<>();
-        private ArrayList<Float> blockRots = new ArrayList<>();
+        private ArrayList<Vector3f> blockRots = new ArrayList<>();
 
         public void start() {
                 pog = new Thread(this, "fortnite;");
@@ -115,13 +115,13 @@ public class Window implements Runnable {
                 for (int ptr = 0; ptr < Configs.PLANET_COUNT; ptr++) {
                         planetPositions.add(genRandVec());
                         planetScales.add(genRandFloat());
-                        planetRots.add(genRandFloat());
+                        planetRots.add(genRandVec());
                 }
 
                 for (int ptr = 0; ptr < Configs.ASTEROID_COUNT; ptr++) {
                         asteroidPositions.add(genRandVec());
                         asteroidScales.add(genRandFloat());
-                        asteroidRots.add(genRandFloat());
+                        asteroidRots.add(genRandVec());
                 }
 
                 GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
@@ -175,6 +175,15 @@ public class Window implements Runnable {
                 }
         }
 
+        private void updateSolarEntityRotation(){
+                for (int i = 0; i < planetRots.size(); i++){
+                        planetRots.set(i, planetRots.get(i).add(deltaTime, deltaTime, deltaTime));
+                }
+                for (int i = 0; i < asteroidRots.size(); i++){
+                        asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
+                }
+        }
+
         private Vector3f genRandVec() {
                 //idk what im doing, this is a really odd way to generate random nums
                 float randX;
@@ -218,7 +227,9 @@ public class Window implements Runnable {
                 deltaTime = currentFrame - lastFrame;
                 lastFrame = currentFrame;
 
-                processInput(this.window);
+                processInput();
+                updateSolarEntityRotation();
+
                 GL11.glViewport(0, 0, Configs.WIDTH, Configs.HEIGHT);
 
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
@@ -226,7 +237,7 @@ public class Window implements Runnable {
 
                 cullFirstBlock = blockPositions.size() > 0 && !camera.isThirdPerson() && Input.isKeyDown(GLFW.GLFW_KEY_F);
 
-                skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(0.0f).render(debug);
+                skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 if (renderCubes) {
                         planets.render(debug);
                         asteroids.render(debug);
@@ -235,7 +246,7 @@ public class Window implements Runnable {
                 if (cullFirstBlock) {
                         Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
                         float scaleTemp = blockScales.get(blockScales.size() - 1);
-                        float rotTemp = blockRots.get(blockRots.size() - 1);
+                        Vector3f rotTemp = blockRots.get(blockRots.size() - 1);
 
                         blockPositions.remove(blockPositions.size() - 1);
                         blockScales.remove(blockScales.size() - 1);
@@ -251,7 +262,7 @@ public class Window implements Runnable {
                 }
 
                 if (camera.isThirdPerson()) {
-                        player.setTrans(camera.playerPos).setScale(1.0f).setRotation(camera.getThirdPersonRotation()).render(debug);
+                        player.setTrans(camera.playerPos).setScale(1.0f).setRotation(new Vector3f(0.0f, camera.getThirdPersonRotation(), 0.0f)).render(debug);
                 }
 
                 if (renderQuads) {
@@ -279,7 +290,7 @@ public class Window implements Runnable {
                 updateFPS();
         }
 
-        private void processInput(long window) {
+        private void processInput() {
                 if (Input.isKeyDown(GLFW.GLFW_KEY_ESCAPE)) {
                         GLFW.glfwSetWindowShouldClose(window, true);
                 }

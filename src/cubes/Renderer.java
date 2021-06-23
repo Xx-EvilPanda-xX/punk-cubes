@@ -13,9 +13,9 @@ public interface Renderer {
 
         Renderer setTrans(Vector3f trans);
 
-        float getRotation();
+        Vector3f getRotation();
 
-        Renderer setRotation(float rotation);
+        Renderer setRotation(Vector3f rotation);
 
         float getScale();
 

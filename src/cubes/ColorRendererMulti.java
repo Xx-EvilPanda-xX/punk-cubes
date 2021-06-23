@@ -15,11 +15,10 @@ public class ColorRendererMulti extends ColorRenderer {
         private static final int MAX_INSTANCES = 32767;
         private ArrayList<Vector3f> positions;
         private ArrayList<Float> scales;
-        private ArrayList<Float> rots;
-        private float rotation;
+        private ArrayList<Vector3f> rots;
         private int itr;
 
-        public ColorRendererMulti(ColoredMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Float> rots) {
+        public ColorRendererMulti(ColoredMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots) {
                 super(mesh);
                 this.positions = positions;
                 this.scales = scales;
@@ -40,7 +39,7 @@ public class ColorRendererMulti extends ColorRenderer {
 
                 if (debug) System.out.println("yaw: " + getCamera().getYaw() + "\npitch: " + getCamera().getPitch());
 
-                Matrix4f model = new Matrix4f().translate(positions.get(itr)).scale(scales.get(itr), scales.get(itr), scales.get(itr)).rotate(rotation * rots.get(itr), 1.0f, 0.0f, 0.0f).rotate(rotation * rots.get(itr), 0.0f, 1.0f, 0.0f).rotate(rotation * rots.get(itr), 0.0f, 0.0f, 1.0f);
+                Matrix4f model = new Matrix4f().translate(positions.get(itr)).scale(scales.get(itr), scales.get(itr), scales.get(itr)).rotate(rots.get(itr).x, 1.0f, 0.0f, 0.0f).rotate(rots.get(itr).y, 0.0f, 1.0f, 0.0f).rotate(rots.get(itr).z, 0.0f, 0.0f, 1.0f);
 
                 Matrix4f proj = getCamera().getProjectionMatrix();
 
@@ -138,7 +137,6 @@ public class ColorRendererMulti extends ColorRenderer {
                         getMesh().getVao().disableAttribs();
                         getMesh().getVao().unbind();
                 }
-                rotation += Window.deltaTime;
 
                 GL30.glDisableVertexAttribArray(4);
                 GL30.glDisableVertexAttribArray(5);

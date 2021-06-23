@@ -21,7 +21,7 @@ public class TextureRenderer implements Renderer {
 
         private Vector3f trans = new Vector3f(0.0f, 0.0f, 0.0f);
         private float scale = 1.0f;
-        private float rotation = 0.0f;
+        private Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);
 
         public TextureRenderer(TexturedMesh mesh) {
                 this.mesh = mesh;
@@ -75,7 +75,7 @@ public class TextureRenderer implements Renderer {
                         throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 if (debug) System.out.println("yaw: " + camera.getYaw() + "\npitch: " + camera.getPitch());
 
-                Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation, 0.0f, 1.0f, 0.0f);
+                Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation.x, 1.0f, 1.0f, 0.0f).rotate(rotation.y, 0.0f, 1.0f, 0.0f).rotate(rotation.z, 0.0f, 0.0f, 1.0f);
 
                 Matrix4f proj = camera.getProjectionMatrix();
 
@@ -194,7 +194,7 @@ public class TextureRenderer implements Renderer {
                 return scale;
         }
 
-        public float getRotation() {
+        public Vector3f getRotation() {
                 return rotation;
         }
 
@@ -208,7 +208,7 @@ public class TextureRenderer implements Renderer {
                 return this;
         }
 
-        public TextureRenderer setRotation(float rotation) {
+        public TextureRenderer setRotation(Vector3f rotation) {
                 this.rotation = rotation;
                 return this;
         }
