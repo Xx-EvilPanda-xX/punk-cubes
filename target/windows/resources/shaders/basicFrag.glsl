@@ -4,13 +4,18 @@ in vec3 passColor;
 in vec3 passNormal;
 in vec3 fragPos;
 
+
 out vec4 FragColor;
 
-uniform int mode;
+
 uniform sampler2D tex;
+
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+
+uniform int mode;
+
 //modes:
 //0: Texture, with projection and view matrix
 //1: Color, with projection and view matrix

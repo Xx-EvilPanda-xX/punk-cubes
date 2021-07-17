@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL42;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 public class TextureRendererMulti extends TextureRenderer {
@@ -19,6 +20,16 @@ public class TextureRendererMulti extends TextureRenderer {
 
         public TextureRendererMulti(TexturedMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots) {
                 super(mesh);
+                this.positions = positions;
+                this.scales = scales;
+                this.rots = rots;
+                if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
+                        throw new IllegalStateException("Mismatched position, rotation, and scaling array sizes!");
+                }
+        }
+
+        public TextureRendererMulti(String modelpath, String texturePath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots){
+                super(modelpath, texturePath);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;
@@ -121,6 +132,14 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
 
                 Vao vao = getMesh().getVao();
+//                if (getMesh().isIndexed()) {
+//                        IntBuffer buf1 = getMesh().getIndices();
+//                        float[] buf2 = new float[buf1.capacity()];
+//                        for (int i = 0; i < buf2.length; i++) {
+//                                buf2[i] = buf1.get();
+//                        }
+//                        buf2.toString();
+//                }
                 if (getMesh().isIndexed()) {
                         vao.bind();
                         vao.enableAttribs();
