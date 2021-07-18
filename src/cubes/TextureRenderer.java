@@ -27,8 +27,8 @@ public class TextureRenderer implements Renderer {
                 this.mesh = mesh;
         }
 
-        public TextureRenderer(String modelPath, String texturePath){
-                TexturedMesh mesh = new TexturedMesh(modelPath, texturePath);
+        public TextureRenderer(String modelPath, String texturePath, int textureType){
+                TexturedMesh mesh = new TexturedMesh(modelPath, texturePath, textureType);
                 this.mesh = mesh;
         }
 

@@ -9,7 +9,6 @@ import org.lwjgl.opengl.GL42;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 public class TextureRendererMulti extends TextureRenderer {
@@ -17,6 +16,7 @@ public class TextureRendererMulti extends TextureRenderer {
         private ArrayList<Float> scales;
         private ArrayList<Vector3f> rots;
         private int itr;
+        private int instances;
 
         public TextureRendererMulti(TexturedMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots) {
                 super(mesh);
@@ -28,8 +28,8 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public TextureRendererMulti(String modelpath, String texturePath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots){
-                super(modelpath, texturePath);
+        public TextureRendererMulti(String modelpath, String texturePath, int textureType, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots){
+                super(modelpath, texturePath, textureType);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;
@@ -116,6 +116,8 @@ public class TextureRendererMulti extends TextureRenderer {
                         getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", 0);
+
+                instances = positions.size();
         }
 
         @Override
@@ -132,26 +134,18 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
 
                 Vao vao = getMesh().getVao();
-//                if (getMesh().isIndexed()) {
-//                        IntBuffer buf1 = getMesh().getIndices();
-//                        float[] buf2 = new float[buf1.capacity()];
-//                        for (int i = 0; i < buf2.length; i++) {
-//                                buf2[i] = buf1.get();
-//                        }
-//                        buf2.toString();
-//                }
                 if (getMesh().isIndexed()) {
                         vao.bind();
                         vao.enableAttribs();
                         vao.bindIndices();
-                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, positions.size());
+                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, instances);
                         vao.unbindIndices();
                         vao.disableAttribs();
                         vao.unbind();
                 } else {
                         vao.bind();
                         vao.enableAttribs();
-                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), positions.size());
+                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), instances);
                         vao.disableAttribs();
                         vao.unbind();
                 }

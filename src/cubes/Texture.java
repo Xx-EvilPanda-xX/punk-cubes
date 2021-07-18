@@ -19,7 +19,7 @@ public class Texture {
                 this.texturePath = texturePath;
         }
 
-        public int storeDirectTexture() {
+        public int storeDirectTexture(int type) {
                 STBImage.stbi_set_flip_vertically_on_load(true);
 
                 try {
@@ -44,7 +44,8 @@ public class Texture {
                         GL20.glBindTexture(GL20.GL_TEXTURE_2D, texture);
                         int width = x.get();
                         int height = y.get();
-                        GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, GL20.GL_RGB, width, height, 0, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, imgData);
+
+                        GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, type == 0 ? GL11.GL_RGBA : GL11.GL_RGB, width, height, 0, type == 0 ? GL11.GL_RGBA : GL11.GL_RGB, GL20.GL_UNSIGNED_BYTE, imgData);
 
                         GL30.glGenerateMipmap(GL20.GL_TEXTURE_2D);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);

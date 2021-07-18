@@ -16,6 +16,7 @@ public class ColorRendererMulti extends ColorRenderer {
         private ArrayList<Float> scales;
         private ArrayList<Vector3f> rots;
         private int itr;
+        private int instances;
 
         public ColorRendererMulti(ColoredMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots) {
                 super(mesh);
@@ -105,6 +106,8 @@ public class ColorRendererMulti extends ColorRenderer {
                         getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", 1);
+
+                instances = positions.size();
         }
 
         @Override
@@ -124,14 +127,14 @@ public class ColorRendererMulti extends ColorRenderer {
                         vao.bind();
                         vao.enableAttribs();
                         vao.bindIndices();
-                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, positions.size());
+                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, instances);
                         vao.unbindIndices();
                         vao.disableAttribs();
                         vao.unbind();
                 } else {
                         vao.bind();
                         vao.enableAttribs();
-                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), positions.size());
+                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), instances);
                         vao.disableAttribs();
                         vao.unbind();
                 }

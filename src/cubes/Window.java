@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.CallbackI;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
@@ -38,6 +39,7 @@ public class Window implements Runnable {
         private TextureRenderer skyBox;
         private TextureRenderer player;
         private ColorRendererMulti blocks;
+        private TextureRenderer light;
         private TextureRendererMulti planets;
         private TextureRendererMulti asteroids;
 
@@ -122,9 +124,6 @@ public class Window implements Runnable {
                         asteroidPositions.add(genRandVec());
                         asteroidScales.add(genRandFloat());
                         asteroidRots.add(genRandVec());
-                        //asteroidPositions.add(new Vector3f(0.0f, 0.0f, 0.0f));
-                        //asteroidScales.add(0.1f);
-                        //asteroidRots.add(new Vector3f(0.0f, 0.0f, 0.0f));
                 }
 
                 GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
@@ -146,11 +145,13 @@ public class Window implements Runnable {
                         new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.05f, 1.0f, 0.0f, 0),
                 };
 
-                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png"));
-                player = new TextureRenderer("resources/models/iron_man/IronMan/IronMan.obj", "textures/old/wood.png");
-                planets = new TextureRendererMulti(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/planet.png"), planetPositions, planetScales, planetRots);
+                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png", 0));
+                player = new TextureRenderer("resources/models/iron_man/IronMan/IronMan.obj", "textures/old/wood.png", 0);
+                //player = new TextureRenderer("resources/models/rocket_ship/rocket.obj", "textures/asteroid.png", 0);
+                planets = new TextureRendererMulti(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/planet.png", 0), planetPositions, planetScales, planetRots);
                 //asteroids = new TextureRendererMulti(new TexturedMesh(Geometry.PYRAMID_VERTICES, Geometry.PYRAMID_TEX_COORDS, Geometry.PYRAMID_NORMALS, "textures/asteroid.png"), asteroidPositions, asteroidScales, asteroidRots);
-                asteroids = new TextureRendererMulti("resources/models/backpack/backpack.obj", "textures/asteroid.png", asteroidPositions, asteroidScales, asteroidRots);
+                asteroids = new TextureRendererMulti("resources/models/backpack/backpack.obj", "models/backpack/diffuse.jpg", 1, asteroidPositions, asteroidScales, asteroidRots);
+                light = new TextureRenderer("resources/models/donut/Donut.obj", "models/donut/Tekstur_donat.png", 1);
                 blocks = new ColorRendererMulti(new ColoredMesh(Geometry.CUBE_VERTICES, Geometry.BLOCK_COLORS, Geometry.CUBE_NORMALS), blockPositions, blockScales, blockRots);
 
 
@@ -162,8 +163,10 @@ public class Window implements Runnable {
                 skyBox.create(shader, camera);
                 asteroids.create(shader, camera);
                 player.create(shader, camera);
+                light.create(shader, camera);
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
+                //GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
                 camera.setThirdPerson(true);
 
                 System.out.println(GL11.glGetString(GL11.GL_VERSION));
@@ -184,7 +187,7 @@ public class Window implements Runnable {
                         planetRots.set(i, planetRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
                 for (int i = 0; i < asteroidRots.size(); i++) {
-                        asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
+                        //asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
         }
 
@@ -242,6 +245,7 @@ public class Window implements Runnable {
                 cullFirstBlocks = blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks;
 
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
+                light.setTrans(currentLightPos).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 if (renderCubes) {
                         planets.render(debug);
                         asteroids.render(debug);

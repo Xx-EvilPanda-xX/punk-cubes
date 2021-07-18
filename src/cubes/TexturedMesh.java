@@ -27,7 +27,7 @@ public class TexturedMesh {
 
         PointerBuffer ptr;
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath, int textureType) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
@@ -38,10 +38,10 @@ public class TexturedMesh {
                 indexed = true;
 
                 texture = new Texture(texturePath);
-                texture.storeDirectTexture();
+                texture.storeDirectTexture(textureType);
         }
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, String texturePath) {
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, String texturePath, int textureType) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
@@ -52,14 +52,15 @@ public class TexturedMesh {
                 indexed = false;
 
                 texture = new Texture(texturePath);
-                texture.storeDirectTexture();
+                texture.storeDirectTexture(textureType);
         }
 
-        public TexturedMesh(String modelPath, String texturePath){
+        public TexturedMesh(String modelPath, String texturePath, int textureType){
                 loadFromObj(modelPath);
+                System.out.println("Model loaded successfully!");
 
                 texture = new Texture(texturePath);
-                texture.storeDirectTexture();
+                texture.storeDirectTexture(textureType);
 
                 vertexCount = vertices.capacity() / 3;
                 indexCount = indices.capacity();
@@ -130,10 +131,10 @@ public class TexturedMesh {
                         }
                 }
 
-                return new Mesh(vertices, indices);
-
                 //PointerBuffer ptr = scene.mMaterials();
                 //AIMaterial material = AIMaterial.create(ptr.get(mesh.mMaterialIndex()));
+
+                return new Mesh(vertices, indices);
 
                 //ArrayList<Texture> diffuseMaps =
         }
