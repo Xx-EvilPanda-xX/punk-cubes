@@ -156,10 +156,7 @@ public class Window implements Runnable {
 
                 skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png"));
                 player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "models/iron_man/iron_man_tex.jpg");
-                //player = new TextureRenderer("resources/models/rocket_ship/rocket.obj", "textures/asteroid.png");
-                //planets = new TextureRendererMulti("models/xbox/xbox.obj", "models/xbox/xbox_tex.jpg", planetPositions, planetScales, planetRots);
                 planets = new TextureRendererMulti("models/island/island.obj", "textures/old/wood.png", planetPositions, planetScales, planetRots);
-                //asteroids = new TextureRendererMulti(new TexturedMesh(Geometry.PYRAMID_VERTICES, Geometry.PYRAMID_TEX_COORDS, Geometry.PYRAMID_NORMALS, "textures/asteroid.png"), asteroidPositions, asteroidScales, asteroidRots);
                 asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", asteroidPositions, asteroidScales, asteroidRots);
                 light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png");
                 blocks = new TextureRendererMulti("models/bu/Bu.obj", "models/xbox/xbox_tex.jpg", blockPositions, blockScales, blockRots);
