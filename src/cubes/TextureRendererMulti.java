@@ -57,56 +57,33 @@ public class TextureRendererMulti extends TextureRenderer {
 
                 if (debug) {
                         System.out.println(model.toString());
-                        float[] matrix = new float[16];
-                        for (int i = 0; i < 4; i++) {
-                                for (int j = 0; j < 4; j++) {
-                                        matrix[(i * 4) + j] = model.get(i, j);
-                                }
-                        }
-                        GL30.glBindVertexArray(getMesh().getVao().getHandle());
-                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
-
-                        FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
-                        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
-                        MemoryUtil.memFree(buf);
-
-                        GL30.glEnableVertexAttribArray(4);
-                        GL30.glEnableVertexAttribArray(5);
-                        GL30.glEnableVertexAttribArray(6);
-                        GL30.glEnableVertexAttribArray(7);
-
-                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-                        GL30.glBindVertexArray(0);
-
                         System.out.println(proj.toString());
-                        getShader().setUniform("projection", proj, true);
                         System.out.println(view.toString());
-                        getShader().setUniform("view", view, true);
-                } else {
-                        float[] matrix = new float[16];
-                        for (int i = 0; i < 4; i++) {
-                                for (int j = 0; j < 4; j++) {
-                                        matrix[(i * 4) + j] = model.get(i, j);
-                                }
-                        }
-                        GL30.glBindVertexArray(getMesh().getVao().getHandle());
-                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
-
-                        FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
-                        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
-                        MemoryUtil.memFree(buf);
-
-                        GL30.glEnableVertexAttribArray(4);
-                        GL30.glEnableVertexAttribArray(5);
-                        GL30.glEnableVertexAttribArray(6);
-                        GL30.glEnableVertexAttribArray(7);
-
-                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-                        GL30.glBindVertexArray(0);
-
-                        getShader().setUniform("projection", proj, false);
-                        getShader().setUniform("view", view, false);
                 }
+
+                float[] matrix = new float[16];
+                for (int i = 0; i < 4; i++) {
+                        for (int j = 0; j < 4; j++) {
+                                matrix[(i * 4) + j] = model.get(i, j);
+                        }
+                }
+                GL30.glBindVertexArray(getMesh().getVao().getHandle());
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+
+                FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
+                GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
+                MemoryUtil.memFree(buf);
+
+                GL30.glEnableVertexAttribArray(4);
+                GL30.glEnableVertexAttribArray(5);
+                GL30.glEnableVertexAttribArray(6);
+                GL30.glEnableVertexAttribArray(7);
+
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+                GL30.glBindVertexArray(0);
+
+                getShader().setUniform("projection", proj, false);
+                getShader().setUniform("view", view, false);
 
                 getShader().setUniform("lightPos", Window.currentLightPos);
                 getShader().setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
@@ -133,21 +110,19 @@ public class TextureRendererMulti extends TextureRenderer {
                 instances = positions.size();
 
                 Vao vao = getMesh().getVao();
+
+                vao.bind();
+                vao.enableAttribs();
                 if (getMesh().isIndexed()) {
-                        vao.bind();
-                        vao.enableAttribs();
                         vao.bindIndices();
                         GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, instances);
                         vao.unbindIndices();
-                        vao.disableAttribs();
-                        vao.unbind();
                 } else {
-                        vao.bind();
-                        vao.enableAttribs();
                         GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), instances);
-                        vao.disableAttribs();
-                        vao.unbind();
                 }
+                vao.disableAttribs();
+                vao.unbind();
+
                 GL30.glDisableVertexAttribArray(4);
                 GL30.glDisableVertexAttribArray(5);
                 GL30.glDisableVertexAttribArray(6);

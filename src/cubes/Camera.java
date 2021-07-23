@@ -178,21 +178,18 @@ public class Camera {
         }
 
         private void updateKeyboardVectors() {
+                Vector3f front = new Vector3f();
                 if (thirdPerson) {
-                        Vector3f front = new Vector3f();
                         front.x = (float) Math.cos(Math.toRadians(keyBoardYaw)) * (float) Math.cos(Math.toRadians(0.0f));
                         front.y = (float) Math.sin(Math.toRadians(0.0f));
                         front.z = (float) Math.sin(Math.toRadians(keyBoardYaw)) * (float) Math.cos(Math.toRadians(0.0f));
-                        this.keyboardFront = front.normalize();
-                        this.keyboardRight = front.cross(this.keyboardWorldUp, new Vector3f()).normalize();
                 } else {
-                        Vector3f front = new Vector3f();
                         front.x = (float) Math.cos(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(0.0f));
                         front.y = (float) Math.sin(Math.toRadians(0.0f));
                         front.z = (float) Math.sin(Math.toRadians(yaw)) * (float) Math.cos(Math.toRadians(0.0f));
-                        this.keyboardFront = front.normalize();
-                        this.keyboardRight = front.cross(this.keyboardWorldUp, new Vector3f()).normalize();
                 }
+                this.keyboardFront = front.normalize();
+                this.keyboardRight = front.cross(this.keyboardWorldUp, new Vector3f()).normalize();
         }
 
         public void updateAllVectors() {
