@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.CallbackI;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
@@ -116,7 +115,7 @@ public class Window implements Runnable {
         private void create() {
                 for (int ptr = 0; ptr < Configs.PLANET_COUNT; ptr++) {
                         planetPositions.add(genRandVec());
-                        planetScales.add(genRandFloat());
+                        planetScales.add(genRandFloat() / 50);
                         planetRots.add(genRandVec());
                 }
 
@@ -146,9 +145,9 @@ public class Window implements Runnable {
                 };
 
                 skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png", 0));
-                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "textures/old/wood.png", 0);
+                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "models/iron_man/iron_man_tex.jpg", 1);
                 //player = new TextureRenderer("resources/models/rocket_ship/rocket.obj", "textures/asteroid.png", 0);
-                planets = new TextureRendererMulti(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/planet.png", 0), planetPositions, planetScales, planetRots);
+                planets = new TextureRendererMulti("models/xbox/xbox.obj", "models/xbox/xbox_tex.png", 0, planetPositions, planetScales, planetRots);
                 //asteroids = new TextureRendererMulti(new TexturedMesh(Geometry.PYRAMID_VERTICES, Geometry.PYRAMID_TEX_COORDS, Geometry.PYRAMID_NORMALS, "textures/asteroid.png"), asteroidPositions, asteroidScales, asteroidRots);
                 asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", 1, asteroidPositions, asteroidScales, asteroidRots);
                 light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png", 1);
@@ -183,9 +182,6 @@ public class Window implements Runnable {
         }
 
         private void updateSolarEntityRotation() {
-                for (int i = 0; i < planetRots.size(); i++) {
-                        planetRots.set(i, planetRots.get(i).add(deltaTime, deltaTime, deltaTime));
-                }
                 for (int i = 0; i < asteroidRots.size(); i++) {
                         asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
