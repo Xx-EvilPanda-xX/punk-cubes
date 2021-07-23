@@ -27,8 +27,8 @@ public class TextureRenderer implements Renderer {
                 this.mesh = mesh;
         }
 
-        public TextureRenderer(String modelPath, String texturePath, int textureType){
-                TexturedMesh mesh = new TexturedMesh(modelPath, texturePath, textureType);
+        public TextureRenderer(String modelPath, String texturePath){
+                TexturedMesh mesh = new TexturedMesh(modelPath, texturePath);
                 this.mesh = mesh;
         }
 
@@ -76,8 +76,7 @@ public class TextureRenderer implements Renderer {
         }
 
         public void prepare(boolean debug) {
-                if (!created)
-                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 if (debug) System.out.println("yaw: " + camera.getYaw() + "\npitch: " + camera.getPitch());
 
                 Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation.x, 1.0f, 1.0f, 0.0f).rotate(rotation.y, 0.0f, 1.0f, 0.0f).rotate(rotation.z, 0.0f, 0.0f, 1.0f);

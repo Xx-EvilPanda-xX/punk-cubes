@@ -22,6 +22,27 @@ uniform int mode;
 //2: Texture, without projection and view matrix, no lighting
 //3: Color, without projection and view matrix, no lighting
 
+vec3 calculateLighting(vec3 lightingColor, vec3 lightPosition, vec3 viewerPosition, vec3 fragNormal, vec3 fragPosition){
+    //calculate ambient lighting
+    float ambientStrength = 0.5;
+    vec3 ambient = ambientStrength * lightingColor;
+
+    //calculate diffuse lighting
+    vec3 norm = normalize(fragNormal);
+    vec3 lightDir = normalize(lightPosition - fragPosition);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightingColor;
+
+    //calculate specular lighting
+    float specularStrength = 0.8;
+    vec3 viewDir = normalize(viewerPosition - fragPosition);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
+    vec3 specular = specularStrength * spec * lightingColor;
+
+    return (ambient + diffuse + specular);
+}
+
 void main(){
     //find the initial fragment color in the texture or color buffer
     vec4 color;
@@ -33,32 +54,18 @@ void main(){
     }
 
     if (mode == 0 || mode == 1){
-        vec4 finalResult = vec4(0.0, 0.0, 0.0, 0.0);
-
-        //calculate ambient lighting
-        float ambientStrength = 0.5;
-        vec3 ambient  = ambientStrength * lightColor;
-
-        //calculate diffuse lighting
-        vec3 norm = normalize(passNormal);
-        vec3 lightDir = normalize(lightPos - fragPos);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = diff * lightColor;
-
-        //calculate specular lighting
-        float specularStrength = 0.8;
-        vec3 viewDir = normalize(viewPos - fragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-        vec3 specular = specularStrength * spec * lightColor;
-
         //final result
-        vec3 result = (ambient + diffuse + specular) * vec3(color.rgb);
-        finalResult += vec4(result, color.w);
+        vec3 result = calculateLighting(lightColor, lightPos, viewPos, passNormal, fragPos) * vec3(color.rgb);
+
+        vec3 environmentalLight1 = calculateLighting(vec3(0.5, 0.5, 0.5), vec3(100.0, 100.0, 100.0), viewPos, passNormal, fragPos);
+        vec3 environmentalLight2 = calculateLighting(vec3(0.5, 0.5, 0.5), vec3(-100.0, -100.0, -100.0), viewPos, passNormal, fragPos);
+        vec3 environmentalLight = environmentalLight1 + environmentalLight2;
+        result *= environmentalLight;
+        vec4 finalResult = vec4(result, color.w);
 
         FragColor = finalResult;
     }
     else{
-        FragColor = vec4(passColor, 1.0);
+        FragColor = color;
     }
 }

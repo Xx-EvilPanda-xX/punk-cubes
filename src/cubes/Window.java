@@ -37,10 +37,12 @@ public class Window implements Runnable {
         private ColorQuadRenderer quads[];
         private TextureRenderer skyBox;
         private TextureRenderer player;
-        private ColorRendererMulti blocks;
+        private TextureRendererMulti blocks;
         private TextureRenderer light;
         private TextureRendererMulti planets;
         private TextureRendererMulti asteroids;
+        private TextureRenderer bike;
+        private TextureRenderer robot;
 
         private ArrayList<Vector3f> planetPositions = new ArrayList<>();
         private ArrayList<Float> planetScales = new ArrayList<>();
@@ -115,7 +117,7 @@ public class Window implements Runnable {
         private void create() {
                 for (int ptr = 0; ptr < Configs.PLANET_COUNT; ptr++) {
                         planetPositions.add(genRandVec());
-                        planetScales.add(genRandFloat() / 50);
+                        planetScales.add(genRandFloat() * 5);
                         planetRots.add(genRandVec());
                 }
 
@@ -139,19 +141,30 @@ public class Window implements Runnable {
                 shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
                 shader.create();
 
-                quads = new ColorQuadRenderer[]{new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.5f, 0.7f, 0.5f, 0),
-                        new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.7f, 0.5f, -0.5f, 0),
-                        new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.05f, 1.0f, 0.0f, 0),
+                TextureQuadRenderer loadingScreen = new TextureQuadRenderer(new TexturedMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_TEX_COORDS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, "textures/loading_screen.jpg"), 2.0f, 0.0f, 0.0f, 0.0f);
+                loadingScreen.USE_PROJ_VIEW_MAT = false;
+                loadingScreen.create(shader, camera);
+
+                loadingScreen.render(false);
+
+                GLFW.glfwSwapBuffers(window);
+
+                quads = new ColorQuadRenderer[]{new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.5f, 0.7f, 0.5f, 0.0f),
+                        new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.7f, 0.5f, -0.5f, 0.0f),
+                        new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.05f, 1.0f, 0.0f, 0.0f),
                 };
 
-                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png", 0));
-                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "models/iron_man/iron_man_tex.jpg", 1);
-                //player = new TextureRenderer("resources/models/rocket_ship/rocket.obj", "textures/asteroid.png", 0);
-                planets = new TextureRendererMulti("models/xbox/xbox.obj", "models/xbox/xbox_tex.jpg", 1, planetPositions, planetScales, planetRots);
+                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png"));
+                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "models/iron_man/iron_man_tex.jpg");
+                //player = new TextureRenderer("resources/models/rocket_ship/rocket.obj", "textures/asteroid.png");
+                //planets = new TextureRendererMulti("models/xbox/xbox.obj", "models/xbox/xbox_tex.jpg", planetPositions, planetScales, planetRots);
+                planets = new TextureRendererMulti("models/island/island.obj", "textures/old/wood.png", planetPositions, planetScales, planetRots);
                 //asteroids = new TextureRendererMulti(new TexturedMesh(Geometry.PYRAMID_VERTICES, Geometry.PYRAMID_TEX_COORDS, Geometry.PYRAMID_NORMALS, "textures/asteroid.png"), asteroidPositions, asteroidScales, asteroidRots);
-                asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", 1, asteroidPositions, asteroidScales, asteroidRots);
-                light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png", 1);
-                blocks = new ColorRendererMulti(new ColoredMesh(Geometry.CUBE_VERTICES, Geometry.BLOCK_COLORS, Geometry.CUBE_NORMALS), blockPositions, blockScales, blockRots);
+                asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", asteroidPositions, asteroidScales, asteroidRots);
+                light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png");
+                blocks = new TextureRendererMulti("models/bu/Bu.obj", "models/xbox/xbox_tex.jpg", blockPositions, blockScales, blockRots);
+                bike = new TextureRenderer("models/motorcycle/motorcycle.obj", "models/motorcycle/motorcycle_tex.jpg");
+                robot = new TextureRenderer("models/robot/robot.obj", "models/iron_man/iron_man_tex.jpg");
 
 
                 for (ColorQuadRenderer r : quads) {
@@ -163,9 +176,10 @@ public class Window implements Runnable {
                 asteroids.create(shader, camera);
                 player.create(shader, camera);
                 light.create(shader, camera);
+                bike.create(shader, camera);
+                robot.create(shader, camera);
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
-                //GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
                 camera.setThirdPerson(true);
 
                 System.out.println(GL11.glGetString(GL11.GL_VERSION));
@@ -240,6 +254,8 @@ public class Window implements Runnable {
 
                 cullFirstBlocks = blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks;
 
+                robot.setTrans(new Vector3f(-10.0f, Configs.SKYBOX_SCALE / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
+                bike.setTrans(new Vector3f(10.0f, Configs.SKYBOX_SCALE / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 light.setTrans(currentLightPos).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 if (renderCubes) {

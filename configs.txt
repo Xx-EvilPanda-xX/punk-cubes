@@ -9,4 +9,4 @@ skybox_scale = 70.0
 block_placement_rate = 0.1
 block_color = 0.0, 1.0, 0.5
 block_rotation = 0.0, 0.0, 0.0
-block_scale = 0.5
+block_scale = 3.0

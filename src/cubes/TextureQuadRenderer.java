@@ -74,13 +74,10 @@ public class TextureQuadRenderer extends TextureRenderer {
                         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                         GL30.glBindVertexArray(0);
 
-                        if (USE_PROJ_VIEW_MAT) {
-                                System.out.println(proj.toString());
-                                getShader().setUniform("projection", proj, true);
-                                System.out.println(view.toString());
-                                getShader().setUniform("view", view, true);
-
-                        }
+                        System.out.println(proj.toString());
+                        getShader().setUniform("projection", proj, true);
+                        System.out.println(view.toString());
+                        getShader().setUniform("view", view, true);
                 } else {
                         float[] matrix = new float[16];
                         for (int i = 0; i < 4; i++) {
@@ -103,10 +100,8 @@ public class TextureQuadRenderer extends TextureRenderer {
                         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                         GL30.glBindVertexArray(0);
 
-                        if (USE_PROJ_VIEW_MAT) {
-                                getShader().setUniform("projection", proj, false);
-                                getShader().setUniform("view", view, false);
-                        }
+                        getShader().setUniform("projection", proj, false);
+                        getShader().setUniform("view", view, false);
                 }
                 getShader().setUniform("lightPos", Window.currentLightPos);
                 getShader().setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));

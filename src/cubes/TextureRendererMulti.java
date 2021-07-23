@@ -28,8 +28,8 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public TextureRendererMulti(String modelpath, String texturePath, int textureType, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots){
-                super(modelpath, texturePath, textureType);
+        public TextureRendererMulti(String modelpath, String texturePath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots){
+                super(modelpath, texturePath);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;

@@ -19,13 +19,13 @@ public class Texture {
                 this.texturePath = texturePath;
         }
 
-        public int storeDirectTexture(int type) {
+        public int storeDirectTexture() {
                 STBImage.stbi_set_flip_vertically_on_load(true);
 
                 try {
                         IntBuffer x = MemoryUtil.memAllocInt(8);
                         IntBuffer y = MemoryUtil.memAllocInt(8);
-                        IntBuffer nrChannels = MemoryUtil.memAllocInt(256);
+                        IntBuffer nrChannels = MemoryUtil.memAllocInt(1);
 
                         InputStream in = new FileInputStream("resources/" + texturePath);
                         int bytes = in.available();
@@ -45,13 +45,13 @@ public class Texture {
                         int width = x.get();
                         int height = y.get();
 
-                        GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, type == 0 ? GL11.GL_RGBA : GL11.GL_RGB, width, height, 0, type == 0 ? GL11.GL_RGBA : GL11.GL_RGB, GL20.GL_UNSIGNED_BYTE, imgData);
+                        GL20.glTexImage2D(GL20.GL_TEXTURE_2D, 0, nrChannels.get(0) == 4 ? GL11.GL_RGBA : GL11.GL_RGB, width, height, 0, nrChannels.get(0) == 4 ? GL11.GL_RGBA : GL11.GL_RGB, GL20.GL_UNSIGNED_BYTE, imgData);
 
                         GL30.glGenerateMipmap(GL20.GL_TEXTURE_2D);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
                         GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+                        GL20.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
                         GL20.glBindTexture(GL20.GL_TEXTURE_2D, 0);
 
                         STBImage.stbi_image_free(imgData);

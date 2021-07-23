@@ -16,14 +16,21 @@ public class Geometry {
                 1.0f, 1.0f, 0.0f,
                 1.0f, 0.0f, 1.0f,
                 0.0f, 1.0f, 1.0f,
-                1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f
         };
 
         public static final float[] QUAD_NORMALS = new float[]{
                 0.0f, 0.0f, 1.0f,
                 0.0f, 0.0f, 1.0f,
                 0.0f, 0.0f, 1.0f,
-                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 1.0f
+        };
+
+        public static final float[] QUAD_TEX_COORDS = new float[]{
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 0.0f,
+                1.0f, 1.0f
         };
 
         public static final float[] CUBE_VERTICES = new float[]{

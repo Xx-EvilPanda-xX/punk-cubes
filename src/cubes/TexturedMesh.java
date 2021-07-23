@@ -27,7 +27,7 @@ public class TexturedMesh {
 
         PointerBuffer ptr;
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath, int textureType) {
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
@@ -38,10 +38,10 @@ public class TexturedMesh {
                 indexed = true;
 
                 texture = new Texture(texturePath);
-                texture.storeDirectTexture(textureType);
+                texture.storeDirectTexture();
         }
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, String texturePath, int textureType) {
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, String texturePath) {
                 this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
                 this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
                 this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
@@ -52,15 +52,15 @@ public class TexturedMesh {
                 indexed = false;
 
                 texture = new Texture(texturePath);
-                texture.storeDirectTexture(textureType);
+                texture.storeDirectTexture();
         }
 
-        public TexturedMesh(String modelPath, String texturePath, int textureType){
+        public TexturedMesh(String modelPath, String texturePath){
                 loadFromObj(modelPath);
                 System.out.println("Model loaded successfully at " + modelPath);
 
                 texture = new Texture(texturePath);
-                texture.storeDirectTexture(textureType);
+                texture.storeDirectTexture();
 
                 vertexCount = vertices.capacity() / 3;
                 indexCount = indices.capacity();
@@ -77,26 +77,25 @@ public class TexturedMesh {
                         throw new IllegalStateException("couldn't load model at: " + modelPath);
                 }
                 ptr = scene.mMeshes();
-                processNode(scene.mRootNode(), scene);
+                processNode(scene.mRootNode());
                 toBuffers();
         }
 
-        private void processNode(AINode node, AIScene scene){
+        private void processNode(AINode node){
                 for (int i = 0; i < node.mNumMeshes(); i++){
                         AIMesh mesh = AIMesh.create(ptr.get());
-                        meshes.add(processMesh(mesh, scene));
+                        meshes.add(processMesh(mesh));
                 }
 
                 PointerBuffer nodePtr = node.mChildren();
                 for (int i = 0; i < node.mNumChildren(); i++){
                         AINode childNode = AINode.create(nodePtr.get());
-                        processNode(childNode, scene);
+                        processNode(childNode);
                 }
         }
 
-        private Mesh processMesh(AIMesh mesh, AIScene scene){
+        private Mesh processMesh(AIMesh mesh){
                 ArrayList<Vertex> vertices = new ArrayList<>();
-                ArrayList<Texture> textures = new ArrayList<>();
                 ArrayList<Integer> indices = new ArrayList<>();
 
                 for (int i = 0; i < mesh.mNumVertices(); i++) {
@@ -109,20 +108,27 @@ public class TexturedMesh {
 
                         vertex.position = new Vector3f(vector);
 
-                        vector.x = mesh.mNormals().get(i).x();
-                        vector.y = mesh.mNormals().get(i).y();
-                        vector.z = mesh.mNormals().get(i).z();
+                        if (mesh.mNormals() != null) {
+                                vector.x = mesh.mNormals().get(i).x();
+                                vector.y = mesh.mNormals().get(i).y();
+                                vector.z = mesh.mNormals().get(i).z();
+                        } else{
+                                vector.x = 0.0f;
+                                vector.y = 0.0f;
+                                vector.z = 0.0f;
+                        }
 
                         vertex.normal = new Vector3f(vector);
 
                         if (mesh.mNumUVComponents().get() > 0) {
                                 vector.x = mesh.mTextureCoords(0).get(i).x();
                                 vector.y = mesh.mTextureCoords(0).get(i).y();
-
-                                vertex.texCoords = new Vector2f(vector.x, vector.y);
                         } else {
-                                vertex.texCoords = new Vector2f(0.0f, 0.0f);
+                                vector.x = 0.0f;
+                                vector.y = 0.0f;
                         }
+
+                        vertex.texCoords = new Vector2f(vector.x, vector.y);
 
                         vertices.add(vertex);
                 }
@@ -134,12 +140,7 @@ public class TexturedMesh {
                         }
                 }
 
-                //PointerBuffer ptr = scene.mMaterials();
-                //AIMaterial material = AIMaterial.create(ptr.get(mesh.mMaterialIndex()));
-
                 return new Mesh(vertices, indices);
-
-                //ArrayList<Texture> diffuseMaps =
         }
 
         private void toBuffers(){
@@ -165,13 +166,19 @@ public class TexturedMesh {
                                 vertices.put(meshes.get(i).vertices.get(j).position.y);
                                 vertices.put(meshes.get(i).vertices.get(j).position.z);
 
-                                normals.put(meshes.get(i).vertices.get(j).normal.x);
-                                normals.put(meshes.get(i).vertices.get(j).normal.y);
-                                normals.put(meshes.get(i).vertices.get(j).normal.z);
+                                if (meshes.get(i).vertices.get(j).normal != null) {
+                                        normals.put(meshes.get(i).vertices.get(j).normal.x);
+                                        normals.put(meshes.get(i).vertices.get(j).normal.y);
+                                        normals.put(meshes.get(i).vertices.get(j).normal.z);
+                                } else {
+                                        normals.put(0.0f).put(0.0f).put(0.0f);
+                                }
 
                                 if (meshes.get(i).vertices.get(j).texCoords != null) {
                                         textureCoords.put(meshes.get(i).vertices.get(j).texCoords.x);
                                         textureCoords.put(meshes.get(i).vertices.get(j).texCoords.y);
+                                } else {
+                                        textureCoords.put(0.0f).put(0.0f);
                                 }
                         }
 

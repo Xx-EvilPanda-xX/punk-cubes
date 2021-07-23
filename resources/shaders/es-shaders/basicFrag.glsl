@@ -54,6 +54,6 @@ void main(){
         FragColor = finalResult;
     }
     else{
-        FragColor = vec4(passColor, 1.0);
+        FragColor = color;
     }
 }

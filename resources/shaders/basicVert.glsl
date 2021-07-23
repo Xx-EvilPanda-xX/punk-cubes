@@ -24,6 +24,8 @@ uniform int mode;
 void main(){
     if (mode == 2 || mode == 3){
         gl_Position = model * vec4(vPos, 1.0);
+        passNormal = vNormal;
+        fragPos = vPos;
     } else {
         gl_Position = projection * view * model * vec4(vPos, 1.0);
         passNormal = mat3(transpose(inverse(model))) * vNormal;
