@@ -25,7 +25,7 @@ public class Window implements Runnable {
         public Input input;
 
         private float lastFrame = 0.0f;
-        private boolean renderQuads = false, focused = true, cullFirstBlocks = false, showCoords = false, placingBlocks = false;
+        private boolean renderQuads = false, focused = true, cullFirstBlocks = false, showCoords = false, placingBlocks = false, rasterizerFill = true;
         private int frames;
         private static long time;
         private long window;
@@ -146,12 +146,12 @@ public class Window implements Runnable {
                 };
 
                 skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png", 0));
-                player = new TextureRenderer("resources/models/iron_man/IronMan/IronMan.obj", "textures/old/wood.png", 0);
+                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "textures/old/wood.png", 0);
                 //player = new TextureRenderer("resources/models/rocket_ship/rocket.obj", "textures/asteroid.png", 0);
                 planets = new TextureRendererMulti(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/planet.png", 0), planetPositions, planetScales, planetRots);
                 //asteroids = new TextureRendererMulti(new TexturedMesh(Geometry.PYRAMID_VERTICES, Geometry.PYRAMID_TEX_COORDS, Geometry.PYRAMID_NORMALS, "textures/asteroid.png"), asteroidPositions, asteroidScales, asteroidRots);
-                asteroids = new TextureRendererMulti("resources/models/backpack/backpack.obj", "models/backpack/diffuse.jpg", 1, asteroidPositions, asteroidScales, asteroidRots);
-                light = new TextureRenderer("resources/models/donut/Donut.obj", "models/donut/Tekstur_donat.png", 1);
+                asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", 1, asteroidPositions, asteroidScales, asteroidRots);
+                light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png", 1);
                 blocks = new ColorRendererMulti(new ColoredMesh(Geometry.CUBE_VERTICES, Geometry.BLOCK_COLORS, Geometry.CUBE_NORMALS), blockPositions, blockScales, blockRots);
 
 
@@ -187,7 +187,7 @@ public class Window implements Runnable {
                         planetRots.set(i, planetRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
                 for (int i = 0; i < asteroidRots.size(); i++) {
-                        //asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
+                        asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
         }
 
@@ -270,7 +270,7 @@ public class Window implements Runnable {
                 }
 
                 if (camera.isThirdPerson()) {
-                        player.setTrans(camera.playerPos).setScale(0.01f).setRotation(new Vector3f(0.0f, camera.getThirdPersonRotation() + (float) Math.toRadians(90.0f), 0.0f)).render(debug);
+                        player.setTrans(new Vector3f(camera.playerPos.x, camera.playerPos.y - 1.0f, camera.playerPos.z)).setScale(0.01f).setRotation(new Vector3f(0.0f, camera.getThirdPersonRotation() + (float) Math.toRadians(90.0f), 0.0f)).render(debug);
                 }
 
                 if (renderQuads) {
@@ -352,6 +352,18 @@ public class Window implements Runnable {
                                 camera.setOptifineZoom(true);
                         } else {
                                 camera.setOptifineZoom(false);
+                        }
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_Y)){
+                                if (coolDownPool[9] <= 0.0f) {
+                                        if (rasterizerFill){
+                                                GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+                                                rasterizerFill = !rasterizerFill;
+                                        } else {
+                                                GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+                                                rasterizerFill = !rasterizerFill;
+                                        }
+                                        coolDownPool[9] = RECHARGE_TIME;
+                                }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
                                 if (coolDownPool[1] <= 0.0f) {

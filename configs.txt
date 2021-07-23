@@ -1,4 +1,4 @@
-fullscreen = true
+fullscreen = false
 debug = false
 render_solar_entities = true
 width = 1080

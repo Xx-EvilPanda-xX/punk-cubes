@@ -106,8 +106,6 @@ public class ColorRendererMulti extends ColorRenderer {
                         getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", 1);
-
-                instances = positions.size();
         }
 
         @Override
@@ -121,6 +119,7 @@ public class ColorRendererMulti extends ColorRenderer {
                         }
                         prepare(debug);
                 }
+                instances = positions.size();
 
                 Vao vao = getMesh().getVao();
                 if (getMesh().isIndexed()) {

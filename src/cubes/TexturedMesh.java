@@ -57,7 +57,7 @@ public class TexturedMesh {
 
         public TexturedMesh(String modelPath, String texturePath, int textureType){
                 loadFromObj(modelPath);
-                System.out.println("Model loaded successfully!");
+                System.out.println("Model loaded successfully at " + modelPath);
 
                 texture = new Texture(texturePath);
                 texture.storeDirectTexture(textureType);
@@ -65,11 +65,14 @@ public class TexturedMesh {
                 vertexCount = vertices.capacity() / 3;
                 indexCount = indices.capacity();
 
+                System.out.println("vertex count: " + vertexCount);
+                System.out.println("index count: " + indexCount);
+
                 indexed = true;
         }
 
         private void loadFromObj(String modelPath){
-                AIScene scene = Assimp.aiImportFile(modelPath, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs);
+                AIScene scene = Assimp.aiImportFile("resources/" + modelPath, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs);
                 if (scene == null || (scene.mFlags() &  Assimp.AI_SCENE_FLAGS_INCOMPLETE)  != 0 || scene.mRootNode() == null){
                         throw new IllegalStateException("couldn't load model at: " + modelPath);
                 }
@@ -143,6 +146,7 @@ public class TexturedMesh {
                 int verticesSize = 0;
                 int indicesSize = 0;
                 int add = 0;
+
                 for (int i = 0; i < meshes.size(); i++){
                         verticesSize += meshes.get(i).vertices.size();
                 }

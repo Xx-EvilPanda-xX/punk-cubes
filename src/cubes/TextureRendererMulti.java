@@ -116,8 +116,6 @@ public class TextureRendererMulti extends TextureRenderer {
                         getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                 }
                 getShader().setUniform("mode", 0);
-
-                instances = positions.size();
         }
 
         @Override
@@ -132,6 +130,7 @@ public class TextureRendererMulti extends TextureRenderer {
                         }
                         prepare(debug);
                 }
+                instances = positions.size();
 
                 Vao vao = getMesh().getVao();
                 if (getMesh().isIndexed()) {
