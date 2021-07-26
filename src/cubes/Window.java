@@ -1,5 +1,6 @@
 package cubes;
 
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -65,7 +66,9 @@ public class Window implements Runnable {
 
         public void run() {
                 Matrix4f proj = new Matrix4f().perspective((float) Math.toRadians(45), 1080.0f / 720.0f, 0.1f, 100.0f);
+                Vector4f vec = new Vector4f(5.0f, 3.0f, 200.0f, 1.0f).mul(proj);
                 System.out.println(proj.toString());
+                System.out.println(vec.x + ", " + vec.y + ", " + vec.z + ", " + vec.w);
 
                 System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
@@ -430,12 +433,7 @@ public class Window implements Runnable {
                                 if (coolDownPool[0] <= 0.0f) {
                                         GLFW.glfwSetCursorPosCallback(window, (windowPog, xpos, ypos) -> {
                                                 float xoffset = (float) xpos;
-                                                float yoffset;
-                                                if (!camera.isThirdPerson()) {
-                                                        yoffset = (float) -ypos;
-                                                } else {
-                                                        yoffset = (float) ypos;
-                                                }
+                                                float yoffset = !camera.isThirdPerson() ? (float) -ypos : (float) ypos;
 
                                                 camera.processMouseMovement(xoffset, yoffset, true);
                                         });

@@ -41,9 +41,9 @@ public class ColorRendererMulti extends ColorRenderer {
 
                 Matrix4f model = new Matrix4f().translate(positions.get(itr)).scale(scales.get(itr), scales.get(itr), scales.get(itr)).rotate(rots.get(itr).x, 1.0f, 0.0f, 0.0f).rotate(rots.get(itr).y, 0.0f, 1.0f, 0.0f).rotate(rots.get(itr).z, 0.0f, 0.0f, 1.0f);
 
-                Matrix4f proj = getCamera().getProjectionMatrix();
+                Matrix4f proj = itr == 0 ? getCamera().getProjectionMatrix() : null;
 
-                Matrix4f view = getCamera().getViewMatrix();
+                Matrix4f view = itr == 0 ? getCamera().getViewMatrix() : null;
 
                 if (debug) {
                         System.out.println(model.toString());
@@ -72,17 +72,19 @@ public class ColorRendererMulti extends ColorRenderer {
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                 GL30.glBindVertexArray(0);
 
-                getShader().setUniform("projection", proj, false);
-                getShader().setUniform("view", view, false);
+                if (itr == 0) {
+                        getShader().setUniform("projection", proj, false);
+                        getShader().setUniform("view", view, false);
 
-                getShader().setUniform("lightPos", Window.currentLightPos);
-                getShader().setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                if (!getCamera().isThirdPerson()) {
-                        getShader().setUniform("viewPos", getCamera().playerPos);
-                } else {
-                        getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
+                        getShader().setUniform("lightPos", Window.currentLightPos);
+                        getShader().setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
+                        if (!getCamera().isThirdPerson()) {
+                                getShader().setUniform("viewPos", getCamera().playerPos);
+                        } else {
+                                getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
+                        }
+                        getShader().setUniform("mode", 1);
                 }
-                getShader().setUniform("mode", 1);
         }
 
         @Override
