@@ -57,8 +57,8 @@ void main(){
         //final result
         vec3 result = calculateLighting(lightColor, lightPos, viewPos, passNormal, fragPos) * vec3(color.rgb);
 
-        vec3 environmentalLight1 = calculateLighting(vec3(0.6, 0.6, 0.6), vec3(100.0, 100.0, 100.0), viewPos, passNormal, fragPos);
-        vec3 environmentalLight2 = calculateLighting(vec3(0.6, 0.6, 0.6), vec3(-100.0, -100.0, -100.0), viewPos, passNormal, fragPos);
+        vec3 environmentalLight1 = calculateLighting(vec3(0.65, 0.65, 0.65), vec3(100.0, 100.0, 100.0), viewPos, passNormal, fragPos);
+        vec3 environmentalLight2 = calculateLighting(vec3(0.65, 0.65, 0.65), vec3(-100.0, -100.0, -100.0), viewPos, passNormal, fragPos);
         vec3 environmentalLight = environmentalLight1 + environmentalLight2;
         result *= environmentalLight;
         vec4 finalResult = vec4(result, color.w);

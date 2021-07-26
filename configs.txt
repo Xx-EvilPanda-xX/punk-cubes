@@ -1,12 +1,52 @@
+//options for punk cubes
+//keep in same directory as jar
+//DO NOT USE "=" IN COMMENTS AS IT WILL MESS UP CONFIG PARSE
+
+//allowed values: true/false
+//true: application will be spawned in fullscreen mode, false: application will be spawned in bordered windowed mode
 fullscreen = false
+
+//allowed values: true/false
+//true: debug messages will be printed in console if console is available, false: no debug messages
 debug = false
+
+//allowed values: true/false
+//true: asteroids and planets will be rendered, false: asteroids and planets will not be rendered
 render_solar_entities = true
+
+//allowed values: any unsigned integer
+//determines width and height of window if not spawned in fullscreen mode
 width = 1080
 height = 720
-planet_count = 50
-asteroid_count = 100
+
+//allowed values: any unsigned integer
+//determines number of planets to be generated
+planet_count = 25
+
+//allowed values: any unsigned integer
+//determines number of asteroids to be generated
+asteroid_count = 50
+
+//allowed values: any floating point number
+//determines distance/diameter across skybox cube; distance from origin to skybox will be half of this (radius)
 skybox_scale = 70.0
+
+//allowed values: any positive floating point number
+//determines rate at which blocks will be placed while block placing mode is toggled on; 1.0 is one block per second
 block_placement_rate = 0.1
-block_color = 0.0, 1.0, 0.5
-block_rotation = 0.0, 0.0, 0.0
+
+//allowed values: any floating point number from 0.0 to 1.0
+//determines rgb color for blocks
+block_color.r = 0.0
+block_color.g = 1.0
+block_color.b = 0.5
+
+//allowed values: any floating point number
+//determines rotation for blocks when calculating model matrix; said rotation will be added to current rotation every frame
+block_rotation.x = 0.0
+block_rotation.y = 0.0
+block_rotation.z = 0.0
+
+//allowed values: any floating point number
+//determines distance/diameter across each block; distance from origin of each block to the edge of each block will be half of this (radius)
 block_scale = 3.0

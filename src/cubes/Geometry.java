@@ -1,9 +1,9 @@
 package cubes;
 
 public class Geometry {
-        private static final float r = Configs.BLOCK_COLOR.x;
-        private static final float g = Configs.BLOCK_COLOR.y;
-        private static final float b = Configs.BLOCK_COLOR.z;
+        private static final float r = Float.parseFloat(Configs.options.get("block_color.r"));
+        private static final float g = Float.parseFloat(Configs.options.get("block_color.g"));
+        private static final float b = Float.parseFloat(Configs.options.get("block_color.b"));
 
         public static final float[] QUAD_VERTICES = new float[]{
                 -0.5f, 0.5f, 0.0f,

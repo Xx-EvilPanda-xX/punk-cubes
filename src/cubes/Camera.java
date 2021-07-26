@@ -6,6 +6,8 @@ import org.joml.Matrix4f;
 public class Camera {
         public Vector3f playerPos;
 
+        private Window window;
+
         private Vector3f front;
         private Vector3f up;
         private Vector3f right;
@@ -23,9 +25,6 @@ public class Camera {
         private static final float optifineZoomFactor = 44.25f;
         private float sprintFov = 0.0f;
 
-        private float width = (float) Configs.WIDTH;
-        private float height = (float) Configs.HEIGHT;
-
         private float yaw;
         private float keyBoardYaw;
         private float pitch;
@@ -34,7 +33,8 @@ public class Camera {
         private final float MOVEMENT_SPEED = 3.0f;
         private final float MOUSE_SENSITIVITY = 0.045f;
 
-        public Camera(Vector3f pos, float yaw, float pitch) {
+        public Camera(Window window, Vector3f pos, float yaw, float pitch) {
+                this.window = window;
                 this.front = pos.add(0.0f, 0.0f, 1.0f, new Vector3f());
                 this.playerPos = pos;
                 this.yaw = yaw;
@@ -58,8 +58,9 @@ public class Camera {
         }
 
         public Matrix4f getProjectionMatrix() {
-                width = (float) Configs.WIDTH;
-                height = (float) Configs.HEIGHT;
+                float width = window.fullscreen ? window.vidmode.width() : window.windowWidth;
+                float height = window.fullscreen ? window.vidmode.height() : window.windowHeight;
+
                 if (!optifineZoom) {
                         if (sprinting) {
                                 return new Matrix4f().perspective(zoom + sprintFov, width / height, 0.1f, 1000.0f);

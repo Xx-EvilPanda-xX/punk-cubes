@@ -20,6 +20,7 @@ public class Window implements Runnable {
         private static final float RECHARGE_TIME = 0.25f;
         public static float deltaTime = 0.0f;
         public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 1.0f);
+        public static GLFWVidMode vidmode;
         public Camera camera;
         public Input input;
 
@@ -28,6 +29,9 @@ public class Window implements Runnable {
         private int frames;
         private static long time;
         private long window;
+        public boolean fullscreen;
+        public float windowWidth = Float.parseFloat(Configs.options.get("width"));
+        public float windowHeight = Float.parseFloat(Configs.options.get("height"));
 
         private Thread pog;
         private Shader shader;
@@ -68,7 +72,7 @@ public class Window implements Runnable {
                 init();
                 create();
                 while (!GLFW.glfwWindowShouldClose(window)) {
-                        loop(Configs.RENDER_SOLAR_ENTITIES, renderQuads, Configs.DEBUG);
+                        loop(Boolean.parseBoolean(Configs.options.get("render_solar_entities")), renderQuads, Boolean.parseBoolean(Configs.options.get("debug")));
                 }
 
                 Callbacks.glfwFreeCallbacks(window);
@@ -82,14 +86,16 @@ public class Window implements Runnable {
                         throw new IllegalStateException("Unable to initialize GLFW");
                 }
                 GLFWErrorCallback.createPrint(System.err).set();
+                vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 
                 GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
                 GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE);
 
-                if (Configs.FULLSCREEN) {
-                        window = GLFW.glfwCreateWindow(Configs.WIDTH, Configs.HEIGHT, title, GLFW.glfwGetPrimaryMonitor(), MemoryUtil.NULL);
+                fullscreen = Boolean.parseBoolean(Configs.options.get("fullscreen"));
+                if (fullscreen) {
+                        window = GLFW.glfwCreateWindow(vidmode.width(), vidmode.height(), title, GLFW.glfwGetPrimaryMonitor(), MemoryUtil.NULL);
                 } else {
-                        window = GLFW.glfwCreateWindow(Configs.WIDTH, Configs.HEIGHT, title, MemoryUtil.NULL, MemoryUtil.NULL);
+                        window = GLFW.glfwCreateWindow(Integer.parseInt(Configs.options.get("width")), Integer.parseInt(Configs.options.get("height")), title, MemoryUtil.NULL, MemoryUtil.NULL);
                 }
 
                 if (window == MemoryUtil.NULL) {
@@ -100,7 +106,7 @@ public class Window implements Runnable {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                         IntBuffer pWidth = stack.mallocInt(1);
                         IntBuffer pHeight = stack.mallocInt(1);
-                        if (!Configs.FULLSCREEN) {
+                        if (!Boolean.parseBoolean(Configs.options.get("fullscreen"))) {
                                 GLFW.glfwGetWindowSize(window, pWidth, pHeight);
                                 GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
                                 GLFW.glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
@@ -115,27 +121,27 @@ public class Window implements Runnable {
         }
 
         private void create() {
-                for (int ptr = 0; ptr < Configs.PLANET_COUNT; ptr++) {
+                for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("planet_count")); ptr++) {
                         planetPositions.add(genRandVec());
                         planetScales.add(genRandFloat() * 5);
                         planetRots.add(genRandVec());
                 }
 
-                for (int ptr = 0; ptr < Configs.ASTEROID_COUNT; ptr++) {
+                for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("asteroid_count")); ptr++) {
                         asteroidPositions.add(genRandVec());
                         asteroidScales.add(genRandFloat());
                         asteroidRots.add(genRandVec());
                 }
 
                 GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-                camera = new Camera(new Vector3f(0.0f, 0.0f, -5.0f), 0.0f, 0.0f);
+                camera = new Camera(this, new Vector3f(0.0f, 0.0f, -5.0f), 0.0f, 0.0f);
                 input = new Input(camera, window);
 
                 time = System.currentTimeMillis();
 
                 GLFW.glfwSetWindowSizeCallback(window, (windowPog, width, height) -> {
-                        Configs.WIDTH = width;
-                        Configs.HEIGHT = height;
+                        windowWidth = width;
+                        windowHeight = height;
                 });
 
                 shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
@@ -177,6 +183,7 @@ public class Window implements Runnable {
                 robot.create(shader, camera);
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 camera.setThirdPerson(true);
 
                 System.out.println(GL11.glGetString(GL11.GL_VERSION));
@@ -204,18 +211,20 @@ public class Window implements Runnable {
                 float randY;
                 float randZ;
 
+                float skyboxScale = Float.parseFloat(Configs.options.get("skybox_scale"));
+
                 randX = ((float) Math.random() * 10000.0f) - 5000.0f;
-                while (randX > ((Configs.SKYBOX_SCALE - 2.0f) / 2.0f) || randX < -((Configs.SKYBOX_SCALE - 2.0f) / 2.0f)) {
+                while (randX > ((skyboxScale - 2.0f) / 2.0f) || randX < -((skyboxScale - 2.0f) / 2.0f)) {
                         randX = ((float) Math.random() * 10000.0f) - 5000.0f;
                 }
 
                 randY = ((float) Math.random() * 10000.0f) - 5000.0f;
-                while (randY > ((Configs.SKYBOX_SCALE - 2.0f) / 2.0f) || randY < -((Configs.SKYBOX_SCALE - 2.0f) / 2.0f)) {
+                while (randY > ((skyboxScale - 2.0f) / 2.0f) || randY < -((skyboxScale - 2.0f) / 2.0f)) {
                         randY = ((float) Math.random() * 10000.0f) - 5000.0f;
                 }
 
                 randZ = ((float) Math.random() * 10000.0f) - 5000.0f;
-                while (randZ > ((Configs.SKYBOX_SCALE - 2.0f) / 2.0f) || randZ < -((Configs.SKYBOX_SCALE - 2.0f) / 2.0f)) {
+                while (randZ > ((skyboxScale - 2.0f) / 2.0f) || randZ < -((skyboxScale - 2.0f) / 2.0f)) {
                         randZ = ((float) Math.random() * 10000.0f) - 5000.0f;
                 }
 
@@ -244,16 +253,15 @@ public class Window implements Runnable {
                 processInput();
                 updateSolarEntityRotation();
 
-                GL11.glViewport(0, 0, Configs.WIDTH, Configs.HEIGHT);
-
-                GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+                GL11.glViewport(0, 0, fullscreen ? vidmode.width() : (int) windowWidth, fullscreen ? vidmode.height() : (int) windowHeight);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
                 cullFirstBlocks = blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks;
+                float skyboxScale = Float.parseFloat(Configs.options.get("skybox_scale"));
 
-                robot.setTrans(new Vector3f(-10.0f, Configs.SKYBOX_SCALE / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
-                bike.setTrans(new Vector3f(10.0f, Configs.SKYBOX_SCALE / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
-                skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(Configs.SKYBOX_SCALE).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
+                robot.setTrans(new Vector3f(-10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
+                bike.setTrans(new Vector3f(10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
+                skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(skyboxScale).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 light.setTrans(currentLightPos).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);
                 if (renderCubes) {
                         planets.render(debug);
@@ -297,9 +305,9 @@ public class Window implements Runnable {
 
                 if (placingBlocks && coolDownPool[4] <= 0.0f) {
                         blockPositions.add(new Vector3f(camera.playerPos));
-                        blockScales.add(Configs.BLOCK_SCALE);
-                        blockRots.add(Configs.BLOCK_ROTATION);
-                        coolDownPool[4] = Configs.BLOCK_PLACEMENT_RATE;
+                        blockScales.add(Float.parseFloat(Configs.options.get("block_scale")));
+                        blockRots.add(new Vector3f(Float.parseFloat(Configs.options.get("block_rotation.x")), Float.parseFloat(Configs.options.get("block_rotation.y")), Float.parseFloat(Configs.options.get("block_rotation.z"))));
+                        coolDownPool[4] = Float.parseFloat(Configs.options.get("block_placement_rate"));
                 }
 
                 GLFW.glfwSwapBuffers(window);
