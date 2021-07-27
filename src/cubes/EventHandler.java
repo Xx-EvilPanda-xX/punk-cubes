@@ -141,7 +141,7 @@ public class EventHandler {
                                 if (playerVelocities[5] > MOMENTUM_TAPER_LIMIT){
                                         playerVelocities[5] = MOMENTUM_TAPER_LIMIT;
                                 }
-                                taperNegations[5] = 2.0f;
+                                taperNegations[5] = 2.5f;
                         } else{
                                 playerVelocities[5] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[5];
                                 if (playerVelocities[5] < 0.0f){

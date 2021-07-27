@@ -137,10 +137,10 @@ public class Camera {
                         playerPos.sub(keyboardWorldUp.x * velocity, keyboardWorldUp.y * velocity, keyboardWorldUp.z * velocity);
                 }
                 if (keyBoardYaw > 360.0f) {
-                        keyBoardYaw = 0.0f;
+                        keyBoardYaw = keyBoardYaw - 360.0f;
                 }
                 if (keyBoardYaw < 0.0f) {
-                        keyBoardYaw = 360.0f;
+                        keyBoardYaw = 360.0f + keyBoardYaw;
                 }
                 updateAllVectors();
         }
