@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public class Window implements Runnable {
-        private static final float RECHARGE_TIME = 0.25f;
+        public static final float RECHARGE_TIME = 0.25f;
         public static float deltaTime = 0.0f;
         public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 1.0f);
         public static GLFWVidMode vidmode;
@@ -26,14 +26,15 @@ public class Window implements Runnable {
         public Input input;
         public EventHandler eventHandler;
 
-        private float lastFrame = 0.0f;
-        private int frames;
         public boolean renderQuads = false, showCoords = false, placingBlocks = false;
-        private static long time;
         public long window;
         public boolean fullscreen;
         public float windowWidth = Float.parseFloat(Configs.options.get("width"));
         public float windowHeight = Float.parseFloat(Configs.options.get("height"));
+
+        private float lastFrame = 0.0f;
+        private int frames;
+        private static long time;
 
         private Thread pog;
         private Shader shader;
@@ -171,10 +172,9 @@ public class Window implements Runnable {
                 planets = new TextureRendererMulti("models/island/island.obj", "textures/old/wood.png", planetPositions, planetScales, planetRots);
                 asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", asteroidPositions, asteroidScales, asteroidRots);
                 light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png");
-                blocks = new TextureRendererMulti("models/bu/Bu.obj", "models/xbox/xbox_tex.jpg", blockPositions, blockScales, blockRots);
+                blocks = new TextureRendererMulti("models/bu/Bu.obj", "models/bu/bu_tex.jpg", blockPositions, blockScales, blockRots);
                 bike = new TextureRenderer("models/motorcycle/motorcycle.obj", "models/motorcycle/motorcycle_tex.jpg");
                 robot = new TextureRenderer("models/robot/robot.obj", "models/iron_man/iron_man_tex.jpg");
-
 
                 for (ColorQuadRenderer r : quads) {
                         r.create(shader, camera);

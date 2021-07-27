@@ -5,9 +5,9 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
 public class EventHandler {
-        Camera camera;
-        Window window;
-        long windowAddress;
+        private Camera camera;
+        private Window window;
+        private long windowAddress;
 
         private final float MOMENTUM_TAPER_LIMIT = Float.parseFloat(Configs.options.get("momentum_taper_limit"));
         private final float MOMENTUM_TAPER_RATE = Float.parseFloat(Configs.options.get("momentum_taper_rate"));
@@ -16,7 +16,6 @@ public class EventHandler {
         private float[] coolDownPool = new float[32];
         private boolean focused = true;
         private boolean rasterizerFill = true;
-        private static final float RECHARGE_TIME = 0.25f;
 
         public EventHandler(Camera camera, Window window){
                 this.camera = camera;
@@ -52,7 +51,7 @@ public class EventHandler {
                                         });
                                         focused = !focused;
                                         GLFW.glfwSetInputMode(windowAddress, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
-                                        coolDownPool[0] = RECHARGE_TIME;
+                                        coolDownPool[0] = Window.RECHARGE_TIME;
                                         return;
                                 }
                         }
@@ -180,13 +179,13 @@ public class EventHandler {
                                                 GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
                                                 rasterizerFill = !rasterizerFill;
                                         }
-                                        coolDownPool[9] = RECHARGE_TIME;
+                                        coolDownPool[9] = Window.RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
                                 if (coolDownPool[1] <= 0.0f) {
                                         window.renderQuads = !window.renderQuads;
-                                        coolDownPool[1] = RECHARGE_TIME;
+                                        coolDownPool[1] = Window.RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
@@ -194,13 +193,13 @@ public class EventHandler {
                                         for (int i = 0; i < window.quads.length; i++) {
                                                 window.quads[i].USE_PROJ_VIEW_MAT = !window.quads[i].USE_PROJ_VIEW_MAT;
                                         }
-                                        coolDownPool[2] = RECHARGE_TIME;
+                                        coolDownPool[2] = Window.RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
                                 if (coolDownPool[3] <= 0.0f) {
                                         window.placingBlocks = !window.placingBlocks;
-                                        coolDownPool[3] = RECHARGE_TIME;
+                                        coolDownPool[3] = Window.RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
@@ -208,7 +207,7 @@ public class EventHandler {
                                         window.blockPositions.clear();
                                         window.blockScales.clear();
                                         window.blockRots.clear();
-                                        coolDownPool[4] = RECHARGE_TIME;
+                                        coolDownPool[4] = Window.RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_R)) {
@@ -217,13 +216,13 @@ public class EventHandler {
                         if (Input.isKeyDown(GLFW.GLFW_KEY_V)) {
                                 if (coolDownPool[5] <= 0.0f) {
                                         camera.setThirdPerson(!camera.isThirdPerson());
-                                        coolDownPool[5] = RECHARGE_TIME;
+                                        coolDownPool[5] = Window.RECHARGE_TIME;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_T)) {
                                 if (coolDownPool[6] <= 0.0f) {
                                         window.showCoords = !window.showCoords;
-                                        coolDownPool[6] = RECHARGE_TIME;
+                                        coolDownPool[6] = Window.RECHARGE_TIME;
                                 }
                         }
                 } else {
@@ -244,7 +243,7 @@ public class EventHandler {
 
                                         focused = !focused;
                                         GLFW.glfwSetInputMode(windowAddress, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-                                        coolDownPool[0] = RECHARGE_TIME;
+                                        coolDownPool[0] = Window.RECHARGE_TIME;
                                 }
                         }
                 }

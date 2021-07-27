@@ -57,4 +57,4 @@ momentum_taper_limit = 1.0
 
 //allowed values: any positive floating point number
 //determines rate at which velocity/momentum of player changes
-momentum_taper_rate = 2.5
+momentum_taper_rate = 3.5
