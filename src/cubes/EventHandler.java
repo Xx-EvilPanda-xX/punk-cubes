@@ -11,7 +11,7 @@ public class EventHandler {
 
         private final float MOMENTUM_TAPER_LIMIT = Float.parseFloat(Configs.options.get("momentum_taper_limit"));
         private final float MOMENTUM_TAPER_RATE = Float.parseFloat(Configs.options.get("momentum_taper_rate"));
-        private float[] movementVelocities = new float[6];
+        private float[] playerVelocities = new float[6];
         private float[] taperNegations = new float[6];
         private float[] coolDownPool = new float[32];
         private boolean focused = true;
@@ -57,99 +57,99 @@ public class EventHandler {
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_W)) {
-                                movementVelocities[0] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (movementVelocities[0] > (camera.isSprinting() ? MOMENTUM_TAPER_LIMIT * 2 : MOMENTUM_TAPER_LIMIT)){
-                                        movementVelocities[0] = (camera.isSprinting() ? MOMENTUM_TAPER_LIMIT * 2 : MOMENTUM_TAPER_LIMIT);
+                                playerVelocities[0] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                if (playerVelocities[0] > (camera.isSprinting() ? MOMENTUM_TAPER_LIMIT * 2 : MOMENTUM_TAPER_LIMIT)){
+                                        playerVelocities[0] = (camera.isSprinting() ? MOMENTUM_TAPER_LIMIT * 2 : MOMENTUM_TAPER_LIMIT);
                                 }
-                                taperNegations[0] = 1.0f;
+                                taperNegations[0] = 2.5f;
                         } else{
-                                movementVelocities[0] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[0];
-                                if (movementVelocities[0] < 0.0f){
-                                        movementVelocities[0] = 0.0f;
+                                playerVelocities[0] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[0];
+                                if (playerVelocities[0] < 0.0f){
+                                        playerVelocities[0] = 0.0f;
                                 }
                                 taperNegations[0] += 2.0f * Window.deltaTime;
                                 if (taperNegations[0] > 5.0f){
-                                        taperNegations[0] = 4.0f;
+                                        taperNegations[0] = 5.0f;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_S)) {
-                                movementVelocities[1] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (movementVelocities[1] > MOMENTUM_TAPER_LIMIT){
-                                        movementVelocities[1] = MOMENTUM_TAPER_LIMIT;
+                                playerVelocities[1] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                if (playerVelocities[1] > MOMENTUM_TAPER_LIMIT){
+                                        playerVelocities[1] = MOMENTUM_TAPER_LIMIT;
                                 }
-                                taperNegations[1] = 1.0f;
+                                taperNegations[1] = 2.5f;
                         } else{
-                                movementVelocities[1] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[1];
-                                if (movementVelocities[1] < 0.0f){
-                                        movementVelocities[1] = 0.0f;
+                                playerVelocities[1] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[1];
+                                if (playerVelocities[1] < 0.0f){
+                                        playerVelocities[1] = 0.0f;
                                 }
                                 taperNegations[1] += 2.0f * Window.deltaTime;
                                 if (taperNegations[1] > 5.0f){
-                                        taperNegations[1] = 4.0f;
+                                        taperNegations[1] = 5.0f;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_A)) {
-                                movementVelocities[2] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (movementVelocities[2] > MOMENTUM_TAPER_LIMIT){
-                                        movementVelocities[2] = MOMENTUM_TAPER_LIMIT;
+                                playerVelocities[2] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                if (playerVelocities[2] > MOMENTUM_TAPER_LIMIT){
+                                        playerVelocities[2] = MOMENTUM_TAPER_LIMIT;
                                 }
-                                taperNegations[2] = 1.0f;
+                                taperNegations[2] = 2.5f;
                         } else{
-                                movementVelocities[2] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[2];
-                                if (movementVelocities[2] < 0.0f){
-                                        movementVelocities[2] = 0.0f;
+                                playerVelocities[2] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[2];
+                                if (playerVelocities[2] < 0.0f){
+                                        playerVelocities[2] = 0.0f;
                                 }
                                 taperNegations[2] += 2.0f * Window.deltaTime;
                                 if (taperNegations[2] > 5.0f){
-                                        taperNegations[2] = 4.0f;
+                                        taperNegations[2] = 5.0f;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_D)) {
-                                movementVelocities[3] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (movementVelocities[3] > MOMENTUM_TAPER_LIMIT){
-                                        movementVelocities[3] = MOMENTUM_TAPER_LIMIT;
+                                playerVelocities[3] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                if (playerVelocities[3] > MOMENTUM_TAPER_LIMIT){
+                                        playerVelocities[3] = MOMENTUM_TAPER_LIMIT;
                                 }
-                                taperNegations[3] = 1.0f;
+                                taperNegations[3] = 2.5f;
                         } else{
-                                movementVelocities[3] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[3];
-                                if (movementVelocities[3] < 0.0f){
-                                        movementVelocities[3] = 0.0f;
+                                playerVelocities[3] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[3];
+                                if (playerVelocities[3] < 0.0f){
+                                        playerVelocities[3] = 0.0f;
                                 }
                                 taperNegations[3] += 2.0f * Window.deltaTime;
                                 if (taperNegations[3] > 5.0f){
-                                        taperNegations[3] = 4.0f;
+                                        taperNegations[3] = 5.0f;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
-                                movementVelocities[4] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (movementVelocities[4] > MOMENTUM_TAPER_LIMIT){
-                                        movementVelocities[4] = MOMENTUM_TAPER_LIMIT;
+                                playerVelocities[4] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                if (playerVelocities[4] > MOMENTUM_TAPER_LIMIT){
+                                        playerVelocities[4] = MOMENTUM_TAPER_LIMIT;
                                 }
-                                taperNegations[4] = 1.0f;
+                                taperNegations[4] = 2.5f;
                         } else{
-                                movementVelocities[4] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[4];
-                                if (movementVelocities[4] < 0.0f){
-                                        movementVelocities[4] = 0.0f;
+                                playerVelocities[4] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[4];
+                                if (playerVelocities[4] < 0.0f){
+                                        playerVelocities[4] = 0.0f;
                                 }
                                 taperNegations[4] += 2.0f * Window.deltaTime;
                                 if (taperNegations[4] > 5.0f){
-                                        taperNegations[4] = 4.0f;
+                                        taperNegations[4] = 5.0f;
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
-                                movementVelocities[5] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (movementVelocities[5] > MOMENTUM_TAPER_LIMIT){
-                                        movementVelocities[5] = MOMENTUM_TAPER_LIMIT;
+                                playerVelocities[5] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                if (playerVelocities[5] > MOMENTUM_TAPER_LIMIT){
+                                        playerVelocities[5] = MOMENTUM_TAPER_LIMIT;
                                 }
-                                taperNegations[5] = 1.0f;
+                                taperNegations[5] = 2.0f;
                         } else{
-                                movementVelocities[5] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[5];
-                                if (movementVelocities[5] < 0.0f){
-                                        movementVelocities[5] = 0.0f;
+                                playerVelocities[5] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[5];
+                                if (playerVelocities[5] < 0.0f){
+                                        playerVelocities[5] = 0.0f;
                                 }
                                 taperNegations[5] += 2.0f * Window.deltaTime;
                                 if (taperNegations[5] > 5.0f){
-                                        taperNegations[5] = 4.0f;
+                                        taperNegations[5] = 5.0f;
                                 }
                         }
 
@@ -159,12 +159,12 @@ public class EventHandler {
                                 }
                         }
 
-                        camera.processKeyboard(Direction.FORWARD, movementVelocities[0]);
-                        camera.processKeyboard(Direction.BACK, movementVelocities[1]);
-                        camera.processKeyboard(Direction.LEFT, movementVelocities[2]);
-                        camera.processKeyboard(Direction.RIGHT, movementVelocities[3]);
-                        camera.processKeyboard(Direction.UP, movementVelocities[4]);
-                        camera.processKeyboard(Direction.DOWN, movementVelocities[5]);
+                        camera.processKeyboard(Direction.FORWARD, playerVelocities[0]);
+                        camera.processKeyboard(Direction.BACK, playerVelocities[1]);
+                        camera.processKeyboard(Direction.LEFT, playerVelocities[2]);
+                        camera.processKeyboard(Direction.RIGHT, playerVelocities[3]);
+                        camera.processKeyboard(Direction.UP, playerVelocities[4]);
+                        camera.processKeyboard(Direction.DOWN, playerVelocities[5]);
 
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
                                 camera.setOptifineZoom(true);
