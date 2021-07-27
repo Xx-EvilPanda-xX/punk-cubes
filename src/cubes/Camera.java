@@ -105,8 +105,8 @@ public class Camera {
                 updateAllVectors();
         }
 
-        public void processKeyboard(Direction dir) {
-                float velocity = MOVEMENT_SPEED * Window.deltaTime;
+        public void processKeyboard(Direction dir, float movementVelocity) {
+                float velocity = movementVelocity * MOVEMENT_SPEED * Window.deltaTime;
 
                 if (dir == Direction.FORWARD) {
                         playerPos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);

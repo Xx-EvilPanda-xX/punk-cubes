@@ -1,6 +1,5 @@
 package cubes;
 
-import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -16,6 +15,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Window implements Runnable {
         private static final float RECHARGE_TIME = 0.25f;
@@ -26,18 +26,21 @@ public class Window implements Runnable {
         public Input input;
 
         private float lastFrame = 0.0f;
-        private boolean renderQuads = false, focused = true, cullFirstBlocks = false, showCoords = false, placingBlocks = false, rasterizerFill = true;
+        private boolean renderQuads = false, focused = true, showCoords = false, placingBlocks = false, rasterizerFill = true;
         private int frames;
         private static long time;
         private long window;
         public boolean fullscreen;
         public float windowWidth = Float.parseFloat(Configs.options.get("width"));
         public float windowHeight = Float.parseFloat(Configs.options.get("height"));
+        private final float MOMENTUM_TAPER_LIMIT = Float.parseFloat(Configs.options.get("momentum_taper_limit"));
+        private final float MOMENTUM_TAPER_RATE = Float.parseFloat(Configs.options.get("momentum_taper_rate"));
 
         private Thread pog;
         private Shader shader;
         private final String title = "Cubes!!!";
         private float[] coolDownPool = new float[32];
+        private float[] movementVelocities = new float[6];
 
         private ColorQuadRenderer quads[];
         private TextureRenderer skyBox;
@@ -259,7 +262,6 @@ public class Window implements Runnable {
                 GL11.glViewport(0, 0, fullscreen ? vidmode.width() : (int) windowWidth, fullscreen ? vidmode.height() : (int) windowHeight);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
-                cullFirstBlocks = blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks;
                 float skyboxScale = Float.parseFloat(Configs.options.get("skybox_scale"));
 
                 robot.setTrans(new Vector3f(-10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
@@ -271,7 +273,7 @@ public class Window implements Runnable {
                         asteroids.render(debug);
                 }
 
-                if (cullFirstBlocks) {
+                if (blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks) {
                         Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
                         float scaleTemp = blockScales.get(blockScales.size() - 1);
                         Vector3f rotTemp = blockRots.get(blockRots.size() - 1);
@@ -351,23 +353,67 @@ public class Window implements Runnable {
                                 }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_W)) {
-                                camera.processKeyboard(Direction.FORWARD);
+                                movementVelocities[0] += MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[0] > MOMENTUM_TAPER_LIMIT){
+                                        movementVelocities[0] = MOMENTUM_TAPER_LIMIT;
+                                }
+                        } else{
+                                movementVelocities[0] -= MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[0] < 0.0f){
+                                        movementVelocities[0] = 0.0f;
+                                }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_S)) {
-                                camera.processKeyboard(Direction.BACK);
+                                movementVelocities[1] += MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[1] > MOMENTUM_TAPER_LIMIT){
+                                        movementVelocities[1] = MOMENTUM_TAPER_LIMIT;
+                                }
+                        } else{
+                                movementVelocities[1] -= MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[1] < 0.0f){
+                                        movementVelocities[1] = 0.0f;
+                                }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_A)) {
-                                camera.processKeyboard(Direction.LEFT);
+                                movementVelocities[2] += MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[2] > MOMENTUM_TAPER_LIMIT){
+                                        movementVelocities[2] = MOMENTUM_TAPER_LIMIT;
+                                }
+                        } else{
+                                movementVelocities[2] -= MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[2] < 0.0f){
+                                        movementVelocities[2] = 0.0f;
+                                }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_D)) {
-                                camera.processKeyboard(Direction.RIGHT);
+                                movementVelocities[3] += MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[3] > MOMENTUM_TAPER_LIMIT){
+                                        movementVelocities[3] = MOMENTUM_TAPER_LIMIT;
+                                }
+                        } else{
+                                movementVelocities[3] -= MOMENTUM_TAPER_RATE;
+                                if (movementVelocities[3] < 0.0f){
+                                        movementVelocities[3] = 0.0f;
+                                }
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
-                                camera.processKeyboard(Direction.UP);
+                                movementVelocities[4] = 1.0f;
+                        } else{
+                                movementVelocities[4] = 0.0f;
                         }
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
-                                camera.processKeyboard(Direction.DOWN);
+                                movementVelocities[5] = 1.0f;
+                        } else{
+                                movementVelocities[5] = 0.0f;
                         }
+
+                        camera.processKeyboard(Direction.FORWARD, movementVelocities[0]);
+                        camera.processKeyboard(Direction.BACK, movementVelocities[1]);
+                        camera.processKeyboard(Direction.LEFT, movementVelocities[2]);
+                        camera.processKeyboard(Direction.RIGHT, movementVelocities[3]);
+                        camera.processKeyboard(Direction.UP, movementVelocities[4]);
+                        camera.processKeyboard(Direction.DOWN, movementVelocities[5]);
+
                         if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_ALT)) {
                                 camera.setOptifineZoom(true);
                         } else {
