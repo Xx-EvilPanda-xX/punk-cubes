@@ -30,7 +30,7 @@ public class Camera {
         private float pitch;
         private float zoom = 45.0f;
 
-        private final float MOVEMENT_SPEED = 3.0f;
+        private final float MOVEMENT_SPEED = 5.0f;
         private final float MOUSE_SENSITIVITY = 0.045f;
 
         public Camera(Window window, Vector3f pos, float yaw, float pitch) {
@@ -106,26 +106,17 @@ public class Camera {
         }
 
         public void processKeyboard(Direction dir, float movementVelocity) {
-                float velocity = movementVelocity * MOVEMENT_SPEED * Window.deltaTime;
+                float velocity = (movementVelocity * MOVEMENT_SPEED) * Window.deltaTime;
 
                 if (dir == Direction.FORWARD) {
                         playerPos.add(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
-                        if (sprinting) {
-                                playerPos.add(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
-                        }
                 }
                 if (dir == Direction.BACK) {
                         playerPos.sub(keyboardFront.x * velocity, 0.0f, keyboardFront.z * velocity);
-                        if (sprinting) {
-                                playerPos.sub(keyboardFront.x * (velocity * 2), 0.0f, keyboardFront.z * (velocity * 2));
-                        }
                 }
                 if (dir == Direction.LEFT) {
                         if (!thirdPerson) {
                                 playerPos.sub(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
-                                if (sprinting) {
-                                        playerPos.sub(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
-                                }
                         } else {
                                 keyBoardYaw -= velocity * 25.0f;
                                 thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
@@ -134,9 +125,6 @@ public class Camera {
                 if (dir == Direction.RIGHT) {
                         if (!thirdPerson) {
                                 playerPos.add(keyboardRight.x * velocity, 0.0f, keyboardRight.z * velocity);
-                                if (sprinting) {
-                                        playerPos.add(keyboardRight.x * (velocity * 2), 0.0f, keyboardRight.z * (velocity * 2));
-                                }
                         } else {
                                 keyBoardYaw += velocity * 25.0f;
                                 thirdPersonRotation = -((float) Math.toRadians(keyBoardYaw));
