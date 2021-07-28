@@ -4,7 +4,7 @@
 
 //allowed values: true/false
 //true: application will be spawned in fullscreen mode, false: application will be spawned in bordered windowed mode
-fullscreen = true
+fullscreen = false
 
 //allowed values: true/false
 //true: debug messages will be printed in console if console is available, false: no debug messages
