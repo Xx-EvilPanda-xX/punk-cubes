@@ -71,8 +71,8 @@ public class EventHandler {
                                         playerVelocities[0] = 0.0f;
                                 }
                                 taperNegations[0] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[0] > TAPER_NEGATION_LIMIT){
-                                        taperNegations[0] = TAPER_NEGATION_LIMIT;
+                                if (taperNegations[0] > TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT){
+                                        taperNegations[0] = TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT;
                                 }
                         }
 
@@ -88,8 +88,8 @@ public class EventHandler {
                                         playerVelocities[1] = 0.0f;
                                 }
                                 taperNegations[1] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[1] > TAPER_NEGATION_LIMIT){
-                                        taperNegations[1] = TAPER_NEGATION_LIMIT;
+                                if (taperNegations[1] > TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT){
+                                        taperNegations[1] = TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT;
                                 }
                         }
 
@@ -105,8 +105,8 @@ public class EventHandler {
                                         playerVelocities[2] = 0.0f;
                                 }
                                 taperNegations[2] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[2] > TAPER_NEGATION_LIMIT){
-                                        taperNegations[2] = TAPER_NEGATION_LIMIT;
+                                if (taperNegations[2] > TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT){
+                                        taperNegations[2] = TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT;
                                 }
                         }
 
@@ -122,8 +122,8 @@ public class EventHandler {
                                         playerVelocities[3] = 0.0f;
                                 }
                                 taperNegations[3] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[3] > TAPER_NEGATION_LIMIT){
-                                        taperNegations[3] = TAPER_NEGATION_LIMIT;
+                                if (taperNegations[3] > TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT){
+                                        taperNegations[3] = TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT;
                                 }
                         }
 
@@ -139,8 +139,8 @@ public class EventHandler {
                                         playerVelocities[4] = 0.0f;
                                 }
                                 taperNegations[4] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[4] > TAPER_NEGATION_LIMIT){
-                                        taperNegations[4] = TAPER_NEGATION_LIMIT;
+                                if (taperNegations[4] > TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT){
+                                        taperNegations[4] = TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT;
                                 }
                         }
 
@@ -156,8 +156,8 @@ public class EventHandler {
                                         playerVelocities[5] = 0.0f;
                                 }
                                 taperNegations[5] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[5] > TAPER_NEGATION_LIMIT){
-                                        taperNegations[5] = TAPER_NEGATION_LIMIT;
+                                if (taperNegations[5] > TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT){
+                                        taperNegations[5] = TAPER_NEGATION_LIMIT * MOMENTUM_TAPER_LIMIT;
                                 }
                         }
 
