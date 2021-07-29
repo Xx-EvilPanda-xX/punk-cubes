@@ -168,13 +168,13 @@ public class Window implements Runnable {
                 };
 
                 skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png"));
-                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", "models/iron_man/iron_man_tex.jpg");
-                planets = new TextureRendererMulti("models/island/island.obj", "textures/old/wood.png", planetPositions, planetScales, planetRots);
-                asteroids = new TextureRendererMulti("models/backpack/backpack.obj", "models/backpack/diffuse.jpg", asteroidPositions, asteroidScales, asteroidRots);
-                light = new TextureRenderer("models/donut/Donut.obj", "models/donut/Tekstur_donat.png");
-                blocks = new TextureRendererMulti("models/bu/Bu.obj", "models/bu/bu_tex.jpg", blockPositions, blockScales, blockRots);
-                bike = new TextureRenderer("models/motorcycle/motorcycle.obj", "models/motorcycle/motorcycle_tex.jpg");
-                robot = new TextureRenderer("models/robot/robot.obj", "models/iron_man/iron_man_tex.jpg");
+                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", new String[]{}, false);
+                planets = new TextureRendererMulti("models/island/island.obj", new String[]{"textures/old/wood.png"}, planetPositions, planetScales, planetRots, false);
+                asteroids = new TextureRendererMulti("models/backpack/backpack.obj", new String[]{"models/backpack/diffuse.jpg"}, asteroidPositions, asteroidScales, asteroidRots, true);
+                light = new TextureRenderer("models/donut/Donut.obj", new String[]{"models/donut/Tekstur_donat.png"}, false);
+                blocks = new TextureRendererMulti("models/bu/Bu.obj", new String[]{"models/bu/bu.jpg"}, blockPositions, blockScales, blockRots, false);
+                bike = new TextureRenderer("models/motorcycle/motorcycle.obj", new String[]{"models/motorcycle/motorcycle_tex.jpg"}, true);
+                robot = new TextureRenderer("models/robot/robot.obj", new String[]{}, false);
 
                 for (ColorQuadRenderer r : quads) {
                         r.create(shader, camera);

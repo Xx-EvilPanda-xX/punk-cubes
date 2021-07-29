@@ -10,11 +10,21 @@ out vec4 FragColor;
 
 uniform sampler2D tex;
 
+struct Material {
+    vec3 Ka;
+    vec3 Kd;
+    vec3 Ks;
+    float spec;
+};
+
+uniform Material material;
+
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
 uniform int mode;
+uniform bool useMaterialDiffuse;
 
 //modes:
 //0: Texture, with projection and view matrix
@@ -23,31 +33,36 @@ uniform int mode;
 //3: Color, without projection and view matrix, no lighting
 
 vec3 calculateLighting(vec3 lightingColor, vec3 lightPosition, vec3 viewerPosition, vec3 fragNormal, vec3 fragPosition){
-    //calculate ambient lighting
-    float ambientStrength = 0.5;
-    vec3 ambient = ambientStrength * lightingColor;
-
     //calculate diffuse lighting
     vec3 norm = normalize(fragNormal);
     vec3 lightDir = normalize(lightPosition - fragPosition);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightingColor;
 
+    //calculate ambient lighting
+    float ambientStrength = 0.5;
+    vec3 ambient = ambientStrength * lightingColor * material.Ka;
+
     //calculate specular lighting
     float specularStrength = 0.8;
     vec3 viewDir = normalize(viewerPosition - fragPosition);
     vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-    vec3 specular = specularStrength * spec * lightingColor;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.spec);
+    vec3 specular = specularStrength * spec * lightingColor * material.Ks;
 
-    return (ambient + diffuse + specular);
+    return (diffuse + ambient + specular);
 }
 
 void main(){
     //find the initial fragment color in the texture or color buffer
     vec4 color;
     if (mode == 0 || mode == 2){
-        color = texture(tex, passTextureCoords);
+        if (useMaterialDiffuse){
+            color = vec4(material.Kd, 1.0);
+        }
+        else{
+            color = texture(tex, passTextureCoords);
+        }
     }
     else{
         color = vec4(passColor, 1.0);

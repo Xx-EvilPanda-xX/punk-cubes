@@ -16,6 +16,7 @@ public class TextureRendererMulti extends TextureRenderer {
         private ArrayList<Float> scales;
         private ArrayList<Vector3f> rots;
         private int itr;
+        private int meshItr;
         private int instances;
 
         public TextureRendererMulti(TexturedMesh mesh, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots) {
@@ -28,8 +29,8 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public TextureRendererMulti(String modelpath, String texturePath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots){
-                super(modelpath, texturePath);
+        public TextureRendererMulti(String modelpath, String[] texturePaths, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots, boolean useFullTexture){
+                super(modelpath, texturePaths, useFullTexture);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;
@@ -62,13 +63,13 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
 
                 float[] matrix = new float[16];
-                for (int i = 0; i < 4; i++) {
-                        for (int j = 0; j < 4; j++) {
-                                matrix[(i * 4) + j] = model.get(i, j);
+                for (int j = 0; j < 4; j++) {
+                        for (int k = 0; k < 4; k++) {
+                                matrix[(j * 4) + k] = model.get(j, k);
                         }
                 }
-                GL30.glBindVertexArray(getMesh().getVao().getHandle());
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+                GL30.glBindVertexArray(getMesh().getVao()[meshItr].getHandle());
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao()[meshItr]);
 
                 FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
                 GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
@@ -94,40 +95,60 @@ public class TextureRendererMulti extends TextureRenderer {
                                 getShader().setUniform("viewPos", getCamera().playerPos.sub(getCamera().getFront().mul(getCamera().getZoom() / 10, new Vector3f()), new Vector3f()));
                         }
                         getShader().setUniform("mode", 0);
+
+                        getShader().setUniform("material.Ka", getMesh().meshes.get(meshItr).material.Ka);
+                        getShader().setUniform("material.Kd", getMesh().meshes.get(meshItr).material.Kd);
+                        getShader().setUniform("material.Ks", getMesh().meshes.get(meshItr).material.Ks);
+                        getShader().setUniform("material.spec", getMesh().meshes.get(meshItr).material.specular);
                 }
         }
 
         @Override
         public void render(boolean debug) {
                 getShader().bind();
-                getMesh().getTexture().bind();
 
-                for (int i = 0; i < positions.size(); i++) {
-                        itr = i;
-                        if (itr > MAX_INSTANCES) {
-                                throw new UnsupportedOperationException("Tried to render more than allowed instances");
+                for (int i = 0; i < mesh.meshes.size(); i++) {
+                        meshItr = i;
+
+                        for (int j = 0; j < positions.size(); j++) {
+                                itr = j;
+                                if (itr > MAX_INSTANCES) {
+                                        throw new UnsupportedOperationException("Tried to render more than allowed instances");
+                                }
+                                prepare(debug);
                         }
-                        prepare(debug);
+                        instances = positions.size();
+
+                        if (i > getMesh().getTextures().size() - 1) {
+                                getShader().setUniform("useMaterialDiffuse", true);
+                                if (getMesh().isUseFullTexture() && getMesh().getTextures().get(0) != null) {
+                                        getMesh().getTextures().get(mesh.getTextures().size() - 1).bind();
+                                        getShader().setUniform("useMaterialDiffuse", false);
+                                }
+                        } else {
+                                getMesh().getTextures().get(i).bind();
+                                getShader().setUniform("useMaterialDiffuse", false);
+                        }
+
+                        Vao vao = getMesh().getVao()[i];
+
+                        vao.bind();
+                        vao.enableAttribs();
+                        if (getMesh().isIndexed()) {
+                                vao.bindIndices();
+                                GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCounts().get(i), GL11.GL_UNSIGNED_INT, 0, instances);
+                                vao.unbindIndices();
+                        } else {
+                                GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCounts().get(i), instances);
+                        }
+                        vao.disableAttribs();
+                        vao.unbind();
+
+
+                        GL30.glDisableVertexAttribArray(4);
+                        GL30.glDisableVertexAttribArray(5);
+                        GL30.glDisableVertexAttribArray(6);
+                        GL30.glDisableVertexAttribArray(7);
                 }
-                instances = positions.size();
-
-                Vao vao = getMesh().getVao();
-
-                vao.bind();
-                vao.enableAttribs();
-                if (getMesh().isIndexed()) {
-                        vao.bindIndices();
-                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, instances);
-                        vao.unbindIndices();
-                } else {
-                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), instances);
-                }
-                vao.disableAttribs();
-                vao.unbind();
-
-                GL30.glDisableVertexAttribArray(4);
-                GL30.glDisableVertexAttribArray(5);
-                GL30.glDisableVertexAttribArray(6);
-                GL30.glDisableVertexAttribArray(7);
         }
 }

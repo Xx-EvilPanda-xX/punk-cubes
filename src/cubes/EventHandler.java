@@ -59,106 +59,50 @@ public class EventHandler {
                                 }
                         }
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_W)) {
-                                playerVelocities[0] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (playerVelocities[0] > (camera.isSprinting() ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT)){
-                                        playerVelocities[0] = (camera.isSprinting() ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT);
-                                }
-                                taperNegations[0] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
-                        } else{
-                                playerVelocities[0] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[0];
-                                if (playerVelocities[0] < 0.0f){
-                                        playerVelocities[0] = 0.0f;
-                                }
-                                taperNegations[0] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[0] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
-                                        taperNegations[0] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
-                                        System.out.println("limit reached!");
-                                }
-                        }
+                        for (int i = 0; i < 6; i++){
+                                boolean key;
+                                boolean sprintable = false;
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_S)) {
-                                playerVelocities[1] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (playerVelocities[1] > MOMENTUM_TAPER_LIMIT){
-                                        playerVelocities[1] = MOMENTUM_TAPER_LIMIT;
+                                switch (i){
+                                        case 0:
+                                                key = Input.isKeyDown(GLFW.GLFW_KEY_W);
+                                                sprintable = true;
+                                                break;
+                                        case 1:
+                                                key = Input.isKeyDown(GLFW.GLFW_KEY_S);
+                                                break;
+                                        case 2:
+                                                key = Input.isKeyDown(GLFW.GLFW_KEY_A);
+                                                break;
+                                        case 3:
+                                                key = Input.isKeyDown(GLFW.GLFW_KEY_D);
+                                                break;
+                                        case 4:
+                                                key = Input.isKeyDown(GLFW.GLFW_KEY_SPACE);
+                                                break;
+                                        case 5:
+                                                key = Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT);
+                                                break;
+                                        default:
+                                                key = false;
+                                                break;
                                 }
-                                taperNegations[1] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
-                        } else{
-                                playerVelocities[1] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[1];
-                                if (playerVelocities[1] < 0.0f){
-                                        playerVelocities[1] = 0.0f;
-                                }
-                                taperNegations[1] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[1] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
-                                        taperNegations[1] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
-                                }
-                        }
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_A)) {
-                                playerVelocities[2] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (playerVelocities[2] > MOMENTUM_TAPER_LIMIT){
-                                        playerVelocities[2] = MOMENTUM_TAPER_LIMIT;
-                                }
-                                taperNegations[2] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
-                        } else{
-                                playerVelocities[2] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[2];
-                                if (playerVelocities[2] < 0.0f){
-                                        playerVelocities[2] = 0.0f;
-                                }
-                                taperNegations[2] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[2] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
-                                        taperNegations[2] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
-                                }
-                        }
-
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_D)) {
-                                playerVelocities[3] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (playerVelocities[3] > MOMENTUM_TAPER_LIMIT){
-                                        playerVelocities[3] = MOMENTUM_TAPER_LIMIT;
-                                }
-                                taperNegations[3] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
-                        } else{
-                                playerVelocities[3] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[3];
-                                if (playerVelocities[3] < 0.0f){
-                                        playerVelocities[3] = 0.0f;
-                                }
-                                taperNegations[3] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[3] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
-                                        taperNegations[3] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
-                                }
-                        }
-
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_SPACE)) {
-                                playerVelocities[4] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (playerVelocities[4] > MOMENTUM_TAPER_LIMIT){
-                                        playerVelocities[4] = MOMENTUM_TAPER_LIMIT;
-                                }
-                                taperNegations[4] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
-                        } else{
-                                playerVelocities[4] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[4];
-                                if (playerVelocities[4] < 0.0f){
-                                        playerVelocities[4] = 0.0f;
-                                }
-                                taperNegations[4] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[4] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
-                                        taperNegations[4] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
-                                }
-                        }
-
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT)) {
-                                playerVelocities[5] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                if (playerVelocities[5] > MOMENTUM_TAPER_LIMIT){
-                                        playerVelocities[5] = MOMENTUM_TAPER_LIMIT;
-                                }
-                                taperNegations[5] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
-                        } else{
-                                playerVelocities[5] -= (MOMENTUM_TAPER_RATE * Window.deltaTime) / taperNegations[5];
-                                if (playerVelocities[5] < 0.0f){
-                                        playerVelocities[5] = 0.0f;
-                                }
-                                taperNegations[5] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                if (taperNegations[5] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
-                                        taperNegations[5] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
+                                if (key) {
+                                        playerVelocities[i] += MOMENTUM_TAPER_RATE * Window.deltaTime;
+                                        if (playerVelocities[i] > (camera.isSprinting() && sprintable ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT)){
+                                                playerVelocities[i] = (camera.isSprinting() && sprintable ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT);
+                                        }
+                                        taperNegations[i] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
+                                } else {
+                                        playerVelocities[i] -= (MOMENTUM_TAPER_RATE * MOMENTUM_TAPER_LIMIT * Window.deltaTime) / taperNegations[i];
+                                        if (playerVelocities[i] < 0.0f){
+                                                playerVelocities[i] = 0.0f;
+                                        }
+                                        taperNegations[i] += TAPER_NEGATION_RATE * Window.deltaTime;
+                                        if (taperNegations[i] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
+                                                taperNegations[i] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
+                                        }
                                 }
                         }
 

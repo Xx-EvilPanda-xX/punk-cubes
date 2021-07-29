@@ -1,5 +1,16 @@
-# Blender MTL File: 'None'
-# Material Count: 4
+# Blender MTL File: 'Bu.blend'
+# Material Count: 9
+
+newmtl Material
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/lukas/Blender/Textures/Bus/Ground/FabricUpholsteryMidCenturyPebbles001_COL_VAR3_3K.jpg
 
 newmtl Material.001
 Ns 225.000000
@@ -10,11 +21,25 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump /home/lukas/Blender/Textures/Bus/normals.jpg
+map_Kd /home/lukas/Blender/Textures/Bus/Bu7.jpg
+
+newmtl Material.004
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.000000 0.800000 0.037099
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump /home/lukas/Blender/Textures/Bus/Bed/WoodQuarteredChiffon001/REGULAR/3K/WoodQuarteredChiffon001_NRM_3K.jpg
+map_Kd /home/lukas/Blender/Textures/Bus/Bed/WoodQuarteredChiffon001/REGULAR/3K/WoodQuarteredChiffon001_COL_3K.jpg
 
 newmtl Material.005
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
+Kd 0.945098 0.674509 0.988235
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
@@ -24,19 +49,53 @@ illum 2
 newmtl Material.006
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
+Kd 0.291771 0.291771 0.313989
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump /home/lukas/Blender/Textures/Bus/normals.jpg
+
+newmtl Material.007
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.945098 0.674509 0.988235
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
 
-newmtl Material.007
+newmtl Material.008
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd /home/lukas/Blender/Textures/Bus/Room/Floor/WoodFlooring044/REGULAR/3K/WoodFlooring044_COL_3K.jpg
+
+newmtl Material.009
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump /home/lukas/Blender/Textures/Bus/Room/normals.jpg
+map_Kd /home/lukas/Blender/Textures/Bus/Room/color.jpg
+
+newmtl Material.010
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.670727 0.800000 0.162296
+Ks 0.500000 0.500000 0.500000
+Ke 0.827541 0.763972 0.273003
 Ni 1.450000
 d 1.000000
 illum 2

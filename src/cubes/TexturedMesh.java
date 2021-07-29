@@ -5,6 +5,7 @@ import org.joml.Vector3f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryUtil;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -12,89 +13,148 @@ import java.util.ArrayList;
 import org.lwjgl.assimp.*;
 
 public class TexturedMesh {
-        ArrayList<Mesh> meshes = new ArrayList<>();
+        public ArrayList<Mesh> meshes = new ArrayList<>();
 
-        private FloatBuffer vertices, textureCoords, normals;
-        private IntBuffer indices;
+        private ArrayList<FloatBuffer> vertices = new ArrayList<>(), textureCoords = new ArrayList<>(), normals = new ArrayList<>();
+        private ArrayList<IntBuffer> indices = new ArrayList<>();
         private String texturePath;
         private boolean indexed;
-        private int indexCount, vertexCount;
+        private ArrayList<Integer> indexCounts = new ArrayList<>(), vertexCounts = new ArrayList<>();
+        private String modelPath;
 
-        private Texture texture;
+        private ArrayList<Texture> textures = new ArrayList<>();
 
-        private Vao vao = new Vao();
-        private int vbo, tbo, cbo, nbo, uao;
+        private Vao[] vao;
+        private int[] vbo, tbo, cbo, nbo, uao;
 
-        PointerBuffer ptr;
+        private PointerBuffer ptr;
+        private boolean useFullTexture;
 
         public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
-                this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-                this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
-                this.indices = (IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip();
-                vertexCount = vertexData.length / 3;
-                indexCount = indexData.length;
+                vertices.add((FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip());
+                textureCoords.add((FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip());
+                normals.add((FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip());
+                indices.add((IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip());
+                vertexCounts.add(vertexData.length / 3);
+                indexCounts.add(indexData.length);
                 this.texturePath = texturePath;
                 indexed = true;
 
-                texture = new Texture(texturePath);
-                texture.storeDirectTexture();
+                textures.add(new Texture(texturePath));
+                textures.get(0).storeDirectTexture();
+
+                Material material = new Material();
+                material.Ka = new Vector3f(1.0f, 1.0f, 1.0f);
+                material.Kd = new Vector3f(1.0f, 1.0f, 1.0f);
+                material.Ks = new Vector3f(1.0f, 1.0f, 1.0f);
+                material.specular = 64.0f;
+                meshes.add(new Mesh(null, null, material));
+
+                vbo = new int[meshes.size()];
+                tbo = new int[meshes.size()];
+                cbo = new int[meshes.size()];
+                nbo = new int[meshes.size()];
+                uao = new int[meshes.size()];
+                vao = new Vao[meshes.size()];
+                for (int i = 0; i < vao.length; i++){
+                        vao[i] = new Vao();
+                }
         }
 
         public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, String texturePath) {
-                this.vertices = (FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip();
-                this.textureCoords = (FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip();
-                this.normals = (FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip();
-                this.indices = null;
-                vertexCount = vertexData.length / 3;
-                indexCount = 0;
+                vertices.add((FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip());
+                textureCoords.add((FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip());
+                normals.add((FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip());
+                indices.add(null);
+                vertexCounts.add(vertexData.length / 3);
+                indexCounts.add(0);
                 this.texturePath = texturePath;
                 indexed = false;
 
-                texture = new Texture(texturePath);
-                texture.storeDirectTexture();
+                textures.add(new Texture(texturePath));
+                textures.get(0).storeDirectTexture();
+
+                Material material = new Material();
+                material.Ka = new Vector3f(1.0f, 1.0f, 1.0f);
+                material.Kd = new Vector3f(1.0f, 1.0f, 1.0f);
+                material.Ks = new Vector3f(1.0f, 1.0f, 1.0f);
+                material.specular = 64.0f;
+                meshes.add(new Mesh(null, null, material));
+
+                vbo = new int[meshes.size()];
+                tbo = new int[meshes.size()];
+                cbo = new int[meshes.size()];
+                nbo = new int[meshes.size()];
+                uao = new int[meshes.size()];
+                vao = new Vao[meshes.size()];
+                for (int i = 0; i < vao.length; i++){
+                        vao[i] = new Vao();
+                }
         }
 
-        public TexturedMesh(String modelPath, String texturePath){
+        public TexturedMesh(String modelPath, String[] texturePaths, boolean useFullTexture){
                 loadFromObj(modelPath);
+                this.useFullTexture = useFullTexture;
                 System.out.println("Model loaded successfully at " + modelPath);
 
-                texture = new Texture(texturePath);
-                texture.storeDirectTexture();
+                for (int i = 0; i < texturePaths.length; i++) {
+                        textures.add(new Texture(texturePaths[i]));
+                        textures.get(i).storeDirectTexture();
+                }
 
-                vertexCount = vertices.capacity() / 3;
-                indexCount = indices.capacity();
+                int totalVertexCount = 0;
+                int totalIndexCount = 0;
 
-                System.out.println("vertex count: " + vertexCount);
-                System.out.println("index count: " + indexCount);
+                for (int i = 0; i < vertices.size(); i++){
+                        vertexCounts.add(vertices.get(i).capacity() / 3);
+                        totalVertexCount += vertices.get(i).capacity() / 3;
+                }
+                for (int i = 0; i < indices.size(); i++){
+                        indexCounts.add(indices.get(i).capacity());
+                        totalIndexCount += indices.get(i).capacity();
+                }
+
+                System.out.println("vertex count: " + totalVertexCount);
+                System.out.println("index count: " + totalIndexCount);
+
+                vbo = new int[meshes.size()];
+                tbo = new int[meshes.size()];
+                cbo = new int[meshes.size()];
+                nbo = new int[meshes.size()];
+                uao = new int[meshes.size()];
+                vao = new Vao[meshes.size()];
+                for (int i = 0; i < vao.length; i++){
+                        vao[i] = new Vao();
+                }
 
                 indexed = true;
         }
 
         private void loadFromObj(String modelPath){
                 AIScene scene = Assimp.aiImportFile("resources/" + modelPath, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs);
+                this.modelPath = modelPath;
                 if (scene == null || (scene.mFlags() &  Assimp.AI_SCENE_FLAGS_INCOMPLETE)  != 0 || scene.mRootNode() == null){
                         throw new IllegalStateException("couldn't load model at: " + modelPath);
                 }
                 ptr = scene.mMeshes();
-                processNode(scene.mRootNode());
+                processNode(scene.mRootNode(), scene);
                 toBuffers();
         }
 
-        private void processNode(AINode node){
+        private void processNode(AINode node, AIScene scene){
                 for (int i = 0; i < node.mNumMeshes(); i++){
                         AIMesh mesh = AIMesh.create(ptr.get());
-                        meshes.add(processMesh(mesh));
+                        meshes.add(processMesh(mesh, scene));
                 }
 
                 PointerBuffer nodePtr = node.mChildren();
                 for (int i = 0; i < node.mNumChildren(); i++){
                         AINode childNode = AINode.create(nodePtr.get());
-                        processNode(childNode);
+                        processNode(childNode, scene);
                 }
         }
 
-        private Mesh processMesh(AIMesh mesh){
+        private Mesh processMesh(AIMesh mesh, AIScene scene){
                 ArrayList<Vertex> vertices = new ArrayList<>();
                 ArrayList<Integer> indices = new ArrayList<>();
 
@@ -140,27 +200,68 @@ public class TexturedMesh {
                         }
                 }
 
-                return new Mesh(vertices, indices);
+                Material material = new Material();
+
+                if (mesh.mMaterialIndex() > 0) {
+                        PointerBuffer ptr = scene.mMaterials();
+                        AIMaterial mat = AIMaterial.create(ptr.get(mesh.mMaterialIndex()));
+                        PointerBuffer ptr1 = mat.mProperties();
+
+                        for (int i = 0; i < mat.mNumProperties(); i++) {
+                                AIMaterialProperty matProp = AIMaterialProperty.create(ptr1.get(i));
+                                AIString key = matProp.mKey();
+                                String property = key.dataString();
+
+                                if (property.equals("$clr.ambient")) {
+                                        ByteBuffer data = matProp.mData();
+                                        Vector3f Ka = new Vector3f(data.getFloat(), data.getFloat(), data.getFloat());
+                                        material.Ka = Ka;
+                                }
+                                if (property.equals("$clr.diffuse")) {
+                                        ByteBuffer data = matProp.mData();
+                                        Vector3f Kd = new Vector3f(data.getFloat(), data.getFloat(), data.getFloat());
+                                        material.Kd = Kd;
+                                }
+                                if (property.equals("$clr.specular")) {
+                                        ByteBuffer data = matProp.mData();
+                                        Vector3f Ks = new Vector3f(data.getFloat(), data.getFloat(), data.getFloat());
+                                        material.Ks = Ks;
+                                }
+                                if (property.equals("$mat.shininess")) {
+                                        ByteBuffer data = matProp.mData();
+                                        float specular = data.getFloat();
+                                        material.specular = specular;
+                                }
+                        }
+                }
+
+                return new Mesh(vertices, indices, material);
         }
 
+
+
         private void toBuffers(){
-                int verticesSize = 0;
-                int indicesSize = 0;
-                int add = 0;
+                int[] verticesSizes = new int[meshes.size()];
+                int[] indicesSizes = new int[meshes.size()];
 
                 for (int i = 0; i < meshes.size(); i++){
-                        verticesSize += meshes.get(i).vertices.size();
+                        verticesSizes[i] = meshes.get(i).vertices.size();
                 }
                 for (int i = 0; i < meshes.size(); i++){
-                        indicesSize += meshes.get(i).indices.size();
+                        indicesSizes[i] = meshes.get(i).indices.size();
                 }
 
-                FloatBuffer vertices = MemoryUtil.memAllocFloat(verticesSize * 3);
-                FloatBuffer textureCoords = MemoryUtil.memAllocFloat(verticesSize * 2);
-                FloatBuffer normals = MemoryUtil.memAllocFloat(verticesSize * 3);
-                IntBuffer indices = MemoryUtil.memAllocInt(indicesSize);
+                ArrayList<FloatBuffer> allVertices = new ArrayList<>();
+                ArrayList<FloatBuffer> allTexCoords = new ArrayList<>();
+                ArrayList<FloatBuffer> allNormals = new ArrayList<>();
+                ArrayList<IntBuffer> allIndices = new ArrayList<>();
 
                 for (int i = 0; i < meshes.size(); i++){
+                        FloatBuffer vertices = MemoryUtil.memAllocFloat(verticesSizes[i] * 3);
+                        FloatBuffer textureCoords = MemoryUtil.memAllocFloat(verticesSizes[i] * 2);
+                        FloatBuffer normals = MemoryUtil.memAllocFloat(verticesSizes[i] * 3);
+                        IntBuffer indices = MemoryUtil.memAllocInt(indicesSizes[i]);
+
                         for (int j = 0; j < meshes.get(i).vertices.size(); j++){
                                 vertices.put(meshes.get(i).vertices.get(j).position.x);
                                 vertices.put(meshes.get(i).vertices.get(j).position.y);
@@ -183,37 +284,35 @@ public class TexturedMesh {
                         }
 
                         for (int j = 0; j < meshes.get(i).indices.size(); j++){
-                                indices.put(meshes.get(i).indices.get(j) + add);
+                                indices.put(meshes.get(i).indices.get(j));
                         }
 
-                        add += meshes.get(i).vertices.size();
+                        allVertices.add((FloatBuffer) vertices.flip());
+                        allTexCoords.add((FloatBuffer) textureCoords.flip());
+                        allNormals.add((FloatBuffer) normals.flip());
+                        allIndices.add((IntBuffer) indices.flip());
                 }
 
-                vertices.flip();
-                normals.flip();
-                textureCoords.flip();
-                indices.flip();
-
-                this.vertices = vertices;
-                this.normals = normals;
-                this.textureCoords = textureCoords;
-                this.indices = indices;
+                this.vertices = allVertices;
+                this.normals = allNormals;
+                this.textureCoords = allTexCoords;
+                this.indices = allIndices;
         }
 
 
-        public FloatBuffer getVertices() {
+        public ArrayList<FloatBuffer> getVertices() {
                 return vertices;
         }
 
-        public FloatBuffer getTextureCoords() {
+        public ArrayList<FloatBuffer> getTextureCoords() {
                 return textureCoords;
         }
 
-        public FloatBuffer getNormals() {
+        public ArrayList<FloatBuffer> getNormals() {
                 return normals;
         }
 
-        public IntBuffer getIndices() {
+        public ArrayList<IntBuffer> getIndices() {
                 return indices;
         }
 
@@ -225,77 +324,83 @@ public class TexturedMesh {
                 return indexed;
         }
 
-        public int getIndexCount() {
-                return indexCount;
+        public ArrayList<Integer> getIndexCounts() {
+                return indexCounts;
         }
 
-        public int getVertexCount() {
-                return vertexCount;
+        public ArrayList<Integer> getVertexCounts() {
+                return vertexCounts;
         }
 
-        public Vao getVao() {
+        public Vao[] getVao() {
                 return vao;
         }
 
-        public int getVbo() {
+        public int[] getVbo() {
                 return vbo;
         }
 
-        public int getTbo() {
+        public int[] getTbo() {
                 return tbo;
         }
 
-        public int getCbo() {
+        public int[] getCbo() {
                 return cbo;
         }
 
-        public int getNbo() {
+        public int[] getNbo() {
                 return nbo;
         }
 
-        public int getUao() {
+        public int[] getUao() {
                 return uao;
         }
 
-        public Texture getTexture() {
-                return texture;
+        public ArrayList<Texture> getTextures() {
+                return textures;
         }
 
-        public void setVao(Vao vao) {
-                this.vao = vao;
+        public void setVao(Vao vao, int index) {
+                this.vao[index] = vao;
         }
 
-        public void setVbo(int vbo) {
-                this.vbo = vbo;
+        public void setVbo(int vbo, int index) {
+                this.vbo[index] = vbo;
         }
 
-        public void setTbo(int tbo) {
-                this.tbo = tbo;
+        public void setTbo(int tbo, int index) {
+                this.tbo[index] = tbo;
         }
 
-        public void setCbo(int cbo) {
-                this.cbo = cbo;
+        public void setCbo(int cbo, int index) {
+                this.cbo[index] = cbo;
         }
 
-        public void setNbo(int nbo) {
-                this.nbo = nbo;
+        public void setNbo(int nbo, int index) {
+                this.nbo[index] = nbo;
         }
 
-        public void setUao(int uao) {
-                this.uao = uao;
+        public void setUao(int uao, int index) {
+                this.uao[index] = uao;
         }
 
-        public void setTexture(Texture texture) {
-                this.texture = texture;
+        public void setTextures(ArrayList<Texture> textures) {
+                this.textures = textures;
+        }
+
+        public boolean isUseFullTexture() {
+                return useFullTexture;
         }
 
         static class Mesh{
                 ArrayList<Vertex> vertices;
                 ArrayList<Integer> indices;
+                Material material;
 
-                public Mesh(ArrayList<Vertex> vertices, ArrayList<Integer> indices){
+                public Mesh(ArrayList<Vertex> vertices, ArrayList<Integer> indices, Material material){
                         this.vertices = vertices;
                         this.indices = indices;
+                        this.material = material;
                 }
         }
 

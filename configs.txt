@@ -4,7 +4,7 @@
 
 //allowed values: true/false
 //true: application will be spawned in fullscreen mode, false: application will be spawned in bordered windowed mode
-fullscreen = false
+fullscreen = true
 
 //allowed values: true/false
 //true: debug messages will be printed in console if console is available, false: no debug messages
@@ -53,7 +53,7 @@ block_scale = 3.0
 
 //allowed values: any positive floating point number
 //determines limit to velocity/momentum of player
-momentum_taper_limit = 10.0
+momentum_taper_limit = 1.0
 
 //allowed values: any positive floating point number
 //determines rate at which velocity/momentum of player changes

@@ -57,8 +57,8 @@ public class ColorRendererMulti extends ColorRenderer {
                                 matrix[(i * 4) + j] = model.get(i, j);
                         }
                 }
-                GL30.glBindVertexArray(getMesh().getVao().getHandle());
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao());
+                GL30.glBindVertexArray(getMesh().getVao()[0].getHandle());
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, getMesh().getUao()[0]);
 
                 FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
                 GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 64 * itr, buf);
@@ -100,16 +100,16 @@ public class ColorRendererMulti extends ColorRenderer {
                 }
                 instances = positions.size();
 
-                Vao vao = getMesh().getVao();
+                Vao vao = getMesh().getVao()[0];
 
                 vao.bind();
                 vao.enableAttribs();
                 if (getMesh().isIndexed()) {
                         vao.bindIndices();
-                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCount(), GL11.GL_UNSIGNED_INT, 0, instances);
+                        GL42.glDrawElementsInstanced(GL11.GL_TRIANGLES, getMesh().getIndexCounts().get(0), GL11.GL_UNSIGNED_INT, 0, instances);
                         vao.unbindIndices();
                 } else {
-                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCount(), instances);
+                        GL42.glDrawArraysInstanced(GL11.GL_TRIANGLES, 0, getMesh().getVertexCounts().get(0), instances);
                 }
                 vao.disableAttribs();
                 vao.unbind();
