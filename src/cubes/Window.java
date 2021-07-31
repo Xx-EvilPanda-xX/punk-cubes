@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.joml.Matrix4f;
@@ -51,6 +52,7 @@ public class Window implements Runnable {
         private TextureRendererMulti asteroids;
         private TextureRenderer bike;
         private TextureRenderer robot;
+        private TextureRenderer bu;
 
         public ArrayList<Vector3f> planetPositions = new ArrayList<>();
         public ArrayList<Float> planetScales = new ArrayList<>();
@@ -154,7 +156,7 @@ public class Window implements Runnable {
                 shader = new Shader("shaders/basicVert.glsl", "shaders/basicFrag.glsl");
                 shader.create();
 
-                TextureQuadRenderer loadingScreen = new TextureQuadRenderer(new TexturedMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_TEX_COORDS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, "textures/loading_screen.jpg"), 2.0f, 0.0f, 0.0f, 0.0f);
+                TextureQuadRenderer loadingScreen = new TextureQuadRenderer(new TexturedMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_TEX_COORDS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}, new Material(new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), 64.0f), "textures/loading_screen.jpg"), 2.0f, 0.0f, 0.0f, 0.0f);
                 loadingScreen.USE_PROJ_VIEW_MAT = false;
                 loadingScreen.create(shader, camera);
 
@@ -167,14 +169,15 @@ public class Window implements Runnable {
                         new ColorQuadRenderer(new ColoredMesh(Geometry.QUAD_VERTICES, Geometry.QUAD_COLORS, Geometry.QUAD_NORMALS, new int[]{0, 1, 2, 0, 2, 3}), 0.05f, 1.0f, 0.0f, 0.0f),
                 };
 
-                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, "textures/skybox.png"));
+                skyBox = new TextureRenderer(new TexturedMesh(Geometry.CUBE_VERTICES, Geometry.CUBE_TEX_COORDS, Geometry.CUBE_NORMALS, new Material(new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(1.0f, 1.0f, 1.0f), 64.0f), "textures/skybox.png"));
                 player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", new String[]{}, false);
                 planets = new TextureRendererMulti("models/island/island.obj", new String[]{"textures/old/wood.png"}, planetPositions, planetScales, planetRots, false);
                 asteroids = new TextureRendererMulti("models/backpack/backpack.obj", new String[]{"models/backpack/diffuse.jpg"}, asteroidPositions, asteroidScales, asteroidRots, true);
                 light = new TextureRenderer("models/donut/Donut.obj", new String[]{"models/donut/Tekstur_donat.png"}, false);
-                blocks = new TextureRendererMulti("models/bu/Bu.obj", new String[]{"models/bu/bu.jpg"}, blockPositions, blockScales, blockRots, false);
+                blocks = new TextureRendererMulti("models/bu/bu_lowpoly.obj", new String[]{"models/bu/bu.jpg"}, blockPositions, blockScales, blockRots, false);
                 bike = new TextureRenderer("models/motorcycle/motorcycle.obj", new String[]{"models/motorcycle/motorcycle_tex.jpg"}, true);
                 robot = new TextureRenderer("models/robot/robot.obj", new String[]{}, false);
+                bu = new TextureRenderer("models/bu/Bu.obj", new String[]{"models/bu/bu.jpg"}, false);
 
                 for (ColorQuadRenderer r : quads) {
                         r.create(shader, camera);
@@ -187,8 +190,12 @@ public class Window implements Runnable {
                 light.create(shader, camera);
                 bike.create(shader, camera);
                 robot.create(shader, camera);
+                bu.create(shader, camera);
 
                 GL11.glEnable(GL11.GL_DEPTH_TEST);
+                if (Boolean.parseBoolean(Configs.options.get("use_gamma_correction"))) {
+                        GL11.glEnable(GL30.GL_FRAMEBUFFER_SRGB);
+                }
                 GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
                 camera.setThirdPerson(true);
 
@@ -264,6 +271,7 @@ public class Window implements Runnable {
 
                 float skyboxScale = Float.parseFloat(Configs.options.get("skybox_scale"));
 
+                bu.setTrans(new Vector3f(0.0f, 100.0f, 0.0f)).setScale(222.2f).setRotation(new Vector3f(0.0f, 0.0f, (float) Math.toRadians(180.0f))).render(debug);
                 robot.setTrans(new Vector3f(-10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
                 bike.setTrans(new Vector3f(10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render(debug);
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(skyboxScale).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render(debug);

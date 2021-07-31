@@ -30,7 +30,7 @@ public class TexturedMesh {
         private PointerBuffer ptr;
         private boolean useFullTexture;
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, String texturePath) {
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, Material material, String texturePath) {
                 vertices.add((FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip());
                 textureCoords.add((FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip());
                 normals.add((FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip());
@@ -43,11 +43,6 @@ public class TexturedMesh {
                 textures.add(new Texture(texturePath));
                 textures.get(0).storeDirectTexture();
 
-                Material material = new Material();
-                material.Ka = new Vector3f(1.0f, 1.0f, 1.0f);
-                material.Kd = new Vector3f(1.0f, 1.0f, 1.0f);
-                material.Ks = new Vector3f(1.0f, 1.0f, 1.0f);
-                material.specular = 64.0f;
                 meshes.add(new Mesh(null, null, material));
 
                 vbo = new int[meshes.size()];
@@ -61,7 +56,7 @@ public class TexturedMesh {
                 }
         }
 
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, String texturePath) {
+        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, Material material, String texturePath) {
                 vertices.add((FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip());
                 textureCoords.add((FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip());
                 normals.add((FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip());
@@ -74,11 +69,6 @@ public class TexturedMesh {
                 textures.add(new Texture(texturePath));
                 textures.get(0).storeDirectTexture();
 
-                Material material = new Material();
-                material.Ka = new Vector3f(1.0f, 1.0f, 1.0f);
-                material.Kd = new Vector3f(1.0f, 1.0f, 1.0f);
-                material.Ks = new Vector3f(1.0f, 1.0f, 1.0f);
-                material.specular = 64.0f;
                 meshes.add(new Mesh(null, null, material));
 
                 vbo = new int[meshes.size()];

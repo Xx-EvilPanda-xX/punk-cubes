@@ -16,7 +16,7 @@ render_solar_entities = true
 
 //allowed values: any unsigned integer
 //determines width and height of window if not spawned in fullscreen mode
-width = 1080
+width = 1280
 height = 720
 
 //allowed values: any unsigned integer
@@ -49,7 +49,7 @@ block_rotation.z = 0.0
 
 //allowed values: any floating point number
 //determines distance/diameter across each block; distance from origin of each block to the edge of each block will be half of this (radius)
-block_scale = 3.0
+block_scale = 5.0
 
 //allowed values: any positive floating point number
 //determines limit to velocity/momentum of player
@@ -58,3 +58,7 @@ momentum_taper_limit = 1.0
 //allowed values: any positive floating point number
 //determines rate at which velocity/momentum of player changes
 momentum_taper_rate = 3.5
+
+//allowed values: true/false
+//determines whether or not glEnable(GL_FRAMEBUFFER_SRGB) (gamma correction) will be used
+use_gamma_correction = false
