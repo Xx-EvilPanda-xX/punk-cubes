@@ -17,6 +17,7 @@ public class Texture {
 
         public Texture(String texturePath) {
                 this.texturePath = texturePath;
+                storeDirectTexture();
         }
 
         public int storeDirectTexture() {

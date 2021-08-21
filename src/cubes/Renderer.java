@@ -5,9 +5,9 @@ import org.joml.Vector3f;
 public interface Renderer {
         void create(Shader shader, Camera camera);
 
-        void prepare(boolean debug);
+        void prepare();
 
-        void render(boolean debug);
+        void render();
 
         Vector3f getTrans();
 

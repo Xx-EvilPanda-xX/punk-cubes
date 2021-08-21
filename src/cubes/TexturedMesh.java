@@ -24,63 +24,11 @@ public class TexturedMesh {
 
         private ArrayList<Texture> textures = new ArrayList<>();
 
-        private Vao[] vao;
-        private int[] vbo, tbo, cbo, nbo, uao;
+        private Vao[] vaos;
+        private int[] vbos, tbos, nbos, uaos;
 
         private PointerBuffer ptr;
         private boolean useFullTexture;
-
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, int[] indexData, Material material, String texturePath) {
-                vertices.add((FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip());
-                textureCoords.add((FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip());
-                normals.add((FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip());
-                indices.add((IntBuffer) MemoryUtil.memAllocInt(indexData.length).put(indexData).flip());
-                vertexCounts.add(vertexData.length / 3);
-                indexCounts.add(indexData.length);
-                this.texturePath = texturePath;
-                indexed = true;
-
-                textures.add(new Texture(texturePath));
-                textures.get(0).storeDirectTexture();
-
-                meshes.add(new Mesh(null, null, material));
-
-                vbo = new int[meshes.size()];
-                tbo = new int[meshes.size()];
-                cbo = new int[meshes.size()];
-                nbo = new int[meshes.size()];
-                uao = new int[meshes.size()];
-                vao = new Vao[meshes.size()];
-                for (int i = 0; i < vao.length; i++){
-                        vao[i] = new Vao();
-                }
-        }
-
-        public TexturedMesh(float[] vertexData, float[] texCoords, float[] normalData, Material material, String texturePath) {
-                vertices.add((FloatBuffer) MemoryUtil.memAllocFloat(vertexData.length).put(vertexData).flip());
-                textureCoords.add((FloatBuffer) MemoryUtil.memAllocFloat(texCoords.length).put(texCoords).flip());
-                normals.add((FloatBuffer) MemoryUtil.memAllocFloat(normalData.length).put(normalData).flip());
-                indices.add(null);
-                vertexCounts.add(vertexData.length / 3);
-                indexCounts.add(0);
-                this.texturePath = texturePath;
-                indexed = false;
-
-                textures.add(new Texture(texturePath));
-                textures.get(0).storeDirectTexture();
-
-                meshes.add(new Mesh(null, null, material));
-
-                vbo = new int[meshes.size()];
-                tbo = new int[meshes.size()];
-                cbo = new int[meshes.size()];
-                nbo = new int[meshes.size()];
-                uao = new int[meshes.size()];
-                vao = new Vao[meshes.size()];
-                for (int i = 0; i < vao.length; i++){
-                        vao[i] = new Vao();
-                }
-        }
 
         public TexturedMesh(String modelPath, String[] texturePaths, boolean useFullTexture){
                 loadFromObj(modelPath);
@@ -89,7 +37,6 @@ public class TexturedMesh {
 
                 for (int i = 0; i < texturePaths.length; i++) {
                         textures.add(new Texture(texturePaths[i]));
-                        textures.get(i).storeDirectTexture();
                 }
 
                 int totalVertexCount = 0;
@@ -107,14 +54,13 @@ public class TexturedMesh {
                 System.out.println("vertex count: " + totalVertexCount);
                 System.out.println("index count: " + totalIndexCount);
 
-                vbo = new int[meshes.size()];
-                tbo = new int[meshes.size()];
-                cbo = new int[meshes.size()];
-                nbo = new int[meshes.size()];
-                uao = new int[meshes.size()];
-                vao = new Vao[meshes.size()];
-                for (int i = 0; i < vao.length; i++){
-                        vao[i] = new Vao();
+                vbos = new int[meshes.size()];
+                tbos = new int[meshes.size()];
+                nbos = new int[meshes.size()];
+                uaos = new int[meshes.size()];
+                vaos = new Vao[meshes.size()];
+                for (int i = 0; i < vaos.length; i++){
+                        vaos[i] = new Vao();
                 }
 
                 indexed = true;
@@ -322,56 +268,48 @@ public class TexturedMesh {
                 return vertexCounts;
         }
 
-        public Vao[] getVao() {
-                return vao;
+        public Vao[] getVaos() {
+                return vaos;
         }
 
-        public int[] getVbo() {
-                return vbo;
+        public int[] getVbos() {
+                return vbos;
         }
 
-        public int[] getTbo() {
-                return tbo;
+        public int[] getTbos() {
+                return tbos;
         }
 
-        public int[] getCbo() {
-                return cbo;
+        public int[] getNbos() {
+                return nbos;
         }
 
-        public int[] getNbo() {
-                return nbo;
-        }
-
-        public int[] getUao() {
-                return uao;
+        public int[] getUaos() {
+                return uaos;
         }
 
         public ArrayList<Texture> getTextures() {
                 return textures;
         }
 
-        public void setVao(Vao vao, int index) {
-                this.vao[index] = vao;
+        public void setVaos(Vao vao, int index) {
+                this.vaos[index] = vao;
         }
 
-        public void setVbo(int vbo, int index) {
-                this.vbo[index] = vbo;
+        public void setVbos(int vbo, int index) {
+                this.vbos[index] = vbo;
         }
 
-        public void setTbo(int tbo, int index) {
-                this.tbo[index] = tbo;
+        public void setTbos(int tbo, int index) {
+                this.tbos[index] = tbo;
         }
 
-        public void setCbo(int cbo, int index) {
-                this.cbo[index] = cbo;
+        public void setNbos(int nbo, int index) {
+                this.nbos[index] = nbo;
         }
 
-        public void setNbo(int nbo, int index) {
-                this.nbo[index] = nbo;
-        }
-
-        public void setUao(int uao, int index) {
-                this.uao[index] = uao;
+        public void setUaos(int uao, int index) {
+                this.uaos[index] = uao;
         }
 
         public void setTextures(ArrayList<Texture> textures) {

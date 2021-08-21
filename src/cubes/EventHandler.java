@@ -9,6 +9,8 @@ public class EventHandler {
         private Window window;
         private long windowAddress;
 
+        public static boolean rasterizerFill = true;
+
         private final float SPRINT_MULTIPLIER = 2.0f;
         private final float TAPER_NEGATION_LIMIT = 5.0f;
         private final float TAPER_NEGATION_RATE = 2.5f;
@@ -18,7 +20,6 @@ public class EventHandler {
         private float[] taperNegations = new float[6];
         private float[] coolDownPool = new float[32];
         private boolean focused = true;
-        private boolean rasterizerFill = true;
 
         public EventHandler(Camera camera, Window window){
                 this.camera = camera;
@@ -125,7 +126,7 @@ public class EventHandler {
                                 camera.setOptifineZoom(false);
                         }
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_Y)){
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_C)){
                                 if (coolDownPool[9] <= 0.0f) {
                                         if (rasterizerFill){
                                                 GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -135,22 +136,6 @@ public class EventHandler {
                                                 rasterizerFill = !rasterizerFill;
                                         }
                                         coolDownPool[9] = Window.RECHARGE_TIME;
-                                }
-                        }
-
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
-                                if (coolDownPool[1] <= 0.0f) {
-                                        window.renderQuads = !window.renderQuads;
-                                        coolDownPool[1] = Window.RECHARGE_TIME;
-                                }
-                        }
-
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_M)) {
-                                if (coolDownPool[2] <= 0.0f) {
-                                        for (int i = 0; i < window.quads.length; i++) {
-                                                window.quads[i].USE_PROJ_VIEW_MAT = !window.quads[i].USE_PROJ_VIEW_MAT;
-                                        }
-                                        coolDownPool[2] = Window.RECHARGE_TIME;
                                 }
                         }
 
@@ -181,9 +166,9 @@ public class EventHandler {
                                 }
                         }
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_T)) {
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_F3)) {
                                 if (coolDownPool[6] <= 0.0f) {
-                                        window.showCoords = !window.showCoords;
+                                        window.showDebug = !window.showDebug;
                                         coolDownPool[6] = Window.RECHARGE_TIME;
                                 }
                         }

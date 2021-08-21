@@ -115,7 +115,7 @@ public class Shader {
                 GL20.glUniform3f(getUniformLocation(name), value.x, value.y, value.z);
         }
 
-        public void setUniform(String name, Matrix4f value, boolean debug) {
+        public void setUniform(String name, Matrix4f value) {
                 float[] matrix = new float[16];
                 for (int i = 0; i < 4; i++) {
                         for (int j = 0; j < 4; j++) {
@@ -124,9 +124,6 @@ public class Shader {
                 }
 
                 GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
-                if (debug) {
-                        System.out.println(Arrays.toString(matrix));
-                }
         }
 
         public void bind() {

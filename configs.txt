@@ -4,11 +4,7 @@
 
 //allowed values: true/false
 //true: application will be spawned in fullscreen mode, false: application will be spawned in bordered windowed mode
-fullscreen = true
-
-//allowed values: true/false
-//true: debug messages will be printed in console if console is available, false: no debug messages
-debug = false
+fullscreen = false
 
 //allowed values: true/false
 //true: asteroids and planets will be rendered, false: asteroids and planets will not be rendered
@@ -62,3 +58,7 @@ momentum_taper_rate = 3.5
 //allowed values: true/false
 //determines whether or not glEnable(GL_FRAMEBUFFER_SRGB) (gamma correction) will be used
 use_gamma_correction = false
+
+//allowed values: true/false
+//determines whether or not to use linux compatable shaders
+use_linux_shaders = true

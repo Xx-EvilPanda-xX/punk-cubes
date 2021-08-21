@@ -38,31 +38,27 @@ public class TextureRenderer implements Renderer {
                 this.camera = camera;
 
                 for (int i = 0; i < mesh.meshes.size(); i++) {
-                        mesh.setVbo(mesh.getVao()[i].storeBuffer(0, 3, mesh.getVertices().get(i)), i);
-                        mesh.setTbo(mesh.getVao()[i].storeBuffer(1, 2, mesh.getTextureCoords().get(i)), i);
-
-                        //init color buffer as a default value to avoid opengl shader errors even though its not being used
-                        mesh.setCbo(mesh.getVao()[i].storeBuffer(2, 3, (FloatBuffer) MemoryUtil.memAllocFloat(3).put(new float[]{0.0f, 0.0f, 0.0f}).flip()), i);
-                        mesh.setNbo(mesh.getVao()[i].storeBuffer(3, 3, mesh.getNormals().get(i)), i);
+                        mesh.setVbos(mesh.getVaos()[i].storeBuffer(0, 3, mesh.getVertices().get(i)), i);
+                        mesh.setTbos(mesh.getVaos()[i].storeBuffer(1, 2, mesh.getTextureCoords().get(i)), i);
+                        mesh.setNbos(mesh.getVaos()[i].storeBuffer(2, 3, mesh.getNormals().get(i)), i);
                         if (mesh.isIndexed()) {
-                                mesh.getVao()[i].storeIndices(mesh.getIndices().get(i));
+                                mesh.getVaos()[i].storeIndices(mesh.getIndices().get(i));
                         }
 
-
-                        mesh.setUao(GL15.glGenBuffers(), i);
-                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, mesh.getUao()[i]);
+                        mesh.setUaos(GL15.glGenBuffers(), i);
+                        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, mesh.getUaos()[i]);
                         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, 64 * MAX_INSTANCES, GL15.GL_STATIC_DRAW);
 
-                        GL30.glBindVertexArray(mesh.getVao()[i].getHandle());
-                        GL30.glVertexAttribPointer(4, 4, GL11.GL_FLOAT, false, 64, 0);
-                        GL30.glVertexAttribPointer(5, 4, GL11.GL_FLOAT, false, 64, 16);
-                        GL30.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 64, 32);
-                        GL30.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, 64, 48);
+                        GL30.glBindVertexArray(mesh.getVaos()[i].getHandle());
+                        GL30.glVertexAttribPointer(3, 4, GL11.GL_FLOAT, false, 64, 0);
+                        GL30.glVertexAttribPointer(4, 4, GL11.GL_FLOAT, false, 64, 16);
+                        GL30.glVertexAttribPointer(5, 4, GL11.GL_FLOAT, false, 64, 32);
+                        GL30.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 64, 48);
 
+                        GL42.glVertexAttribDivisor(3, 1);
                         GL42.glVertexAttribDivisor(4, 1);
                         GL42.glVertexAttribDivisor(5, 1);
                         GL42.glVertexAttribDivisor(6, 1);
-                        GL42.glVertexAttribDivisor(7, 1);
 
                         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                         GL30.glBindVertexArray(0);
@@ -71,9 +67,8 @@ public class TextureRenderer implements Renderer {
                 created = true;
         }
 
-        public void prepare(boolean debug) {
+        public void prepare() {
                 if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
-                if (debug) System.out.println("yaw: " + camera.getYaw() + "\npitch: " + camera.getPitch());
 
                 Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation.x, 1.0f, 1.0f, 0.0f).rotate(rotation.y, 0.0f, 1.0f, 0.0f).rotate(rotation.z, 0.0f, 0.0f, 1.0f);
 
@@ -81,58 +76,48 @@ public class TextureRenderer implements Renderer {
 
                 Matrix4f view = camera.getViewMatrix();
 
-                if (debug) {
-                        System.out.println(model.toString());
-                        System.out.println(proj.toString());
-                        System.out.println(view.toString());
-                }
-
                 float[] matrix = new float[16];
                 for (int j = 0; j < 4; j++) {
                         for (int k = 0; k < 4; k++) {
                                 matrix[(j * 4) + k] = model.get(j, k);
                         }
                 }
-                GL30.glBindVertexArray(mesh.getVao()[meshItr].getHandle());
-                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, mesh.getUao()[meshItr]);
+                GL30.glBindVertexArray(mesh.getVaos()[meshItr].getHandle());
+                GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, mesh.getUaos()[meshItr]);
 
                 FloatBuffer buf = (FloatBuffer) MemoryUtil.memAllocFloat(16).put(matrix).flip();
                 GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buf);
                 MemoryUtil.memFree(buf);
 
+                GL30.glEnableVertexAttribArray(3);
                 GL30.glEnableVertexAttribArray(4);
                 GL30.glEnableVertexAttribArray(5);
                 GL30.glEnableVertexAttribArray(6);
-                GL30.glEnableVertexAttribArray(7);
 
                 GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
                 GL30.glBindVertexArray(0);
 
-                shader.setUniform("projection", proj, false);
-                shader.setUniform("view", view, false);
+                shader.setUniform("projection", proj);
+                shader.setUniform("view", view);
 
                 shader.setUniform("lightPos", Window.currentLightPos);
                 shader.setUniform("lightColor", new Vector3f(1.0f, 1.0f, 1.0f));
-                if (!camera.isThirdPerson()) {
-                        shader.setUniform("viewPos", camera.playerPos);
-                } else {
-                        shader.setUniform("viewPos", camera.playerPos.sub(camera.getFront().mul(camera.getZoom() / 10, new Vector3f()), new Vector3f()));
-                }
+                shader.setUniform("viewPos", camera.isThirdPerson() ? camera.playerPos.sub(camera.getFront().mul(camera.getZoom() / 10, new Vector3f()), new Vector3f()) : camera.playerPos);
                 shader.setUniform("mode", 0);
 
-                getShader().setUniform("material.Ka", mesh.meshes.get(meshItr).material.Ka);
-                getShader().setUniform("material.Kd", mesh.meshes.get(meshItr).material.Kd);
-                getShader().setUniform("material.Ks", mesh.meshes.get(meshItr).material.Ks);
-                getShader().setUniform("material.spec", mesh.meshes.get(meshItr).material.specular);
+                shader.setUniform("material.Ka", mesh.meshes.get(meshItr).material.Ka);
+                shader.setUniform("material.Kd", mesh.meshes.get(meshItr).material.Kd);
+                shader.setUniform("material.Ks", mesh.meshes.get(meshItr).material.Ks);
+                shader.setUniform("material.spec", mesh.meshes.get(meshItr).material.specular);
         }
 
-        public void render(boolean debug) {
+        public void render() {
                 shader.bind();
 
                 for (int i = 0; i < mesh.meshes.size(); i++) {
                         meshItr = i;
 
-                        prepare(debug);
+                        prepare();
 
                         if (i > mesh.getTextures().size() - 1) {
                                 getShader().setUniform("useMaterialDiffuse", true);
@@ -145,7 +130,7 @@ public class TextureRenderer implements Renderer {
                                 getShader().setUniform("useMaterialDiffuse", false);
                         }
 
-                        Vao vao = mesh.getVao()[i];
+                        Vao vao = mesh.getVaos()[i];
 
                         vao.bind();
                         vao.enableAttribs();
@@ -159,10 +144,10 @@ public class TextureRenderer implements Renderer {
                         vao.disableAttribs();
                         vao.unbind();
 
+                        GL30.glDisableVertexAttribArray(3);
                         GL30.glDisableVertexAttribArray(4);
                         GL30.glDisableVertexAttribArray(5);
                         GL30.glDisableVertexAttribArray(6);
-                        GL30.glDisableVertexAttribArray(7);
                 }
         }
 
