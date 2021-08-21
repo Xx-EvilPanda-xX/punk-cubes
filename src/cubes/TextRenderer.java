@@ -18,7 +18,7 @@ public class TextRenderer {
 
         private FloatBuffer vertices, texCoords;
         private int vertexCount;
-        private HashMap<Character, Texture> chars = new HashMap<>();
+        private static HashMap<Character, Texture> chars = new HashMap<>();
 
         private Shader shader;
         private boolean created = false;
@@ -45,15 +45,6 @@ public class TextRenderer {
 
                 vbo = vao.storeBuffer(0, 2, vertices);
                 tbo = vao.storeBuffer(1, 2, texCoords);
-
-                for (int i = 0; i < 128; i++){
-                        StringBuilder charPath = new StringBuilder();
-                        char currentChar = (char) i;
-                        charPath.append("textures/fonts/basicFont/char_").append(currentChar).append(".png");
-                        if (new File("resources/" + charPath.toString()).exists()) {
-                                chars.put(currentChar, new Texture(charPath.toString()));
-                        }
-                }
 
                 created = true;
         }
@@ -93,11 +84,19 @@ public class TextRenderer {
                 }
         }
 
-        public void updateText(String text, float xPos, float yPos, float fontSize, float charSpacing){
+        public void updateText(String text, float xPos, float yPos){
                 this.text = text;
                 this.xPos = xPos;
                 this.yPos = yPos;
-                this.fontSize = fontSize;
-                this.charSpacing = charSpacing;
+        }
+
+        static {
+                for (int i = 0; i < 128; i++){
+                        StringBuilder charPath = new StringBuilder();
+                        charPath.append("textures/fonts/basicFont/char_").append(i).append(".png");
+                        if (new File("resources/" + charPath.toString()).exists()) {
+                                chars.put((char) i, new Texture(charPath.toString()));
+                        }
+                }
         }
 }

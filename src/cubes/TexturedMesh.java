@@ -28,11 +28,11 @@ public class TexturedMesh {
         private int[] vbos, tbos, nbos, uaos;
 
         private PointerBuffer ptr;
-        private boolean useFullTexture;
+        private boolean forceTexture;
 
-        public TexturedMesh(String modelPath, String[] texturePaths, boolean useFullTexture){
+        public TexturedMesh(String modelPath, String[] texturePaths, boolean forceTexture){
                 loadFromObj(modelPath);
-                this.useFullTexture = useFullTexture;
+                this.forceTexture = forceTexture;
                 System.out.println("Model loaded successfully at " + modelPath);
 
                 for (int i = 0; i < texturePaths.length; i++) {
@@ -316,8 +316,8 @@ public class TexturedMesh {
                 this.textures = textures;
         }
 
-        public boolean isUseFullTexture() {
-                return useFullTexture;
+        public boolean isForceTexture() {
+                return forceTexture;
         }
 
         static class Mesh{

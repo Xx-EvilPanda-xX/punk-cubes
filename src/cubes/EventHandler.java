@@ -148,9 +148,9 @@ public class EventHandler {
 
                         if (Input.isKeyDown(GLFW.GLFW_KEY_G)) {
                                 if (coolDownPool[4] <= 0.0f) {
-                                        window.blockPositions.clear();
-                                        window.blockScales.clear();
-                                        window.blockRots.clear();
+                                        window.billyPositions.clear();
+                                        window.billyScales.clear();
+                                        window.billyRots.clear();
                                         coolDownPool[4] = Window.RECHARGE_TIME;
                                 }
                         }

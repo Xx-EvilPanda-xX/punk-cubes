@@ -43,6 +43,11 @@ public class Window implements Runnable {
         private final String title = "Cubes!!!";
         private float[] coolDownPool = new float[32];
 
+        private TextRenderer text1;
+        private TextRenderer text2;
+        private TextRenderer text3;
+        private TextRenderer text4;
+        private TextRenderer qot;
         private TextRenderer fpsCounter;
         private TextRenderer coords;
         private TextureRenderer skyBox;
@@ -55,15 +60,15 @@ public class Window implements Runnable {
         private TextureRenderer robot;
         private TextureRenderer bu;
 
-        public ArrayList<Vector3f> planetPositions = new ArrayList<>();
-        public ArrayList<Float> planetScales = new ArrayList<>();
-        public ArrayList<Vector3f> planetRots = new ArrayList<>();
-        public ArrayList<Vector3f> asteroidPositions = new ArrayList<>();
-        public ArrayList<Float> asteroidScales = new ArrayList<>();
-        public ArrayList<Vector3f> asteroidRots = new ArrayList<>();
-        public ArrayList<Vector3f> blockPositions = new ArrayList<>();
-        public ArrayList<Float> blockScales = new ArrayList<>();
-        public ArrayList<Vector3f> blockRots = new ArrayList<>();
+        public ArrayList<Vector3f> islandPositions = new ArrayList<>();
+        public ArrayList<Float> islandScales = new ArrayList<>();
+        public ArrayList<Vector3f> islandRots = new ArrayList<>();
+        public ArrayList<Vector3f> backpackPositions = new ArrayList<>();
+        public ArrayList<Float> backpackScales = new ArrayList<>();
+        public ArrayList<Vector3f> backpackRots = new ArrayList<>();
+        public ArrayList<Vector3f> billyPositions = new ArrayList<>();
+        public ArrayList<Float> billyScales = new ArrayList<>();
+        public ArrayList<Vector3f> billyRots = new ArrayList<>();
 
         public void start() {
                 pog = new Thread(this, "fortnite;");
@@ -131,15 +136,15 @@ public class Window implements Runnable {
 
         private void create() {
                 for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("planet_count")); ptr++) {
-                        planetPositions.add(genRandVec());
-                        planetScales.add(genRandFloat());
-                        planetRots.add(genRandVec());
+                        islandPositions.add(genRandVec());
+                        islandScales.add(genRandFloat());
+                        islandRots.add(genRandVec());
                 }
 
                 for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("asteroid_count")); ptr++) {
-                        asteroidPositions.add(genRandVec());
-                        asteroidScales.add(genRandFloat());
-                        asteroidRots.add(genRandVec());
+                        backpackPositions.add(genRandVec());
+                        backpackScales.add(genRandFloat());
+                        backpackRots.add(genRandVec());
                 }
 
                 GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
@@ -164,31 +169,35 @@ public class Window implements Runnable {
                 GL11.glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-                TextRenderer loadingText = new TextRenderer("loading assets", -0.45f, 0.1f,0.4f, 0.15f);
+                TextRenderer loadingText = new TextRenderer("LOADING ASSETS", -0.45f, 0.1f,0.4f, 0.15f);
                 loadingText.create(textShader);
 
                 loadingText.render();
 
                 GLFW.glfwSwapBuffers(window);
 
-                //try {
-                //        Thread.sleep(10000);
-                //} catch (InterruptedException e){
-                //        e.printStackTrace();
-                //}
-
-                coords = new TextRenderer("x = " + camera.playerPos.x + "y = " + camera.playerPos.y + "z = " + camera.playerPos.z, -1.0f, 0.9f, 0.2f, 0.075f);
+                text1 = new TextRenderer("#___#", 0.9f, -0.1f, 0.2f, 0.075f);
+                text2 = new TextRenderer("(o~o)", 0.9f, -0.15f, 0.2f, 0.075f);
+                text3 = new TextRenderer(" ) (", 0.9f, -0.2f, 0.2f, 0.075f);
+                text4 = new TextRenderer("(___)", 0.9f, -0.25f, 0.2f, 0.075f);
+                qot = new TextRenderer("#(o~o)#  (=^o^=) so once a pon a time the was a qot bu and it went swoodle and then i died of cootness", -1.0f, 0.0f, 0.2f, 0.075f);
+                coords = new TextRenderer("XYZ: " + camera.playerPos.x + ", " + camera.playerPos.y + ", " + camera.playerPos.z, -1.0f, 0.9f, 0.2f, 0.075f);
                 fpsCounter = new TextRenderer("", -1.0f, 1.0f, 0.2f, 0.075f);
                 skyBox = new TextureRenderer("models/cube.obj", new String[]{"textures/skybox.png"}, true);
                 player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", new String[]{}, false);
-                islands = new TextureRendererMulti("models/island/island.obj", new String[]{"textures/old/wood.png"}, planetPositions, planetScales, planetRots, false);
-                backpacks = new TextureRendererMulti("models/backpack/backpack.obj", new String[]{"models/backpack/diffuse.jpg"}, asteroidPositions, asteroidScales, asteroidRots, true);
+                islands = new TextureRendererMulti("models/island/island.obj", new String[]{"textures/old/wood.png"}, islandPositions, islandScales, islandRots, false);
+                backpacks = new TextureRendererMulti("models/backpack/backpack.obj", new String[]{"models/backpack/diffuse.jpg"}, backpackPositions, backpackScales, backpackRots, true);
                 donut = new TextureRenderer("models/donut/Donut.obj", new String[]{"models/donut/Tekstur_donat.png"}, false);
-                billys = new TextureRendererMulti("models/bu/bu_lowpoly.obj", new String[]{"models/bu/bu.jpg"}, blockPositions, blockScales, blockRots, false);
+                billys = new TextureRendererMulti("models/bu/bu_lowpoly.obj", new String[]{"models/bu/bu.jpg"}, billyPositions, billyScales, billyRots, false);
                 bike = new TextureRenderer("models/motorcycle/motorcycle.obj", new String[]{"models/motorcycle/motorcycle_tex.jpg"}, true);
                 robot = new TextureRenderer("models/robot/robot.obj", new String[]{}, false);
                 bu = new TextureRenderer("models/bu/Bu.obj", new String[]{"models/bu/bu.jpg"}, false);
 
+                text1.create(textShader);
+                text2.create(textShader);
+                text3.create(textShader);
+                text4.create(textShader);
+                qot.create(textShader);
                 coords.create(textShader);
                 fpsCounter.create(textShader);
                 islands.create(shader, camera);
@@ -215,15 +224,15 @@ public class Window implements Runnable {
         private void updateFPS() {
                 frames++;
                 if (System.currentTimeMillis() > (time + 1000)) {
-                        fpsCounter.updateText("FPS = " + frames, -1.0f, 1.0f, 0.2f, 0.075f);
+                        fpsCounter.updateText("FPS: " + frames, -1.0f, 1.0f);
                         time = System.currentTimeMillis();
                         frames = 0;
                 }
         }
 
         private void updateSolarEntityRotation() {
-                for (int i = 0; i < asteroidRots.size(); i++) {
-                        asteroidRots.set(i, asteroidRots.get(i).add(deltaTime, deltaTime, deltaTime));
+                for (int i = 0; i < backpackRots.size(); i++) {
+                        backpackRots.set(i, backpackRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
         }
 
@@ -290,20 +299,20 @@ public class Window implements Runnable {
                         backpacks.render();
                 }
 
-                if (blockPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks) {
-                        Vector3f posTemp = new Vector3f(blockPositions.get(blockPositions.size() - 1));
-                        float scaleTemp = blockScales.get(blockScales.size() - 1);
-                        Vector3f rotTemp = new Vector3f(blockRots.get(blockRots.size() - 1));
+                if (billyPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks) {
+                        Vector3f posTemp = new Vector3f(billyPositions.get(billyPositions.size() - 1));
+                        float scaleTemp = billyScales.get(billyScales.size() - 1);
+                        Vector3f rotTemp = new Vector3f(billyRots.get(billyRots.size() - 1));
 
-                        blockPositions.remove(blockPositions.size() - 1);
-                        blockScales.remove(blockScales.size() - 1);
-                        blockRots.remove(blockRots.size() - 1);
+                        billyPositions.remove(billyPositions.size() - 1);
+                        billyScales.remove(billyScales.size() - 1);
+                        billyRots.remove(billyRots.size() - 1);
 
                         billys.render();
 
-                        blockPositions.add(posTemp);
-                        blockScales.add(scaleTemp);
-                        blockRots.add(rotTemp);
+                        billyPositions.add(posTemp);
+                        billyScales.add(scaleTemp);
+                        billyRots.add(rotTemp);
                 } else {
                         billys.render();
                 }
@@ -317,9 +326,9 @@ public class Window implements Runnable {
                 }
 
                 if (placingBlocks && coolDownPool[1] <= 0.0f) {
-                        blockPositions.add(new Vector3f(camera.playerPos));
-                        blockScales.add(Float.parseFloat(Configs.options.get("block_scale")));
-                        blockRots.add(new Vector3f(Float.parseFloat(Configs.options.get("block_rotation.x")), Float.parseFloat(Configs.options.get("block_rotation.y")), Float.parseFloat(Configs.options.get("block_rotation.z"))));
+                        billyPositions.add(new Vector3f(camera.playerPos));
+                        billyScales.add(Float.parseFloat(Configs.options.get("block_scale")));
+                        billyRots.add(new Vector3f(Float.parseFloat(Configs.options.get("block_rotation.x")), Float.parseFloat(Configs.options.get("block_rotation.y")), Float.parseFloat(Configs.options.get("block_rotation.z"))));
                         coolDownPool[1] = Float.parseFloat(Configs.options.get("block_placement_rate"));
                 }
 
@@ -328,7 +337,7 @@ public class Window implements Runnable {
                 updateFPS();
 
                 if (coolDownPool[2] <= 0.0f) {
-                        coords.updateText("x = " + camera.playerPos.x + ", y = " + camera.playerPos.y + ", z = " + camera.playerPos.z, -1.0f, 0.9f, 0.2f, 0.075f);
+                        coords.updateText("XYZ: " + camera.playerPos.x + ", " + camera.playerPos.y + ", " + camera.playerPos.z, -1.0f, 0.9f);
                         coolDownPool[2] = 0.1f;
                 }
 
@@ -341,6 +350,11 @@ public class Window implements Runnable {
         private void textRenderPass(){
                 fpsCounter.render();
                 coords.render();
+                qot.render();
+                text1.render();
+                text2.render();
+                text3.render();
+                text4.render();
         }
 
         public static void main(String[] args) {

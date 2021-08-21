@@ -109,7 +109,7 @@ public class TextureRendererMulti extends TextureRenderer {
 
                         if (i > getMesh().getTextures().size() - 1) {
                                 getShader().setUniform("useMaterialDiffuse", true);
-                                if (getMesh().isUseFullTexture() && getMesh().getTextures().get(0) != null) {
+                                if (getMesh().isForceTexture() && getMesh().getTextures().get(0) != null) {
                                         getMesh().getTextures().get(mesh.getTextures().size() - 1).bind();
                                         getShader().setUniform("useMaterialDiffuse", false);
                                 }

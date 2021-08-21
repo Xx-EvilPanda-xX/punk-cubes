@@ -121,7 +121,7 @@ public class TextureRenderer implements Renderer {
 
                         if (i > mesh.getTextures().size() - 1) {
                                 getShader().setUniform("useMaterialDiffuse", true);
-                                if (mesh.isUseFullTexture() && mesh.getTextures().get(0) != null) {
+                                if (mesh.isForceTexture() && mesh.getTextures().get(0) != null) {
                                         mesh.getTextures().get(mesh.getTextures().size() - 1).bind();
                                         getShader().setUniform("useMaterialDiffuse", false);
                                 }
