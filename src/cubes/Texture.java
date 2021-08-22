@@ -30,10 +30,8 @@ public class Texture {
 
                         InputStream in = new FileInputStream("resources/" + texturePath);
                         int bytes = in.available();
-                        System.out.println("texture size: " + bytes);
                         byte[] data = new byte[bytes];
                         in.read(data);
-                        System.out.println("Texture located!");
 
                         ByteBuffer imgData = STBImage.stbi_load_from_memory((ByteBuffer) MemoryUtil.memAlloc(bytes).put(data).flip(), x, y, nrChannels, 0);
                         if (imgData == null) {
@@ -57,7 +55,6 @@ public class Texture {
 
                         STBImage.stbi_image_free(imgData);
 
-                        System.out.println("Texture loaded!");
                         handle = texture;
                         return texture;
                 } catch (Exception e) {

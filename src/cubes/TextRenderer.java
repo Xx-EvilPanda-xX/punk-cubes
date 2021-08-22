@@ -50,15 +50,14 @@ public class TextRenderer {
         }
 
         public void prepare() {
-                if (!created)
-                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
-
                 Matrix4f model = new Matrix4f().translate(xPos + (charItr * (fontSize * charSpacing)), yPos, 0.0f).scale(fontSize);
 
                 shader.setUniform("model", model);
         }
 
         public void render() {
+                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+
                 if (!EventHandler.rasterizerFill) {
                         GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
                 }

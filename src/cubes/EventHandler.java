@@ -10,6 +10,7 @@ public class EventHandler {
         private long windowAddress;
 
         public static boolean rasterizerFill = true;
+        public float[] coolDownPool = new float[32];
 
         private final float SPRINT_MULTIPLIER = 2.0f;
         private final float TAPER_NEGATION_LIMIT = 5.0f;
@@ -18,7 +19,6 @@ public class EventHandler {
         private final float MOMENTUM_TAPER_RATE = Float.parseFloat(Configs.options.get("momentum_taper_rate"));
         private float[] playerVelocities = new float[6];
         private float[] taperNegations = new float[6];
-        private float[] coolDownPool = new float[32];
         private boolean focused = true;
 
         public EventHandler(Camera camera, Window window){
@@ -163,6 +163,8 @@ public class EventHandler {
                                 if (coolDownPool[5] <= 0.0f) {
                                         camera.setThirdPerson(!camera.isThirdPerson());
                                         coolDownPool[5] = Window.RECHARGE_TIME;
+                                        //eliminate slight flickering in debug when switching perspectives
+                                        window.updateDebug();
                                 }
                         }
 

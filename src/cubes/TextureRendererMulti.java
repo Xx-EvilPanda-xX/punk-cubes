@@ -29,8 +29,8 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public TextureRendererMulti(String modelpath, String[] texturePaths, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots, boolean useFullTexture){
-                super(modelpath, texturePaths, useFullTexture);
+        public TextureRendererMulti(String modelpath, String[] texturePaths, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots, boolean forceTexture){
+                super(modelpath, texturePaths, forceTexture);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;
@@ -41,9 +41,6 @@ public class TextureRendererMulti extends TextureRenderer {
 
         @Override
         public void prepare() {
-                if (!isCreated())
-                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
-
                 if (positions.size() != rots.size() || positions.size() != scales.size() || scales.size() != rots.size()) {
                         throw new IllegalStateException("Mismatched position, rotation, and scaling array sizes!");
                 }
@@ -93,6 +90,7 @@ public class TextureRendererMulti extends TextureRenderer {
 
         @Override
         public void render() {
+                if (!isCreated()) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 getShader().bind();
 
                 for (int i = 0; i < mesh.meshes.size(); i++) {
@@ -109,7 +107,7 @@ public class TextureRendererMulti extends TextureRenderer {
 
                         if (i > getMesh().getTextures().size() - 1) {
                                 getShader().setUniform("useMaterialDiffuse", true);
-                                if (getMesh().isForceTexture() && getMesh().getTextures().get(0) != null) {
+                                if (getMesh().isForceTexture() && mesh.getTextures().size() > 0) {
                                         getMesh().getTextures().get(mesh.getTextures().size() - 1).bind();
                                         getShader().setUniform("useMaterialDiffuse", false);
                                 }
@@ -137,5 +135,9 @@ public class TextureRendererMulti extends TextureRenderer {
                         GL30.glDisableVertexAttribArray(5);
                         GL30.glDisableVertexAttribArray(6);
                 }
+        }
+
+        public int getInstances(){
+                return instances;
         }
 }

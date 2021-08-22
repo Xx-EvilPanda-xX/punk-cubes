@@ -61,4 +61,4 @@ use_gamma_correction = false
 
 //allowed values: true/false
 //determines whether or not to use linux compatable shaders
-use_linux_shaders = true
+use_linux_shaders = false

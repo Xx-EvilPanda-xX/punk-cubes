@@ -28,8 +28,8 @@ public class TextureRenderer implements Renderer {
                 this.mesh = mesh;
         }
 
-        public TextureRenderer(String modelPath, String[] texturePaths, boolean useFullTexture){
-                TexturedMesh mesh = new TexturedMesh(modelPath, texturePaths, useFullTexture);
+        public TextureRenderer(String modelPath, String[] texturePaths, boolean forceTexture){
+                TexturedMesh mesh = new TexturedMesh(modelPath, texturePaths, forceTexture);
                 this.mesh = mesh;
         }
 
@@ -68,8 +68,6 @@ public class TextureRenderer implements Renderer {
         }
 
         public void prepare() {
-                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
-
                 Matrix4f model = new Matrix4f().translate(trans).scale(scale, scale, scale).rotate(rotation.x, 1.0f, 1.0f, 0.0f).rotate(rotation.y, 0.0f, 1.0f, 0.0f).rotate(rotation.z, 0.0f, 0.0f, 1.0f);
 
                 Matrix4f proj = camera.getProjectionMatrix();
@@ -112,6 +110,7 @@ public class TextureRenderer implements Renderer {
         }
 
         public void render() {
+                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 shader.bind();
 
                 for (int i = 0; i < mesh.meshes.size(); i++) {
@@ -121,7 +120,7 @@ public class TextureRenderer implements Renderer {
 
                         if (i > mesh.getTextures().size() - 1) {
                                 getShader().setUniform("useMaterialDiffuse", true);
-                                if (mesh.isForceTexture() && mesh.getTextures().get(0) != null) {
+                                if (mesh.isForceTexture() && mesh.getTextures().size() > 0) {
                                         mesh.getTextures().get(mesh.getTextures().size() - 1).bind();
                                         getShader().setUniform("useMaterialDiffuse", false);
                                 }

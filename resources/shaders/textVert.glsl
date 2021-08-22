@@ -7,6 +7,6 @@ out vec2 passTexCoords;
 uniform mat4 model;
 
 void main(){
-    gl_Position = model * vec4(vPos, -1.0, 1.0);
+    gl_Position = model * vec4(vPos, 1.0, 1.0);
     passTexCoords = vTexCoords;
 }

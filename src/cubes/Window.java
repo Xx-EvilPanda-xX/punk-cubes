@@ -18,8 +18,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public class Window implements Runnable {
+public class Window {
         public static final float RECHARGE_TIME = 0.25f;
+        public static final float DEBUG_RECHARGE_TIME = 0.05f;
         public static float deltaTime = 0.0f;
         public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 1.0f);
         public static GLFWVidMode vidmode;
@@ -37,19 +38,19 @@ public class Window implements Runnable {
         private int frames;
         private static long time;
 
-        private Thread pog;
         private Shader shader;
         private Shader textShader;
         private final String title = "Cubes!!!";
-        private float[] coolDownPool = new float[32];
 
         private TextRenderer text1;
         private TextRenderer text2;
         private TextRenderer text3;
         private TextRenderer text4;
-        private TextRenderer qot;
         private TextRenderer fpsCounter;
         private TextRenderer coords;
+        private TextRenderer firstPersonDirection;
+        private TextRenderer thirdPersonDirection;
+        private TextRenderer buCount;
         private TextureRenderer skyBox;
         private TextureRenderer player;
         private TextureRendererMulti billys;
@@ -69,11 +70,6 @@ public class Window implements Runnable {
         public ArrayList<Vector3f> billyPositions = new ArrayList<>();
         public ArrayList<Float> billyScales = new ArrayList<>();
         public ArrayList<Vector3f> billyRots = new ArrayList<>();
-
-        public void start() {
-                pog = new Thread(this, "fortnite;");
-                pog.start();
-        }
 
         public void run() {
                 Matrix4f proj = new Matrix4f().perspective((float) Math.toRadians(45), 1080.0f / 720.0f, 0.1f, 100.0f);
@@ -176,12 +172,14 @@ public class Window implements Runnable {
 
                 GLFW.glfwSwapBuffers(window);
 
-                text1 = new TextRenderer("#___#", 0.9f, -0.1f, 0.2f, 0.075f);
-                text2 = new TextRenderer("(o~o)", 0.9f, -0.15f, 0.2f, 0.075f);
-                text3 = new TextRenderer(" ) (", 0.9f, -0.2f, 0.2f, 0.075f);
-                text4 = new TextRenderer("(___)", 0.9f, -0.25f, 0.2f, 0.075f);
-                qot = new TextRenderer("#(o~o)#  (=^o^=) so once a pon a time the was a qot bu and it went swoodle and then i died of cootness", -1.0f, 0.0f, 0.2f, 0.075f);
+                text1 = new TextRenderer("#___#", 0.9f, -0.75f, 0.2f, 0.075f);
+                text2 = new TextRenderer("(o~o)", 0.9f, -0.8f, 0.2f, 0.075f);
+                text3 = new TextRenderer(" ) (", 0.9f, -0.85f, 0.2f, 0.075f);
+                text4 = new TextRenderer("(___)", 0.9f, -0.9f, 0.2f, 0.075f);
                 coords = new TextRenderer("XYZ: " + camera.playerPos.x + ", " + camera.playerPos.y + ", " + camera.playerPos.z, -1.0f, 0.9f, 0.2f, 0.075f);
+                firstPersonDirection = new TextRenderer("yaw/pitch: " + camera.getYaw() + ", " + camera.getPitch(), -1.0f, 0.8f, 0.2f, 0.075f);
+                thirdPersonDirection = new TextRenderer("third person rotation: " + camera.getKeyBoardYaw(), -1.0f, 0.8f, 0.2f, 0.075f);
+                buCount = new TextRenderer("bu count: ", -1.0f, 0.7f, 0.2f, 0.075f);
                 fpsCounter = new TextRenderer("", -1.0f, 1.0f, 0.2f, 0.075f);
                 skyBox = new TextureRenderer("models/cube.obj", new String[]{"textures/skybox.png"}, true);
                 player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", new String[]{}, false);
@@ -197,8 +195,10 @@ public class Window implements Runnable {
                 text2.create(textShader);
                 text3.create(textShader);
                 text4.create(textShader);
-                qot.create(textShader);
                 coords.create(textShader);
+                firstPersonDirection.create(textShader);
+                thirdPersonDirection.create(textShader);
+                buCount.create(textShader);
                 fpsCounter.create(textShader);
                 islands.create(shader, camera);
                 billys.create(shader, camera);
@@ -234,6 +234,14 @@ public class Window implements Runnable {
                 for (int i = 0; i < backpackRots.size(); i++) {
                         backpackRots.set(i, backpackRots.get(i).add(deltaTime, deltaTime, deltaTime));
                 }
+        }
+
+        public void updateDebug() {
+                coords.updateText("XYZ: " + camera.playerPos.x + ", " + camera.playerPos.y + ", " + camera.playerPos.z, -1.0f, 0.9f);
+                firstPersonDirection.updateText("yaw/pitch: " + camera.getYaw() + ", " + camera.getPitch(), -1.0f, 0.8f);
+                thirdPersonDirection.updateText("third person rotation: " + camera.getKeyBoardYaw(), -1.0f, 0.8f);
+                buCount.updateText("bu count: " + billys.getInstances(), -1.0f, 0.7f);
+                eventHandler.coolDownPool[10] = DEBUG_RECHARGE_TIME;
         }
 
         private Vector3f genRandVec() {
@@ -283,6 +291,9 @@ public class Window implements Runnable {
 
                 eventHandler.processInput();
                 updateSolarEntityRotation();
+                if (eventHandler.coolDownPool[10] <= 0.0f) {
+                        updateDebug();
+                }
 
                 GL11.glViewport(0, 0, fullscreen ? vidmode.width() : (int) windowWidth, fullscreen ? vidmode.height() : (int) windowHeight);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -325,39 +336,37 @@ public class Window implements Runnable {
                         textRenderPass();
                 }
 
-                if (placingBlocks && coolDownPool[1] <= 0.0f) {
+                if (placingBlocks && eventHandler.coolDownPool[11] <= 0.0f) {
                         billyPositions.add(new Vector3f(camera.playerPos));
                         billyScales.add(Float.parseFloat(Configs.options.get("block_scale")));
                         billyRots.add(new Vector3f(Float.parseFloat(Configs.options.get("block_rotation.x")), Float.parseFloat(Configs.options.get("block_rotation.y")), Float.parseFloat(Configs.options.get("block_rotation.z"))));
-                        coolDownPool[1] = Float.parseFloat(Configs.options.get("block_placement_rate"));
+                        eventHandler.coolDownPool[11] = Float.parseFloat(Configs.options.get("block_placement_rate"));
                 }
 
                 GLFW.glfwSwapBuffers(window);
                 GLFW.glfwPollEvents();
                 updateFPS();
-
-                if (coolDownPool[2] <= 0.0f) {
-                        coords.updateText("XYZ: " + camera.playerPos.x + ", " + camera.playerPos.y + ", " + camera.playerPos.z, -1.0f, 0.9f);
-                        coolDownPool[2] = 0.1f;
-                }
-
-                for (int i = 0; i < coolDownPool.length; i++) {
-                        coolDownPool[i] -= Window.deltaTime;
-                        if (coolDownPool[i] < 0.0f) coolDownPool[i] = 0.0f;
-                }
         }
 
         private void textRenderPass(){
+                GL11.glDisable(GL11.GL_DEPTH_TEST);
                 fpsCounter.render();
                 coords.render();
-                qot.render();
+                if (camera.isThirdPerson()){
+                        thirdPersonDirection.render();
+                } else {
+                        firstPersonDirection.render();
+                }
+                buCount.render();
                 text1.render();
                 text2.render();
                 text3.render();
                 text4.render();
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
         }
 
         public static void main(String[] args) {
-                new Window().start();
+                Window pog = new Window();
+                pog.run();
         }
 }
