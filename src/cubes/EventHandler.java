@@ -21,7 +21,7 @@ public class EventHandler {
         private float[] taperNegations = new float[6];
         private boolean focused = true;
 
-        public EventHandler(Camera camera, Window window){
+        public EventHandler(Camera camera, Window window) {
                 this.camera = camera;
                 this.window = window;
                 this.windowAddress = window.window;
@@ -60,11 +60,11 @@ public class EventHandler {
                                 }
                         }
 
-                        for (int i = 0; i < 6; i++){
+                        for (int i = 0; i < 6; i++) {
                                 boolean key;
                                 boolean sprintable = false;
 
-                                switch (i){
+                                switch (i) {
                                         case 0:
                                                 key = Input.isKeyDown(GLFW.GLFW_KEY_W);
                                                 sprintable = true;
@@ -91,17 +91,17 @@ public class EventHandler {
 
                                 if (key) {
                                         playerVelocities[i] += MOMENTUM_TAPER_RATE * Window.deltaTime;
-                                        if (playerVelocities[i] > (camera.isSprinting() && sprintable ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT)){
+                                        if (playerVelocities[i] > (camera.isSprinting() && sprintable ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT)) {
                                                 playerVelocities[i] = (camera.isSprinting() && sprintable ? MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER : MOMENTUM_TAPER_LIMIT);
                                         }
                                         taperNegations[i] = camera.isSprinting() ? MOMENTUM_TAPER_LIMIT : MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER;
                                 } else {
                                         playerVelocities[i] -= (MOMENTUM_TAPER_RATE * MOMENTUM_TAPER_LIMIT * Window.deltaTime) / taperNegations[i];
-                                        if (playerVelocities[i] < 0.0f){
+                                        if (playerVelocities[i] < 0.0f) {
                                                 playerVelocities[i] = 0.0f;
                                         }
                                         taperNegations[i] += TAPER_NEGATION_RATE * Window.deltaTime;
-                                        if (taperNegations[i] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)){
+                                        if (taperNegations[i] > TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER)) {
                                                 taperNegations[i] = TAPER_NEGATION_LIMIT + (MOMENTUM_TAPER_LIMIT * SPRINT_MULTIPLIER);
                                         }
                                 }
@@ -126,9 +126,9 @@ public class EventHandler {
                                 camera.setOptifineZoom(false);
                         }
 
-                        if (Input.isKeyDown(GLFW.GLFW_KEY_C)){
+                        if (Input.isKeyDown(GLFW.GLFW_KEY_C)) {
                                 if (coolDownPool[9] <= 0.0f) {
-                                        if (rasterizerFill){
+                                        if (rasterizerFill) {
                                                 GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
                                                 rasterizerFill = !rasterizerFill;
                                         } else {
@@ -203,7 +203,7 @@ public class EventHandler {
                 }
         }
 
-        public boolean isFocused(){
+        public boolean isFocused() {
                 return focused;
         }
 }

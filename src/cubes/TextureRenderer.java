@@ -28,7 +28,7 @@ public class TextureRenderer implements Renderer {
                 this.mesh = mesh;
         }
 
-        public TextureRenderer(String modelPath, String[] texturePaths, boolean forceTexture){
+        public TextureRenderer(String modelPath, String[] texturePaths, boolean forceTexture) {
                 TexturedMesh mesh = new TexturedMesh(modelPath, texturePaths, forceTexture);
                 this.mesh = mesh;
         }
@@ -110,7 +110,8 @@ public class TextureRenderer implements Renderer {
         }
 
         public void render() {
-                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+                if (!created)
+                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 shader.bind();
 
                 for (int i = 0; i < mesh.meshes.size(); i++) {

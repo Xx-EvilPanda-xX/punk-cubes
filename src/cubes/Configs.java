@@ -24,7 +24,7 @@ public class Configs {
                         String lastSegment = new String();
                         boolean isOptionLine = false;
 
-                        for (int i = 0; i < read.length(); i++){
+                        for (int i = 0; i < read.length(); i++) {
                                 if (read.charAt(i) == '\n') {
                                         value = lastSegment;
                                         lastSegment = new String();
@@ -33,12 +33,12 @@ public class Configs {
                                         }
                                         isOptionLine = false;
                                 }
-                                if (read.charAt(i) == ' ' && read.charAt(i + 1) == '=' && read.charAt(i + 2) == ' '){
+                                if (read.charAt(i) == ' ' && read.charAt(i + 1) == '=' && read.charAt(i + 2) == ' ') {
                                         key = lastSegment;
                                         lastSegment = new String();
                                         isOptionLine = true;
                                 } else {
-                                        if (read.charAt(i) == '\n' || read.charAt(i) == ' ' || read.charAt(i) == '='){
+                                        if (read.charAt(i) == '\n' || read.charAt(i) == ' ' || read.charAt(i) == '=') {
                                                 continue;
                                         }
                                         lastSegment = lastSegment + read.charAt(i);

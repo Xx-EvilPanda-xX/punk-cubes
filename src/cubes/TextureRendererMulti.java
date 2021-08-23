@@ -29,7 +29,7 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public TextureRendererMulti(String modelpath, String[] texturePaths, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots, boolean forceTexture){
+        public TextureRendererMulti(String modelpath, String[] texturePaths, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots, boolean forceTexture) {
                 super(modelpath, texturePaths, forceTexture);
                 this.positions = positions;
                 this.scales = scales;
@@ -90,7 +90,8 @@ public class TextureRendererMulti extends TextureRenderer {
 
         @Override
         public void render() {
-                if (!isCreated()) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+                if (!isCreated())
+                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
                 getShader().bind();
 
                 for (int i = 0; i < mesh.meshes.size(); i++) {
@@ -137,7 +138,7 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public int getInstances(){
+        public int getInstances() {
                 return instances;
         }
 }

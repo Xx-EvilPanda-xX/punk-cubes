@@ -30,7 +30,7 @@ public class TexturedMesh {
         private PointerBuffer ptr;
         private boolean forceTexture;
 
-        public TexturedMesh(String modelPath, String[] texturePaths, boolean forceTexture){
+        public TexturedMesh(String modelPath, String[] texturePaths, boolean forceTexture) {
                 loadFromObj(modelPath);
                 this.forceTexture = forceTexture;
                 System.out.println("Model loaded successfully at " + modelPath);
@@ -42,11 +42,11 @@ public class TexturedMesh {
                 int totalVertexCount = 0;
                 int totalIndexCount = 0;
 
-                for (int i = 0; i < vertices.size(); i++){
+                for (int i = 0; i < vertices.size(); i++) {
                         vertexCounts.add(vertices.get(i).capacity() / 3);
                         totalVertexCount += vertices.get(i).capacity() / 3;
                 }
-                for (int i = 0; i < indices.size(); i++){
+                for (int i = 0; i < indices.size(); i++) {
                         indexCounts.add(indices.get(i).capacity());
                         totalIndexCount += indices.get(i).capacity();
                 }
@@ -59,17 +59,17 @@ public class TexturedMesh {
                 nbos = new int[meshes.size()];
                 uaos = new int[meshes.size()];
                 vaos = new Vao[meshes.size()];
-                for (int i = 0; i < vaos.length; i++){
+                for (int i = 0; i < vaos.length; i++) {
                         vaos[i] = new Vao();
                 }
 
                 indexed = true;
         }
 
-        private void loadFromObj(String modelPath){
+        private void loadFromObj(String modelPath) {
                 AIScene scene = Assimp.aiImportFile("resources/" + modelPath, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs);
                 this.modelPath = modelPath;
-                if (scene == null || (scene.mFlags() &  Assimp.AI_SCENE_FLAGS_INCOMPLETE)  != 0 || scene.mRootNode() == null){
+                if (scene == null || (scene.mFlags() & Assimp.AI_SCENE_FLAGS_INCOMPLETE) != 0 || scene.mRootNode() == null) {
                         throw new IllegalStateException("couldn't load model at: " + modelPath);
                 }
                 ptr = scene.mMeshes();
@@ -77,20 +77,20 @@ public class TexturedMesh {
                 toBuffers();
         }
 
-        private void processNode(AINode node, AIScene scene){
-                for (int i = 0; i < node.mNumMeshes(); i++){
+        private void processNode(AINode node, AIScene scene) {
+                for (int i = 0; i < node.mNumMeshes(); i++) {
                         AIMesh mesh = AIMesh.create(ptr.get());
                         meshes.add(processMesh(mesh, scene));
                 }
 
                 PointerBuffer nodePtr = node.mChildren();
-                for (int i = 0; i < node.mNumChildren(); i++){
+                for (int i = 0; i < node.mNumChildren(); i++) {
                         AINode childNode = AINode.create(nodePtr.get());
                         processNode(childNode, scene);
                 }
         }
 
-        private Mesh processMesh(AIMesh mesh, AIScene scene){
+        private Mesh processMesh(AIMesh mesh, AIScene scene) {
                 ArrayList<Vertex> vertices = new ArrayList<>();
                 ArrayList<Integer> indices = new ArrayList<>();
 
@@ -108,7 +108,7 @@ public class TexturedMesh {
                                 vector.x = mesh.mNormals().get(i).x();
                                 vector.y = mesh.mNormals().get(i).y();
                                 vector.z = mesh.mNormals().get(i).z();
-                        } else{
+                        } else {
                                 vector.x = 0.0f;
                                 vector.y = 0.0f;
                                 vector.z = 0.0f;
@@ -129,9 +129,9 @@ public class TexturedMesh {
                         vertices.add(vertex);
                 }
 
-                for (int i = 0; i < mesh.mNumFaces(); i++){
+                for (int i = 0; i < mesh.mNumFaces(); i++) {
                         AIFace face = mesh.mFaces().get(i);
-                        for (int j = 0; j < face.mNumIndices(); j++){
+                        for (int j = 0; j < face.mNumIndices(); j++) {
                                 indices.add(face.mIndices().get(j));
                         }
                 }
@@ -175,15 +175,14 @@ public class TexturedMesh {
         }
 
 
-
-        private void toBuffers(){
+        private void toBuffers() {
                 int[] verticesSizes = new int[meshes.size()];
                 int[] indicesSizes = new int[meshes.size()];
 
-                for (int i = 0; i < meshes.size(); i++){
+                for (int i = 0; i < meshes.size(); i++) {
                         verticesSizes[i] = meshes.get(i).vertices.size();
                 }
-                for (int i = 0; i < meshes.size(); i++){
+                for (int i = 0; i < meshes.size(); i++) {
                         indicesSizes[i] = meshes.get(i).indices.size();
                 }
 
@@ -192,13 +191,13 @@ public class TexturedMesh {
                 ArrayList<FloatBuffer> allNormals = new ArrayList<>();
                 ArrayList<IntBuffer> allIndices = new ArrayList<>();
 
-                for (int i = 0; i < meshes.size(); i++){
+                for (int i = 0; i < meshes.size(); i++) {
                         FloatBuffer vertices = MemoryUtil.memAllocFloat(verticesSizes[i] * 3);
                         FloatBuffer textureCoords = MemoryUtil.memAllocFloat(verticesSizes[i] * 2);
                         FloatBuffer normals = MemoryUtil.memAllocFloat(verticesSizes[i] * 3);
                         IntBuffer indices = MemoryUtil.memAllocInt(indicesSizes[i]);
 
-                        for (int j = 0; j < meshes.get(i).vertices.size(); j++){
+                        for (int j = 0; j < meshes.get(i).vertices.size(); j++) {
                                 vertices.put(meshes.get(i).vertices.get(j).position.x);
                                 vertices.put(meshes.get(i).vertices.get(j).position.y);
                                 vertices.put(meshes.get(i).vertices.get(j).position.z);
@@ -219,7 +218,7 @@ public class TexturedMesh {
                                 }
                         }
 
-                        for (int j = 0; j < meshes.get(i).indices.size(); j++){
+                        for (int j = 0; j < meshes.get(i).indices.size(); j++) {
                                 indices.put(meshes.get(i).indices.get(j));
                         }
 
@@ -320,19 +319,19 @@ public class TexturedMesh {
                 return forceTexture;
         }
 
-        static class Mesh{
+        static class Mesh {
                 ArrayList<Vertex> vertices;
                 ArrayList<Integer> indices;
                 Material material;
 
-                public Mesh(ArrayList<Vertex> vertices, ArrayList<Integer> indices, Material material){
+                public Mesh(ArrayList<Vertex> vertices, ArrayList<Integer> indices, Material material) {
                         this.vertices = vertices;
                         this.indices = indices;
                         this.material = material;
                 }
         }
 
-        static class Vertex{
+        static class Vertex {
                 Vector3f position;
                 Vector3f normal;
                 Vector2f texCoords;

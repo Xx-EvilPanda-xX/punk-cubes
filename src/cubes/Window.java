@@ -20,7 +20,7 @@ import org.joml.Vector4f;
 
 public class Window {
         public static final float RECHARGE_TIME = 0.25f;
-        public static final float DEBUG_RECHARGE_TIME = 0.05f;
+        public static final float DEBUG_RECHARGE_TIME = 0.1f;
         public static float deltaTime = 0.0f;
         public static Vector3f currentLightPos = new Vector3f(0.0f, 0.0f, 1.0f);
         public static GLFWVidMode vidmode;
@@ -131,13 +131,13 @@ public class Window {
         }
 
         private void create() {
-                for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("planet_count")); ptr++) {
+                for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("island_count")); ptr++) {
                         islandPositions.add(genRandVec());
                         islandScales.add(genRandFloat());
-                        islandRots.add(genRandVec());
+                        islandRots.add(new Vector3f(0.0f, 0.0f, 0.0f));
                 }
 
-                for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("asteroid_count")); ptr++) {
+                for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("backpack_count")); ptr++) {
                         backpackPositions.add(genRandVec());
                         backpackScales.add(genRandFloat());
                         backpackRots.add(genRandVec());
@@ -165,7 +165,7 @@ public class Window {
                 GL11.glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
-                TextRenderer loadingText = new TextRenderer("LOADING ASSETS", -0.45f, 0.1f,0.4f, 0.15f);
+                TextRenderer loadingText = new TextRenderer("LOADING ASSETS", -0.45f, 0.1f, 0.4f, 0.15f);
                 loadingText.create(textShader);
 
                 loadingText.render();
@@ -214,7 +214,7 @@ public class Window {
                 if (Boolean.parseBoolean(Configs.options.get("use_gamma_correction"))) {
                         GL11.glEnable(GL30.GL_FRAMEBUFFER_SRGB);
                 }
-                GL11.glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+                GL11.glClearColor(0.43f, 0.61f, 0.98f, 1.0f);
                 camera.setThirdPerson(true);
 
                 System.out.println(GL11.glGetString(GL11.GL_VERSION));
@@ -273,7 +273,7 @@ public class Window {
         private float genRandFloat() {
                 float rand = ((float) Math.random() * 10.0f) - 5.0f;
 
-                while (rand > 1.0f || rand < -1.0f) {
+                while (rand > 1.0f || rand < 0.0f) {
                         rand = ((float) Math.random() * 10.0f) - 5.0f;
                 }
 
@@ -281,7 +281,7 @@ public class Window {
         }
 
 
-        private void loop(boolean renderCubes) {
+        private void loop(boolean renderSolarEntites) {
                 if (eventHandler.isFocused()) {
                         GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
                 }
@@ -301,11 +301,11 @@ public class Window {
                 float skyboxScale = Float.parseFloat(Configs.options.get("skybox_scale"));
 
                 bu.setTrans(new Vector3f(0.0f, -100.0f, 0.0f)).setScale(222.2f).setRotation(new Vector3f(0.0f, 0.0f, (float) Math.toRadians(-180.0f))).render();
-                robot.setTrans(new Vector3f(-10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render();
-                bike.setTrans(new Vector3f(10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f,0.0f)).render();
+                robot.setTrans(new Vector3f(-10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
+                bike.setTrans(new Vector3f(10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(skyboxScale).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
                 donut.setTrans(currentLightPos).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
-                if (renderCubes) {
+                if (renderSolarEntites) {
                         islands.render();
                         backpacks.render();
                 }
@@ -338,9 +338,9 @@ public class Window {
 
                 if (placingBlocks && eventHandler.coolDownPool[11] <= 0.0f) {
                         billyPositions.add(new Vector3f(camera.playerPos));
-                        billyScales.add(Float.parseFloat(Configs.options.get("block_scale")));
-                        billyRots.add(new Vector3f(Float.parseFloat(Configs.options.get("block_rotation.x")), Float.parseFloat(Configs.options.get("block_rotation.y")), Float.parseFloat(Configs.options.get("block_rotation.z"))));
-                        eventHandler.coolDownPool[11] = Float.parseFloat(Configs.options.get("block_placement_rate"));
+                        billyScales.add(Float.parseFloat(Configs.options.get("bu_scale")));
+                        billyRots.add(new Vector3f(Float.parseFloat(Configs.options.get("bu_rotation.x")), Float.parseFloat(Configs.options.get("bu_rotation.y")), Float.parseFloat(Configs.options.get("bu_rotation.z"))));
+                        eventHandler.coolDownPool[11] = Float.parseFloat(Configs.options.get("bu_placement_rate"));
                 }
 
                 GLFW.glfwSwapBuffers(window);
@@ -348,11 +348,11 @@ public class Window {
                 updateFPS();
         }
 
-        private void textRenderPass(){
+        private void textRenderPass() {
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
                 fpsCounter.render();
                 coords.render();
-                if (camera.isThirdPerson()){
+                if (camera.isThirdPerson()) {
                         thirdPersonDirection.render();
                 } else {
                         firstPersonDirection.render();

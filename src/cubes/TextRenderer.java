@@ -56,7 +56,8 @@ public class TextRenderer {
         }
 
         public void render() {
-                if (!created) throw new IllegalStateException("Attempted to call render pass without initializing renderer");
+                if (!created)
+                        throw new IllegalStateException("Attempted to call render pass without initializing renderer");
 
                 if (!EventHandler.rasterizerFill) {
                         GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
@@ -78,19 +79,19 @@ public class TextRenderer {
                         }
                 }
 
-                if (!EventHandler.rasterizerFill){
+                if (!EventHandler.rasterizerFill) {
                         GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
                 }
         }
 
-        public void updateText(String text, float xPos, float yPos){
+        public void updateText(String text, float xPos, float yPos) {
                 this.text = text;
                 this.xPos = xPos;
                 this.yPos = yPos;
         }
 
         static {
-                for (int i = 0; i < 128; i++){
+                for (int i = 0; i < 128; i++) {
                         StringBuilder charPath = new StringBuilder();
                         charPath.append("textures/fonts/basicFont/char_").append(i).append(".png");
                         if (new File("resources/" + charPath.toString()).exists()) {

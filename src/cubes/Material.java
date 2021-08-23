@@ -8,13 +8,13 @@ public class Material {
         public Vector3f Ks;
         public float specular;
 
-        public Material() {}
+        public Material() {
+        }
 
-        public Material(Vector3f Ka, Vector3f Kd, Vector3f Ks, float specular){
+        public Material(Vector3f Ka, Vector3f Kd, Vector3f Ks, float specular) {
                 this.Ka = Ka;
                 this.Kd = Kd;
                 this.Ks = Ks;
                 this.specular = specular;
         }
-
 }

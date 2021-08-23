@@ -1,9 +1,9 @@
 package cubes;
 
 public class Geometry {
-        private static final float r = Float.parseFloat(Configs.options.get("block_color.r"));
-        private static final float g = Float.parseFloat(Configs.options.get("block_color.g"));
-        private static final float b = Float.parseFloat(Configs.options.get("block_color.b"));
+        //private static final float r = Float.parseFloat(Configs.options.get("block_color.r"));
+        //private static final float g = Float.parseFloat(Configs.options.get("block_color.g"));
+        //private static final float b = Float.parseFloat(Configs.options.get("block_color.b"));
 
         public static final float[] QUAD_VERTICES = new float[]{
                 -0.5f, 0.5f, 0.0f,
@@ -69,14 +69,14 @@ public class Geometry {
                 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
         };
 
-        public static final float[] BLOCK_COLORS = new float[]{
-                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
-                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
-                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
-                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
-                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
-                r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b
-        };
+        //public static final float[] BLOCK_COLORS = new float[]{
+        //        r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+        //        r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+        //        r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+        //        r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+        //        r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b,
+        //        r, g, b, r, g, b, r, g, b, r, g, b, r, g, b, r, g, b
+        //};
 
 
         public static final float[] SPACESHIP_VERTICES = new float[]{
