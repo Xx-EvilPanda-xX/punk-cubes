@@ -7,7 +7,7 @@
 fullscreen = false
 
 //allowed values: true/false
-//true: asteroids and planets will be rendered, false: asteroids and planets will not be rendered
+//true: backpacks and islands will be rendered, false: backpacks and islands will not be rendered
 render_solar_entities = true
 
 //allowed values: any unsigned integer
@@ -16,11 +16,11 @@ width = 1280
 height = 720
 
 //allowed values: any unsigned integer
-//determines number of planets to be generated
+//determines number of islands to be generated
 island_count = 25
 
 //allowed values: any unsigned integer
-//determines number of asteroids to be generated
+//determines number of backpacks to be generated
 backpack_count = 50
 
 //allowed values: any floating point number
@@ -28,17 +28,17 @@ backpack_count = 50
 skybox_scale = 70.0
 
 //allowed values: any positive floating point number
-//determines rate at which blocks will be placed while block placing mode is toggled on; 1.0 is one block per second
+//determines rate at which billys will be placed while billy placing mode is toggled on; 1.0 is one block per second
 bu_placement_rate = 0.1
 
 //allowed values: any floating point number
-//determines rotation for blocks when calculating model matrix; said rotation will be added to current rotation every frame
+//determines rotation for billys when calculating model matrix
 bu_rotation.x = 0.0
 bu_rotation.y = 0.0
 bu_rotation.z = 0.0
 
 //allowed values: any floating point number
-//determines distance/diameter across each block; distance from origin of each block to the edge of each block will be half of this (radius)
+//determines distance/diameter across each bu; distance from origin of each bu to the edge of each bu will be half of this (radius)
 bu_scale = 5.0
 
 //allowed values: any positive floating point number

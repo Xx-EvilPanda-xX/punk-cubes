@@ -29,8 +29,8 @@ public class TextureRendererMulti extends TextureRenderer {
                 }
         }
 
-        public TextureRendererMulti(String modelpath, String[] texturePaths, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots, boolean forceTexture) {
-                super(modelpath, texturePaths, forceTexture);
+        public TextureRendererMulti(String modelpath, ArrayList<Vector3f> positions, ArrayList<Float> scales, ArrayList<Vector3f> rots) {
+                super(modelpath);
                 this.positions = positions;
                 this.scales = scales;
                 this.rots = rots;
@@ -106,15 +106,11 @@ public class TextureRendererMulti extends TextureRenderer {
                         }
                         instances = positions.size();
 
-                        if (i > getMesh().getTextures().size() - 1) {
-                                getShader().setUniform("useMaterialDiffuse", true);
-                                if (getMesh().isForceTexture() && mesh.getTextures().size() > 0) {
-                                        getMesh().getTextures().get(mesh.getTextures().size() - 1).bind();
-                                        getShader().setUniform("useMaterialDiffuse", false);
-                                }
-                        } else {
-                                getMesh().getTextures().get(i).bind();
+                        if (mesh.meshes.get(i).material.texture != null){
+                                mesh.meshes.get(i).material.texture.bind();
                                 getShader().setUniform("useMaterialDiffuse", false);
+                        } else {
+                                getShader().setUniform("useMaterialDiffuse", true);
                         }
 
                         Vao vao = getMesh().getVaos()[i];

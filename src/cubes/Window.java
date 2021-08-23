@@ -28,7 +28,7 @@ public class Window {
         public Input input;
         public EventHandler eventHandler;
 
-        public boolean showDebug = false, placingBlocks = false;
+        public boolean showDebug = false, placingBillys = false;
         public long window;
         public boolean fullscreen;
         public float windowWidth = Float.parseFloat(Configs.options.get("width"));
@@ -134,7 +134,7 @@ public class Window {
                 for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("island_count")); ptr++) {
                         islandPositions.add(genRandVec());
                         islandScales.add(genRandFloat());
-                        islandRots.add(new Vector3f(0.0f, 0.0f, 0.0f));
+                        islandRots.add(new Vector3f(0.0f, (float) Math.toRadians(genRandFloat() * 1000.0f), 0.0f));
                 }
 
                 for (int ptr = 0; ptr < Integer.parseInt(Configs.options.get("backpack_count")); ptr++) {
@@ -181,15 +181,15 @@ public class Window {
                 thirdPersonDirection = new TextRenderer("third person rotation: " + camera.getKeyBoardYaw(), -1.0f, 0.8f, 0.2f, 0.075f);
                 buCount = new TextRenderer("bu count: ", -1.0f, 0.7f, 0.2f, 0.075f);
                 fpsCounter = new TextRenderer("", -1.0f, 1.0f, 0.2f, 0.075f);
-                skyBox = new TextureRenderer("models/cube.obj", new String[]{"textures/skybox.png"}, true);
-                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj", new String[]{}, false);
-                islands = new TextureRendererMulti("models/island/island.obj", new String[]{"textures/old/wood.png"}, islandPositions, islandScales, islandRots, false);
-                backpacks = new TextureRendererMulti("models/backpack/backpack.obj", new String[]{"models/backpack/diffuse.jpg"}, backpackPositions, backpackScales, backpackRots, true);
-                donut = new TextureRenderer("models/donut/Donut.obj", new String[]{"models/donut/Tekstur_donat.png"}, false);
-                billys = new TextureRendererMulti("models/bu/bu_lowpoly.obj", new String[]{"models/bu/bu.jpg"}, billyPositions, billyScales, billyRots, false);
-                bike = new TextureRenderer("models/motorcycle/motorcycle.obj", new String[]{"models/motorcycle/motorcycle_tex.jpg"}, true);
-                robot = new TextureRenderer("models/robot/robot.obj", new String[]{}, false);
-                bu = new TextureRenderer("models/bu/Bu.obj", new String[]{"models/bu/bu.jpg"}, false);
+                skyBox = new TextureRenderer("models/skybox/cube.obj");
+                player = new TextureRenderer("models/iron_man/IronMan/IronMan.obj");
+                islands = new TextureRendererMulti("models/island/island.obj", islandPositions, islandScales, islandRots);
+                backpacks = new TextureRendererMulti("models/backpack/backpack.obj", backpackPositions, backpackScales, backpackRots);
+                donut = new TextureRenderer("models/donut/Donut.obj");
+                billys = new TextureRendererMulti("models/bu/bu_lowpoly.obj", billyPositions, billyScales, billyRots);
+                bike = new TextureRenderer("models/motorcycle/motorcycle.obj");
+                robot = new TextureRenderer("models/robot/robot.obj");
+                bu = new TextureRenderer("models/bu/Bu.obj");
 
                 text1.create(textShader);
                 text2.create(textShader);
@@ -281,7 +281,7 @@ public class Window {
         }
 
 
-        private void loop(boolean renderSolarEntites) {
+        private void loop(boolean renderSolarEntities) {
                 if (eventHandler.isFocused()) {
                         GLFW.glfwSetCursorPos(window, 0.0f, 0.0f);
                 }
@@ -305,12 +305,12 @@ public class Window {
                 bike.setTrans(new Vector3f(10.0f, skyboxScale / 2, 0.0f)).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
                 skyBox.setTrans(new Vector3f(0.0f, 0.0f, 0.0f)).setScale(skyboxScale).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
                 donut.setTrans(currentLightPos).setScale(10.0f).setRotation(new Vector3f(0.0f, 0.0f, 0.0f)).render();
-                if (renderSolarEntites) {
+                if (renderSolarEntities) {
                         islands.render();
                         backpacks.render();
                 }
 
-                if (billyPositions.size() > 0 && !camera.isThirdPerson() && placingBlocks) {
+                if (billyPositions.size() > 0 && !camera.isThirdPerson() && placingBillys) {
                         Vector3f posTemp = new Vector3f(billyPositions.get(billyPositions.size() - 1));
                         float scaleTemp = billyScales.get(billyScales.size() - 1);
                         Vector3f rotTemp = new Vector3f(billyRots.get(billyRots.size() - 1));
@@ -336,7 +336,7 @@ public class Window {
                         textRenderPass();
                 }
 
-                if (placingBlocks && eventHandler.coolDownPool[11] <= 0.0f) {
+                if (placingBillys && eventHandler.coolDownPool[11] <= 0.0f) {
                         billyPositions.add(new Vector3f(camera.playerPos));
                         billyScales.add(Float.parseFloat(Configs.options.get("bu_scale")));
                         billyRots.add(new Vector3f(Float.parseFloat(Configs.options.get("bu_rotation.x")), Float.parseFloat(Configs.options.get("bu_rotation.y")), Float.parseFloat(Configs.options.get("bu_rotation.z"))));

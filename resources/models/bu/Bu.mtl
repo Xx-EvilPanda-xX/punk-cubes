@@ -10,7 +10,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd /home/lukas/Blender/Textures/Bus/Ground/FabricUpholsteryMidCenturyPebbles001_COL_VAR3_3K.jpg
 
 newmtl Material.001
 Ns 225.000000
@@ -21,8 +20,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /home/lukas/Blender/Textures/Bus/normals.jpg
-map_Kd /home/lukas/Blender/Textures/Bus/Bu7.jpg
+map_Kd bu.jpg
 
 newmtl Material.004
 Ns 225.000000
@@ -33,8 +31,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /home/lukas/Blender/Textures/Bus/Bed/WoodQuarteredChiffon001/REGULAR/3K/WoodQuarteredChiffon001_NRM_3K.jpg
-map_Kd /home/lukas/Blender/Textures/Bus/Bed/WoodQuarteredChiffon001/REGULAR/3K/WoodQuarteredChiffon001_COL_3K.jpg
 
 newmtl Material.005
 Ns 225.000000
@@ -55,7 +51,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /home/lukas/Blender/Textures/Bus/normals.jpg
 
 newmtl Material.007
 Ns 225.000000
@@ -76,7 +71,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd /home/lukas/Blender/Textures/Bus/Room/Floor/WoodFlooring044/REGULAR/3K/WoodFlooring044_COL_3K.jpg
 
 newmtl Material.009
 Ns 225.000000
@@ -87,8 +81,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /home/lukas/Blender/Textures/Bus/Room/normals.jpg
-map_Kd /home/lukas/Blender/Textures/Bus/Room/color.jpg
 
 newmtl Material.010
 Ns 225.000000

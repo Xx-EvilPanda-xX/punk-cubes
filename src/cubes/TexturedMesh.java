@@ -17,7 +17,6 @@ public class TexturedMesh {
 
         private ArrayList<FloatBuffer> vertices = new ArrayList<>(), textureCoords = new ArrayList<>(), normals = new ArrayList<>();
         private ArrayList<IntBuffer> indices = new ArrayList<>();
-        private String texturePath;
         private boolean indexed;
         private ArrayList<Integer> indexCounts = new ArrayList<>(), vertexCounts = new ArrayList<>();
         private String modelPath;
@@ -28,16 +27,10 @@ public class TexturedMesh {
         private int[] vbos, tbos, nbos, uaos;
 
         private PointerBuffer ptr;
-        private boolean forceTexture;
 
-        public TexturedMesh(String modelPath, String[] texturePaths, boolean forceTexture) {
+        public TexturedMesh(String modelPath) {
                 loadFromObj(modelPath);
-                this.forceTexture = forceTexture;
                 System.out.println("Model loaded successfully at " + modelPath);
-
-                for (int i = 0; i < texturePaths.length; i++) {
-                        textures.add(new Texture(texturePaths[i]));
-                }
 
                 int totalVertexCount = 0;
                 int totalIndexCount = 0;
@@ -143,6 +136,7 @@ public class TexturedMesh {
                         AIMaterial mat = AIMaterial.create(ptr.get(mesh.mMaterialIndex()));
                         PointerBuffer ptr1 = mat.mProperties();
 
+                        boolean foundTexture = false;
                         for (int i = 0; i < mat.mNumProperties(); i++) {
                                 AIMaterialProperty matProp = AIMaterialProperty.create(ptr1.get(i));
                                 AIString key = matProp.mKey();
@@ -167,6 +161,63 @@ public class TexturedMesh {
                                         ByteBuffer data = matProp.mData();
                                         float specular = data.getFloat();
                                         material.specular = specular;
+                                }
+                                if (property.equals("$tex.file") && !foundTexture) {
+                                        ByteBuffer data = matProp.mData();
+                                        byte[] dataAsArray = new byte[data.capacity()];
+                                        data.get(dataAsArray);
+
+                                        int finalDataSize = 0;
+                                        for (int j = 0; j < dataAsArray.length; j++){
+                                                if (dataAsArray[j] < 32){
+                                                        continue;
+                                                }
+                                                finalDataSize++;
+                                        }
+
+                                        byte[] finalData = new byte[finalDataSize];
+                                        int finalDataPtr = 0;
+
+                                        for (int j = 0; j < dataAsArray.length; j++){
+                                                if (dataAsArray[j] < 32){
+                                                        continue;
+                                                }
+                                                finalData[finalDataPtr] = dataAsArray[j];
+                                                finalDataPtr++;
+                                        }
+
+                                        String path = new String(finalData);
+                                        StringBuilder finalPath = new StringBuilder();
+                                        int splitIndex = 0;
+                                        for (int j = modelPath.length() - 1; j >= 0; j--){
+                                                if (modelPath.charAt(j) == '/'){
+                                                        splitIndex = j;
+                                                        break;
+                                                }
+                                        }
+
+                                        for (int j = 0; j <= splitIndex; j++){
+                                                finalPath.append(modelPath.charAt(j));
+                                        }
+                                        finalPath.append(path);
+                                        String finalTexturepath = finalPath.toString();
+
+                                        boolean skip = false;
+                                        int identicalTexureIndex = 0;
+                                        for (int j = 0; j < meshes.size(); j++){
+                                                if (finalTexturepath.equals(meshes.get(j).material.texture.getTexturePath())){
+                                                        skip = true;
+                                                        identicalTexureIndex = j;
+                                                        break;
+                                                }
+                                        }
+
+                                        if (skip){
+                                                material.texture = meshes.get(identicalTexureIndex).material.texture;
+                                        } else {
+                                                material.texture = new Texture(finalTexturepath);
+                                        }
+                                        foundTexture = true;
                                 }
                         }
                 }
@@ -251,10 +302,6 @@ public class TexturedMesh {
                 return indices;
         }
 
-        public String getTexturePath() {
-                return texturePath;
-        }
-
         public boolean isIndexed() {
                 return indexed;
         }
@@ -313,10 +360,6 @@ public class TexturedMesh {
 
         public void setTextures(ArrayList<Texture> textures) {
                 this.textures = textures;
-        }
-
-        public boolean isForceTexture() {
-                return forceTexture;
         }
 
         static class Mesh {

@@ -141,7 +141,7 @@ public class EventHandler {
 
                         if (Input.isKeyDown(GLFW.GLFW_KEY_F)) {
                                 if (coolDownPool[3] <= 0.0f) {
-                                        window.placingBlocks = !window.placingBlocks;
+                                        window.placingBillys = !window.placingBillys;
                                         coolDownPool[3] = Window.RECHARGE_TIME;
                                 }
                         }

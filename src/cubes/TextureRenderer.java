@@ -28,8 +28,8 @@ public class TextureRenderer implements Renderer {
                 this.mesh = mesh;
         }
 
-        public TextureRenderer(String modelPath, String[] texturePaths, boolean forceTexture) {
-                TexturedMesh mesh = new TexturedMesh(modelPath, texturePaths, forceTexture);
+        public TextureRenderer(String modelPath) {
+                TexturedMesh mesh = new TexturedMesh(modelPath);
                 this.mesh = mesh;
         }
 
@@ -119,15 +119,11 @@ public class TextureRenderer implements Renderer {
 
                         prepare();
 
-                        if (i > mesh.getTextures().size() - 1) {
-                                getShader().setUniform("useMaterialDiffuse", true);
-                                if (mesh.isForceTexture() && mesh.getTextures().size() > 0) {
-                                        mesh.getTextures().get(mesh.getTextures().size() - 1).bind();
-                                        getShader().setUniform("useMaterialDiffuse", false);
-                                }
-                        } else {
-                                mesh.getTextures().get(i).bind();
+                        if (mesh.meshes.get(i).material.texture != null){
+                                mesh.meshes.get(i).material.texture.bind();
                                 getShader().setUniform("useMaterialDiffuse", false);
+                        } else {
+                                getShader().setUniform("useMaterialDiffuse", true);
                         }
 
                         Vao vao = mesh.getVaos()[i];
